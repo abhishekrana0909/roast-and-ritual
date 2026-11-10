@@ -297,7 +297,7 @@
     molName.textContent = p < .04 ? 'Scroll to build the molecule' : p < .98 ? 'Building caffeine…' : 'Caffeine';
   };
   molRender(0);
-  ScrollTrigger.create({ trigger: '#molSvg', start: 'top 85%', end: 'bottom 35%', scrub: .4, onUpdate: s => molRender(s.progress) });
+  ScrollTrigger.create({ trigger: '#molSvg', start: 'top 95%', end: 'top 45%', scrub: .2, onUpdate: s => molRender(s.progress) });
 
   /* ---------- magnetic buttons ---------- */
   if (fine && !reduce) $$('[data-mag]').forEach(b => {
