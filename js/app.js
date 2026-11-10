@@ -1,4 +1,4 @@
-/* Roast & Ritual — interactions and effects */
+/* Roast & Ritual: interactions and effects */
 (() => {
   const D = window.RR;
   const $ = (s, r = document) => r.querySelector(s);
@@ -12,7 +12,7 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
   const mix = (a, b, t) => '#' + hex(a).map((v, i) => Math.round(lerp(v, hex(b)[i], t)).toString(16).padStart(2, '0')).join('');
-  const state = { cold: false, coldInView: false, lenis: null };
+  const state = { coldInView: false, lenis: null };
 
   /* ---------- smooth scroll ---------- */
   if (hasG && window.Lenis && !reduce) {
@@ -27,17 +27,22 @@
     else el.scrollIntoView();
   };
 
-  /* ---------- progress + nav ---------- */
-  const prog = $('#progress'), nav = $('#nav');
+  /* ---------- progress, nav, back to top ---------- */
+  const prog = $('#progress'), nav = $('#nav'), toTop = $('#toTop'), ttArc = $('#ttArc');
   const onScroll = () => {
-    const h = document.documentElement.scrollHeight - innerHeight;
-    prog.style.transform = `scaleX(${h > 0 ? scrollY / h : 0})`;
+    const h = document.documentElement.scrollHeight - innerHeight, p = h > 0 ? clamp(scrollY / h, 0, 1) : 0;
+    prog.style.transform = `scaleX(${p})`;
+    ttArc.style.strokeDashoffset = 132 * (1 - p);
     nav.classList.toggle('scrolled', scrollY > 60);
+    toTop.classList.toggle('show', scrollY > 600);
   };
   addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  toTop.addEventListener('click', () => {
+    if (state.lenis) state.lenis.scrollTo(0, { duration: 1.6 });
+    else scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  });
 
-  /* ---------- content rendering ---------- */
-  // Origins
+  /* ---------- origins ---------- */
   const ogList = $('#ogList'), ogCard = $('#ogCard'), ogBg = $('#ogBg');
   D.regions.forEach((r, i) => {
     const li = document.createElement('li');
@@ -70,7 +75,7 @@
     ogCard.addEventListener('mouseleave', () => G.to(ogCard, { rotateX: 0, rotateY: 0, duration: .8, ease: 'power3.out' }));
   }
 
-  // Roast
+  /* ---------- roast lab ---------- */
   const rRange = $('#rRange'), rBody = $('#rbBody');
   $('#rBars').innerHTML = ['Acidity', 'Body', 'Sweetness'].map(l => `<div class="bar"><span>${l}</span><div><i></i></div></div>`).join('');
   const rBarEls = $$('#rBars .bar i');
@@ -79,7 +84,7 @@
     const v = +rRange.value, a = Math.floor(v), b = Math.min(3, a + 1), t = v - a;
     const A = D.roasts[a], B = D.roasts[b];
     rBody.setAttribute('fill', mix(A.color, B.color, t));
-    [['acid'], ['body'], ['sweet']].forEach(([k], i) => rBarEls[i].style.width = (lerp(A[k], B[k], t) * 20) + '%');
+    ['acid', 'body', 'sweet'].forEach((k, i) => rBarEls[i].style.width = (lerp(A[k], B[k], t) * 20) + '%');
     const n = Math.round(v);
     if (n !== rLast) {
       rLast = n; const R = D.roasts[n];
@@ -89,132 +94,219 @@
   };
   rRange.addEventListener('input', roastRender); roastRender();
 
-  // Brew
-  const bTabs = $('#bTabs'), bInfo = $('#bInfo');
-  D.brews.forEach((b, i) => { const t = document.createElement('button'); t.textContent = b.name; t.dataset.i = i; t.setAttribute('role', 'tab'); bTabs.appendChild(t); });
-  const T = { idx: 0, seg: -1, run: false, t0: 0, elapsed: 0, raf: 0 };
-  const tFill = $('#tcFill'), tTime = $('#tTime'), tStep = $('#tStep'), tStart = $('#tStart');
-  const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
-  const timed = () => D.brews[T.idx].steps.map((s, i) => ({ ...s, i })).filter(s => s.s > 0);
-  const setFill = p => tFill.setAttribute('y', 180 - p * 100);
-  const timerReset = () => {
-    cancelAnimationFrame(T.raf); T.run = false; T.elapsed = 0; T.seg = -1; tStart.textContent = 'Start';
-    setFill(0); $$('li', bInfo).forEach(l => l.className = '');
-    const ts = timed(), total = ts.reduce((a, s) => a + s.s, 0);
-    if (!ts.length) { tTime.textContent = '12–16h'; tStep.textContent = 'Is guide ka timer nahi, fridge me chhod do.'; tStart.disabled = true; tStart.style.opacity = .4; }
-    else { tTime.textContent = fmt(total); tStep.textContent = 'Start dabao, main step-by-step batata rahunga.'; tStart.disabled = false; tStart.style.opacity = 1; }
-  };
-  const showBrew = i => {
-    T.idx = i; const b = D.brews[i];
-    $$('button', bTabs).forEach((x, k) => x.classList.toggle('on', k === i));
-    bInfo.innerHTML = `<div class="specs"><div><b>Ratio</b><span>${b.ratio}</span></div><div><b>Dose</b><span>${b.dose}</span></div><div><b>Temp</b><span>${b.temp}</span></div><div><b>Grind</b><span>${b.grind}</span></div><div><b>Time</b><span>${b.time}</span></div></div>
-      <ol class="steps">${b.steps.map(s => `<li>${s.t}</li>`).join('')}</ol>`;
-    if (hasG) G.fromTo(bInfo.children, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: .5, stagger: .08, ease: 'power3.out' });
-    timerReset();
-  };
-  bTabs.addEventListener('click', e => { const b = e.target.closest('button'); if (b) showBrew(+b.dataset.i); });
-  const tick = now => {
-    if (!T.run) return;
-    T.elapsed = (now - T.t0) / 1000;
-    const ts = timed(), total = ts.reduce((a, s) => a + s.s, 0);
-    let acc = 0, seg = ts.length;
-    for (let k = 0; k < ts.length; k++) { if (T.elapsed < acc + ts[k].s) { seg = k; break; } acc += ts[k].s; }
-    if (seg >= ts.length) { // done
-      T.run = false; setFill(1); tTime.textContent = '00:00'; tStep.textContent = 'Taiyar hai! Pehla ghoont lo.'; tStart.textContent = 'Again';
-      $$('li', bInfo).forEach(l => l.className = 'done');
-      if (hasG) G.fromTo('.t-steam', { scale: 1 }, { scale: 1.25, transformOrigin: '50% 100%', repeat: 3, yoyo: true, duration: .5 });
-      return;
-    }
-    if (seg !== T.seg) {
-      T.seg = seg; tStep.textContent = ts[seg].t;
-      $$('li', bInfo).forEach((l, k) => l.className = k === ts[seg].i ? 'act' : (k < ts[seg].i ? 'done' : ''));
-    }
-    tTime.textContent = fmt(Math.ceil(ts[seg].s - (T.elapsed - acc)));
-    setFill(T.elapsed / total);
-    T.raf = requestAnimationFrame(tick);
-  };
-  tStart.addEventListener('click', () => {
-    if (T.run) { T.run = false; cancelAnimationFrame(T.raf); tStart.textContent = 'Resume'; return; }
-    if (tStart.textContent === 'Again') timerReset();
-    T.t0 = performance.now() - T.elapsed * 1000; T.run = true; tStart.textContent = 'Pause'; T.raf = requestAnimationFrame(tick);
-  });
-  $('#tReset').addEventListener('click', timerReset);
-  showBrew(0);
+  /* ---------- recipe sections (hot, cold, snacks) ---------- */
+  const all = [];
+  Object.entries(D.recipes).forEach(([kind, groups]) => Object.entries(groups).forEach(([g, list]) => list.forEach(r => all.push({ ...r, kind, g }))));
+  const byId = id => all.find(r => r.id === id);
+  const kindOf = id => id[0] === 'c' ? 'cold' : id[0] === 's' ? 'snack' : 'hot';
 
-  // Pairings
-  const prGrid = $('#prGrid'), prSec = $('#pairings'), toggle = $('#modeToggle');
-  let mode = 'hot';
-  const renderPairs = animate => {
-    prGrid.innerHTML = D.pairings[mode].map((p, i) => `<button class="card" data-id="${p.id}" data-cur="Recipe">
-      <span class="num">0${i + 1} · ${mode === 'hot' ? 'Hot' : 'Cold'}</span>
-      <div class="pair"><span>${p.coffee}</span><i>+</i><span>${p.snack}</span></div>
-      <p>${p.why}</p><div class="foot2"><span>${p.time}</span><b>Recipe dekho →</b></div></button>`).join('');
-    if (animate && hasG) G.fromTo('.card', { y: 40, opacity: 0, rotateX: -12 }, { y: 0, opacity: 1, rotateX: 0, duration: .8, stagger: .07, ease: 'power3.out', transformPerspective: 800 });
-  };
-  renderPairs(false);
-  toggle.addEventListener('click', e => {
-    const b = e.target.closest('button'); if (!b || b.dataset.m === mode) return;
-    mode = b.dataset.m; state.cold = mode === 'cold';
-    $$('button', toggle).forEach(x => x.classList.toggle('on', x === b));
-    prSec.dataset.mode = mode; renderPairs(true);
-  });
-  prGrid.addEventListener('mousemove', e => {
-    const c = e.target.closest('.card'); if (!c) return; const r = c.getBoundingClientRect();
-    c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  $$('.rec').forEach(sec => {
+    const kind = sec.dataset.kind, grid = $('.rec-grid', sec), tg = $('.toggle', sec), thumb = $('.thumb', tg);
+    const labels = tg.dataset.labels.split('|'), btns = $$('button', tg);
+    btns.forEach((b, i) => b.textContent = labels[i]);
+    let g = 'a';
+    const place = () => { const on = $('button.on', tg); thumb.style.width = on.offsetWidth + 'px'; thumb.style.transform = `translateX(${on.offsetLeft - 5}px)`; };
+    const render = animate => {
+      grid.innerHTML = D.recipes[kind][g].map(r => `<button class="card" data-id="${r.id}">
+        <span class="tagline">${g === 'a' ? (kind === 'snacks' ? 'No oven needed' : 'No machine needed') : (kind === 'snacks' ? 'Oven or microwave' : 'Machine or equipment')}</span>
+        <h3>${r.name}</h3><p>${r.desc}</p>
+        <div class="foot2"><span>${r.time}</span><b>${r.gear}</b></div></button>`).join('');
+      if (animate && hasG) G.fromTo($$('.card', grid), { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: .7, stagger: .06, ease: 'power3.out' });
+    };
+    render(false);
+    tg.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b || b.dataset.g === g) return;
+      g = b.dataset.g; btns.forEach(x => x.classList.toggle('on', x === b)); place(); render(true);
+    });
+    grid.addEventListener('mousemove', e => {
+      const c = e.target.closest('.card'); if (!c) return; const r = c.getBoundingClientRect();
+      c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+    grid.addEventListener('click', e => { const c = e.target.closest('.card'); if (c) openModal([c.dataset.id]); });
+    place(); addEventListener('resize', place);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
   });
 
-  // Recipe modal
+  /* ---------- pairs ---------- */
+  $('#pairsGrid').innerHTML = D.pairs.map((p, i) => {
+    const c = byId(p.coffee), s = byId(p.snack), k = kindOf(p.coffee);
+    return `<button class="pair" data-i="${i}"><span class="kind"><span class="${k}">${k}</span></span>
+      <span class="pr-names"><span>${c.name}</span><i>+</i><span>${s.name}</span></span><p>${p.why}</p><span class="more">See both recipes &rarr;</span></button>`;
+  }).join('');
+  $('#pairsGrid').addEventListener('click', e => { const b = e.target.closest('.pair'); if (!b) return; const p = D.pairs[+b.dataset.i]; openModal([p.coffee, p.snack], p); });
+
+  /* ---------- recipe modal with timers ---------- */
   const modal = $('#modal'), mCard = $('#mCard');
-  let lastFocus = null;
-  const openModal = id => {
-    const p = [...D.pairings.hot, ...D.pairings.cold].find(x => x.id === id); if (!p) return;
-    const m = id[0] === 'h' ? 'hot' : 'cold';
-    lastFocus = document.activeElement; mCard.dataset.mode = m;
-    mCard.innerHTML = `<button class="close" aria-label="Close">✕</button>
-      <p class="eyebrow" style="color:var(--acc,var(--copper))">${m === 'hot' ? 'Hot' : 'Cold'} pairing · ${p.time}</p>
-      <h3>${p.coffee} <i>+</i> ${p.snack}</h3><p class="why">${p.why}</p>
-      <h4>Coffee</h4><p>${p.coffeeHow}</p>
-      <h4>Snack ke liye saamaan</h4><ul class="ing">${p.ing.map(x => `<li>${x}</li>`).join('')}</ul>
-      <h4>Banane ka tareeka</h4><ol>${p.steps.map(s => `<li>${s}</li>`).join('')}</ol>`;
+  let lastFocus = null, timers = [];
+  const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  const normSteps = r => r.steps.map(s => Array.isArray(s) ? { t: s[0], s: s[1] } : { t: s, s: 0 });
+  const block = (r, single) => {
+    const k = kindOf(r.id), steps = normSteps(r), timed = steps.some(s => s.s > 0);
+    const tag = r.g === 'a' ? (r.kind === 'snacks' ? 'No oven needed' : 'No machine needed') : (r.kind === 'snacks' ? 'Oven or microwave' : 'Machine or equipment');
+    return `<section class="rblock ${k}" data-rid="${r.id}">
+      <p class="eyebrow" style="color:var(--acc)">${k === 'snack' ? 'Snack' : k === 'cold' ? 'Cold coffee' : 'Hot coffee'}</p>
+      <${single ? 'h3 class="rname" style="font-size:clamp(2rem,5vw,3rem);padding-right:2.6rem"' : 'div class="rname"'}>${r.name}</${single ? 'h3' : 'div'}>
+      <div class="rmeta"><span>${r.time}</span><span>${tag}</span><span>${r.gear}</span></div>
+      <h4>Ingredients</h4><ul class="ing">${r.ing.map(x => `<li>${x}</li>`).join('')}</ul>
+      <h4>Method</h4><ol>${steps.map(s => `<li>${s.t}</li>`).join('')}</ol>
+      ${timed ? `<div class="m-timer"><div class="tt">00:00</div><div class="tmsg"></div><button data-t="start">Start timer</button><button data-t="reset">Reset</button></div>` : ''}
+    </section>`;
+  };
+  const initTimer = (el, r) => {
+    const box = $('.m-timer', el); if (!box) return;
+    const steps = normSteps(r), lis = $$('ol li', el);
+    const segs = steps.map((s, i) => ({ ...s, i })).filter(s => s.s > 0), total = segs.reduce((a, s) => a + s.s, 0);
+    const tt = $('.tt', box), msg = $('.tmsg', box), bS = $('[data-t=start]', box), bR = $('[data-t=reset]', box);
+    let run = false, t0 = 0, el0 = 0, raf = 0, seg = -1;
+    const reset = () => { cancelAnimationFrame(raf); run = false; el0 = 0; seg = -1; bS.textContent = 'Start timer'; tt.textContent = fmt(total); msg.textContent = 'Press start and follow the steps.'; lis.forEach(l => l.className = ''); };
+    const tick = now => {
+      if (!run) return;
+      el0 = (now - t0) / 1000;
+      let acc = 0, k = segs.length;
+      for (let j = 0; j < segs.length; j++) { if (el0 < acc + segs[j].s) { k = j; break; } acc += segs[j].s; }
+      if (k >= segs.length) { run = false; tt.textContent = '00:00'; msg.textContent = 'Ready. Enjoy!'; bS.textContent = 'Again'; lis.forEach(l => l.className = 'done'); return; }
+      if (k !== seg) { seg = k; msg.textContent = segs[k].t; lis.forEach((l, j) => l.className = j === segs[k].i ? 'act' : (j < segs[k].i ? 'done' : '')); }
+      tt.textContent = fmt(Math.ceil(segs[k].s - (el0 - acc)));
+      raf = requestAnimationFrame(tick);
+    };
+    bS.addEventListener('click', () => {
+      if (run) { run = false; cancelAnimationFrame(raf); bS.textContent = 'Resume'; return; }
+      if (bS.textContent === 'Again') reset();
+      t0 = performance.now() - el0 * 1000; run = true; bS.textContent = 'Pause'; raf = requestAnimationFrame(tick);
+    });
+    bR.addEventListener('click', reset);
+    reset();
+    timers.push(() => { run = false; cancelAnimationFrame(raf); });
+  };
+  function openModal(ids, pair) {
+    const rs = ids.map(byId).filter(Boolean); if (!rs.length) return;
+    lastFocus = document.activeElement; timers = [];
+    const single = rs.length === 1;
+    mCard.innerHTML = `<button class="close" aria-label="Close">&#10005;</button>` +
+      (single ? '' : `<div class="m-head"><p class="eyebrow">Perfect pair</p><h3>${rs[0].name} <i>+</i> ${rs[1].name}</h3><p class="m-why">${pair.why}</p></div><div style="height:1.6rem"></div>`) +
+      rs.map(r => block(r, single)).join('');
+    $$('.rblock', mCard).forEach((el, i) => initTimer(el, rs[i]));
+    mCard.scrollTop = 0;
     modal.classList.add('open'); modal.setAttribute('aria-hidden', 'false');
     if (state.lenis) state.lenis.stop(); else document.body.style.overflow = 'hidden';
     $('.close', mCard).focus();
-  };
+  }
   const closeModal = () => {
+    timers.forEach(f => f()); timers = [];
     modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true');
     if (state.lenis) state.lenis.start(); else document.body.style.overflow = '';
     if (lastFocus) lastFocus.focus();
   };
-  prGrid.addEventListener('click', e => { const c = e.target.closest('.card'); if (c) openModal(c.dataset.id); });
   modal.addEventListener('click', e => { if (e.target === modal || e.target.closest('.close')) closeModal(); });
   addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
 
-  // Facts + credits
+  /* ---------- facts, stats, credits ---------- */
   $('#facts').innerHTML = D.facts.map(([a, b]) => `<div><b>${a}</b><span>${b}</span></div>`).join('');
+  $('#stOrigins').dataset.count = D.regions.length;
+  $('#stCoffee').dataset.count = all.filter(r => r.kind !== 'snacks').length;
+  $('#stSnacks').dataset.count = all.filter(r => r.kind === 'snacks').length;
   const C = window.RR_CREDITS || {};
-  const labels = { hero: 'Hero', ceremony: 'Ethiopia', shelf: 'Kenya', drum: 'Roaster', beans: 'Beans', 'moody-cup': 'Cup', latte: 'Latte', cherries: 'Brazil', filter: 'India', levels: 'Roast levels', grinder: 'Grinder', origin: 'Colombia', pourover: 'Vietnam' };
+  const labels = { hero: 'Hero', ceremony: 'Ethiopia', shelf: 'Kenya', drum: 'Roaster', beans: 'Beans', 'moody-cup': 'Cup', latte: 'Latte', cherries: 'Brazil and Journey', filter: 'India', levels: 'Roast levels', grinder: 'Grinder', origin: 'Colombia', pourover: 'Vietnam and Brew' };
   $('#creditList').innerHTML = Object.entries(C).map(([k, v]) => `<li>${labels[k] || k}: <a href="${v.page}" target="_blank" rel="noopener">${v.title || 'Photo'}</a> by ${v.artist || 'Unknown'} (${v.license}), via Wikimedia Commons</li>`).join('');
 
-  if (!hasG) { // no animation library: show everything and stop here
+  /* ---------- journey (click to change) ---------- */
+  const jr = [
+    { t: 'Cherry', x: 'Coffee starts as the seed of a fruit. Cherries ripen from green to deep red, and only the ripe ones are picked by hand. One tree gives roughly half a kilo to a kilo of roasted coffee a year. Slide to ripen them.' },
+    { t: 'Process', x: 'After picking, the seeds have to be separated from the fruit. How that is done shapes the flavour more than most people expect. Try both methods.' },
+    { t: 'Roast', x: 'Green beans are roasted in a spinning drum. Turn the dial up and watch the bean change. Around 196 °C you hear the first crack, like popcorn.' },
+    { t: 'Brew', x: 'Fresh grinding, the right water temperature and a little patience. Press the button to pour a V60.' }
+  ];
+  const panels = $$('.jr-panel'), tabs = $$('#jrTabs button'), jrTitle = $('#jrTitle'), jrText = $('#jrText'), jrCount = $('#jrCount');
+  let ji = 0, jBusy = false;
+  const setText = i => { jrTitle.textContent = jr[i].t; jrText.textContent = jr[i].x; jrCount.textContent = `${i + 1} / ${jr.length}`; tabs.forEach((b, k) => { b.classList.toggle('on', k === i); b.setAttribute('aria-selected', k === i); }); };
+  const goTo = n => {
+    n = (n + jr.length) % jr.length;
+    if (n === ji || jBusy) return;
+    const from = panels[ji], to = panels[n], dir = n > ji ? 1 : -1; ji = n; setText(n);
+    if (!hasG || reduce) { from.classList.remove('on'); to.classList.add('on'); return; }
+    jBusy = true; to.classList.add('on'); to.style.zIndex = 2; from.style.zIndex = 1;
+    G.fromTo(to, { clipPath: dir > 0 ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0 0 0)', duration: 1, ease: 'expo.inOut', onComplete() { from.classList.remove('on'); to.style.clipPath = ''; to.style.zIndex = ''; from.style.zIndex = ''; jBusy = false; } });
+    G.fromTo($('.jr-svg', to), { scale: .86, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.1, delay: .25, ease: 'power3.out' });
+    G.fromTo('.jr-text', { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: .6, delay: .2 });
+  };
+  setText(0);
+  tabs.forEach(b => b.addEventListener('click', () => goTo(+b.dataset.i)));
+  $('#jrPrev').addEventListener('click', () => goTo(ji - 1));
+  $('#jrNext').addEventListener('click', () => goTo(ji + 1));
+  $('#jrTabs').addEventListener('keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { goTo(ji + 1); tabs[ji].focus(); } if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { goTo(ji - 1); tabs[ji].focus(); } });
+
+  // 1 cherry ripeness
+  const cherryRange = $('#cherryRange'), cherries = $$('.cherry'), cherryLabel = $('#cherryLabel');
+  const cherryRender = () => {
+    const t = +cherryRange.value / 100;
+    const c = t < .5 ? mix('#6f8f3a', '#d9a02b', t * 2) : mix('#d9a02b', '#b3262e', (t - .5) * 2);
+    cherries.forEach((el, i) => el.style.fill = mix(c, '#7a1a1f', i === 1 ? .12 : 0));
+    cherryLabel.textContent = t < .35 ? 'Unripe: leave it on the tree' : t < .75 ? 'Almost ready' : 'Ripe: time to pick';
+  };
+  cherryRange.addEventListener('input', cherryRender); cherryRender();
+
+  // 2 process
+  const procLbl = { natural: 'Dried whole in the sun for 2–4 weeks: sweet, fruity, heavy body.', washed: 'Fruit removed, beans fermented and washed in water: clean, bright, tea-like.' };
+  const procSeg = $('#procSeg'), procLabel = $('#procLabel');
+  const setProc = p => {
+    $$('button', procSeg).forEach(b => b.classList.toggle('on', b.dataset.p === p));
+    procLabel.textContent = procLbl[p];
+    const nat = p === 'natural';
+    if (hasG) { G.to('#pNatural', { opacity: nat ? 1 : 0, duration: .6 }); G.to('#pWashed', { opacity: nat ? 0 : 1, duration: .6 }); }
+    else { $('#pNatural').setAttribute('opacity', nat ? 1 : 0); $('#pWashed').setAttribute('opacity', nat ? 0 : 1); }
+  };
+  procSeg.addEventListener('click', e => { const b = e.target.closest('button'); if (b) setProc(b.dataset.p); });
+  setProc('natural');
+
+  // 3 roast dial
+  const dial = $('#roastDial'), roastBean = $('#roastBean'), roastLabel = $('#roastLabel'), crack = $('#crack');
+  const stops = [[180, '#8a9a5b'], [190, '#b3a65a'], [200, '#b07a3c'], [215, '#7a4a29'], [230, '#3f2314'], [240, '#1c0f08']];
+  const dialColor = v => { for (let i = 1; i < stops.length; i++) if (v <= stops[i][0]) return mix(stops[i - 1][1], stops[i][1], (v - stops[i - 1][0]) / (stops[i][0] - stops[i - 1][0])); return stops[stops.length - 1][1]; };
+  let lastTemp = 180;
+  const pop = () => { if (!hasG) return; G.fromTo(crack, { opacity: 1, scale: .7, transformOrigin: '200px 150px' }, { opacity: 0, scale: 1.25, duration: .7, ease: 'power2.out' }); G.fromTo(roastBean, { scale: 1.12, transformOrigin: '200px 150px' }, { scale: 1, duration: .5, ease: 'back.out(3)' }); };
+  const dialRender = () => {
+    const v = +dial.value; roastBean.setAttribute('fill', dialColor(v));
+    roastLabel.textContent = `${v} °C · ` + (v < 190 ? 'Green, drying out' : v < 196 ? 'Turning yellow, smells like hay' : v < 205 ? 'First crack: light roast' : v < 215 ? 'Light to medium' : v < 225 ? 'Medium roast' : v < 235 ? 'Dark roast, second crack' : 'Past dark: burnt');
+    if ((lastTemp < 196 && v >= 196) || (lastTemp < 224 && v >= 224)) pop();
+    lastTemp = v;
+  };
+  dial.addEventListener('input', dialRender); dialRender();
+
+  // 4 brew
+  const pourBtn = $('#pourBtn'), brewLabel = $('#brewLabel');
+  let pouring = false, pourTl = null;
+  pourBtn.addEventListener('click', () => {
+    if (!hasG) { $('#brewFill').setAttribute('y', 222); return; }
+    if (pouring) return;
+    if (pourBtn.dataset.done) { pourBtn.dataset.done = ''; G.set('#brewFill', { attr: { y: 310 } }); G.set('#brewSteam', { opacity: 0 }); G.set('#stream', { attr: { height: 0 } }); }
+    pouring = true; pourBtn.disabled = true; brewLabel.textContent = 'Blooming and pouring…';
+    pourTl = G.timeline({ onComplete() { pouring = false; pourBtn.disabled = false; pourBtn.dataset.done = '1'; pourBtn.textContent = 'Pour again'; brewLabel.textContent = 'Ready. Smells great.'; } })
+      .to('#stream', { attr: { height: 170 }, duration: .5, ease: 'power1.in' })
+      .to('#brewFill', { attr: { y: 224 }, duration: 5, ease: 'none' }, 0.4)
+      .fromTo('#drop1', { attr: { cy: 172 }, opacity: 1 }, { attr: { cy: 300 }, opacity: 0, duration: .8, repeat: 5, ease: 'power1.in' }, .6)
+      .fromTo('#drop2', { attr: { cy: 172 }, opacity: 1 }, { attr: { cy: 300 }, opacity: 0, duration: .8, repeat: 5, delay: .4, ease: 'power1.in' }, .6)
+      .to('#stream', { attr: { height: 0 }, duration: .5 }, 4.6)
+      .to('#brewSteam', { opacity: 1, duration: 1 }, 5);
+  });
+
+  /* ---------- no animation library: show everything and stop ---------- */
+  if (!hasG) {
     $('#loader').remove(); $$('.reveal').forEach(e => e.classList.remove('reveal')); $$('.ln .ch').forEach(e => e.style.transform = 'none');
-    $$('.ln').forEach(l => l.style.cssText += ';opacity:1'); return;
+    $$('#heroMol .bonds path').forEach(p => p.style.strokeDashoffset = 0); $$('#heroMol .atoms text').forEach(t => t.style.opacity = 1);
+    $('#molFormula').style.opacity = 1;
+    return;
   }
 
-  /* ---------- hero title split ---------- */
+  /* ---------- hero title split + loader ---------- */
   $$('#heroTitle .ln').forEach(l => {
     if (l.classList.contains('amp')) { l.innerHTML = `<span class="ch">${l.textContent}</span>`; return; }
     l.innerHTML = [...l.textContent].map(c => `<span class="ch">${c}</span>`).join('');
   });
-
-  /* ---------- loader ---------- */
-  const ldFill = $('#ldFill'), ldNum = $('#ldNum'), loader = $('#loader');
-  const cnt = { v: 0 };
-  const intro = () => {
-    G.timeline()
-      .to('#heroTitle .ch', { y: 0, duration: 1.1, stagger: .045, ease: 'expo.out' })
-      .to('.hero .reveal', { opacity: 1, y: 0, duration: .9, stagger: .12, ease: 'power3.out' }, '-=.7')
-      .from('.badge', { scale: .4, opacity: 0, rotate: -90, duration: 1.4, ease: 'expo.out' }, '-=1');
-  };
+  const ldFill = $('#ldFill'), ldNum = $('#ldNum'), loader = $('#loader'), cnt = { v: 0 };
+  const intro = () => G.timeline()
+    .to('#heroTitle .ch', { y: 0, duration: 1.1, stagger: .045, ease: 'expo.out' })
+    .to('.hero .reveal', { opacity: 1, y: 0, duration: .9, stagger: .12, ease: 'power3.out' }, '-=.7')
+    .from('.hero-mol', { opacity: 0, duration: 1.4 }, '-=1');
   document.body.style.overflow = 'hidden';
   G.timeline({ delay: .2 })
     .to(cnt, { v: 100, duration: reduce ? .1 : 1.9, ease: 'power1.inOut', onUpdate() { ldNum.textContent = Math.round(cnt.v); ldFill.setAttribute('y', 100 - cnt.v * .6); } })
@@ -227,7 +319,7 @@
   /* ---------- page pour transition ---------- */
   const pour = $('#pour');
   $$('[data-pour]').forEach(a => a.addEventListener('click', e => {
-    const id = a.getAttribute('href'); const tgt = $(id); if (!tgt) return;
+    const tgt = $(a.getAttribute('href')); if (!tgt) return;
     e.preventDefault();
     if (reduce) return scrollToEl(tgt, true);
     G.timeline()
@@ -237,11 +329,11 @@
       .to(pour, { y: '-100%', duration: .7, ease: 'power3.out', delay: .1 });
   }));
 
-  /* ---------- reveals ---------- */
-  $$('section:not(.hero) .eyebrow, .h-med, .h-big.sm, .pr-sub, .toggle, .tabs, .brew-info, .brew-timer, .roast-grid, .levels, .mol-art, .mol-text > *, .og-list li, .stat')
+  /* ---------- reveals and counters ---------- */
+  $$('section:not(.hero) .eyebrow, .h-med, .h-big.sm, .rec-sub, .toggle, .rec-grid, .roast-grid, .levels, .mol-inner > *, .og-list li, .stat, .jr-tabs, .jr-text, .jr-nav, .jr-stage, .pairs-grid')
     .forEach(e => e.classList.add('reveal'));
   ScrollTrigger.batch('section:not(.hero) .reveal', {
-    start: 'top 90%', once: true,
+    start: 'top 92%', once: true,
     onEnter: els => G.to(els, { opacity: 1, y: 0, duration: .9, stagger: .09, ease: 'power3.out' })
   });
   $$('[data-count]').forEach(el => ScrollTrigger.create({
@@ -249,8 +341,7 @@
     onEnter: () => { const o = { v: 0 }; G.to(o, { v: +el.dataset.count, duration: 1.8, ease: 'power2.out', onUpdate: () => el.textContent = Math.round(o.v) }); }
   }));
 
-  /* ---------- hero parallax ---------- */
-  G.to('.hero-bg', { yPercent: 14, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+  /* ---------- hero: mouse parallax + pinned scroll-drawn caffeine formula ---------- */
   if (fine && !reduce) {
     const layers = $$('[data-depth]');
     const qs = layers.map(l => [G.quickTo(l, 'x', { duration: .9, ease: 'power3' }), G.quickTo(l, 'y', { duration: .9, ease: 'power3' }), +l.dataset.depth]);
@@ -259,48 +350,19 @@
       qs.forEach(([qx, qy, d]) => { qx(x * d); qy(y * d); });
     });
   }
-
-  /* ---------- journey (pinned) ---------- */
-  const stages = [
-    ['Cherry', 'Coffee asal me ek phal ka beej hai. Pakke laal cherries haath se chuni jaati hain, aur ek ped saal bhar me bas thodi si coffee (aadha-ek kilo ke kareeb) deta hai.'],
-    ['Process', 'Cherry ka gooda hata ke beans ko dhoop me sukhaya ya paani me dhoya jaata hai. Fruity ya meetha swaad yahin tay hota hai.'],
-    ['Roast', 'Hare beans aag me bhune jaate hain. Rang badalta hai, khushboo phailti hai, aur pehli "crack" ki awaaz aati hai.'],
-    ['Grind & Brew', 'Taaza peeso, sahi paani, sahi samay. Aur phir pehla ghoont: ritual poora.']
-  ];
-  const jrDots = $('#jrDots'); jrDots.innerHTML = stages.map(() => '<i></i>').join('');
-  const jrNum = $('#jrNum'), jrTitle = $('#jrTitle'), jrText = $('#jrText');
-  const jcFill = $('#jcFill'), jcCrema = $('#jcCrema'), jcSteam = $('#jcSteam'), jcBeans = $('#jcBeans');
-  let jrStage = -1;
-  const setStage = i => {
-    jrStage = i; $$('i', jrDots).forEach((d, k) => d.classList.toggle('on', k <= i));
-    G.timeline().to('#jrStage', { opacity: 0, y: -10, duration: .2, onComplete() { jrNum.textContent = '0' + (i + 1); jrTitle.textContent = stages[i][0]; jrText.textContent = stages[i][1]; } })
-      .to('#jrStage', { opacity: 1, y: 0, duration: .45, ease: 'power2.out' });
+  const bonds = $$('#heroMol .bonds path'), atoms = $$('#heroMol .atoms text');
+  bonds.forEach(p => { p._L = p.getTotalLength(); p.style.strokeDasharray = p._L; p.style.strokeDashoffset = p._L; });
+  atoms.forEach(a => a.style.opacity = 0);
+  const molName = $('#molName'), molFormula = $('#molFormula'), hint = $('.scroll-hint');
+  const molRender = p => {
+    const n = bonds.length;
+    bonds.forEach((b, i) => { const t = clamp((p * (n + 2) - i) / 2, 0, 1); b.style.strokeDashoffset = b._L * (1 - t); });
+    atoms.forEach((a, i) => a.style.opacity = clamp((p - .35) * 2.4 - i * .05, 0, 1));
+    molFormula.style.opacity = clamp((p - .85) * 7, 0, 1);
+    molName.textContent = p < .04 ? 'Scroll to build the caffeine molecule' : p < .98 ? 'Building caffeine…' : 'Caffeine';
+    hint.style.opacity = clamp(1 - p * 6, 0, 1);
   };
-  const ss = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
-  const jrRender = p => {
-    const i = Math.min(3, Math.floor(p * 4)); if (i !== jrStage) setStage(i);
-    jcBeans.setAttribute('transform', `translate(0 ${p * 120})`);
-    jcBeans.style.opacity = 1 - ss(.45, .72, p);
-    const f = ss(.5, .95, p);
-    jcFill.setAttribute('y', 285 - f * 150);
-    jcCrema.setAttribute('cy', 285 - f * 150); jcCrema.style.opacity = f > .98 ? .9 : 0;
-    jcSteam.style.opacity = ss(.92, 1, p);
-  };
-  jrRender(0);
-  ScrollTrigger.create({ trigger: '#journey', start: 'top top', end: () => '+=' + (small ? 2200 : 3200), pin: true, scrub: true, onUpdate: s => jrRender(s.progress) });
-  G.to('.jr-photo', { yPercent: -12, ease: 'none', scrollTrigger: { trigger: '#journey', start: 'top bottom', end: 'bottom top', scrub: true } });
-
-  /* ---------- molecule drawing ---------- */
-  const paths = $$('#molSvg .bonds path');
-  paths.forEach(p => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
-  G.set('#molSvg .atoms text', { opacity: 0 });
-  ScrollTrigger.create({
-    trigger: '#molSvg', start: 'top 75%', once: true,
-    onEnter: () => {
-      G.to(paths, { strokeDashoffset: 0, duration: 1.6, stagger: .11, ease: 'power2.inOut' });
-      G.to('#molSvg .atoms text', { opacity: 1, duration: .8, stagger: .08, delay: 1, ease: 'power2.out' });
-    }
-  });
+  ScrollTrigger.create({ trigger: '#hero', start: 'top top', end: () => '+=' + Math.round(innerHeight * (small ? .9 : 1.15)), pin: true, scrub: .4, anticipatePin: 1, onUpdate: s => molRender(s.progress) });
 
   /* ---------- magnetic buttons ---------- */
   if (fine && !reduce) $$('[data-mag]').forEach(b => {
@@ -308,34 +370,25 @@
     b.addEventListener('mouseleave', () => G.to(b, { x: 0, y: 0, duration: .7, ease: 'elastic.out(1,.4)' }));
   });
 
-  /* ---------- cursor ---------- */
-  const dot = $('#cur-dot'), ring = $('#cur-ring'), ringLbl = $('span', ring);
-  const mouse = { x: -100, y: -100, rx: -100, ry: -100 };
-  const trail = [];
+  /* ---------- cursor: a single coffee bean ---------- */
+  const bean = $('#cur-bean');
   if (fine && !reduce) {
     document.body.classList.add('has-cursor');
-    addEventListener('mousemove', e => {
-      mouse.x = e.clientX; mouse.y = e.clientY; dot.style.opacity = 1; ring.style.opacity = 1;
-      if (Math.random() < .5) trail.push({ x: e.clientX, y: e.clientY, r: 4 + Math.random() * 6, a: .35, vx: (Math.random() - .5) * .5, vy: -.4 - Math.random() * .5 });
-    });
-    document.addEventListener('mouseleave', () => { dot.style.opacity = 0; ring.style.opacity = 0; });
-    document.addEventListener('mouseover', e => {
-      const t = e.target.closest('a,button,input,.card');
-      ring.classList.toggle('hov', !!t && !t.matches('input,.tabs button,.toggle button'));
-      ringLbl.textContent = t ? (t.dataset.cur || (t.matches('[data-pour]') ? 'Go' : t.matches('.btn') ? '' : '')) : '';
-    });
+    addEventListener('mousemove', e => { bean.style.opacity = 1; bean.style.transform = `translate(${e.clientX}px,${e.clientY}px) rotate(32deg)`; });
+    document.addEventListener('mouseleave', () => bean.style.opacity = 0);
+    document.addEventListener('mouseover', e => bean.classList.toggle('hov', !!e.target.closest('a,button,input,.card,.pair')));
   }
 
-  /* ---------- falling beans / ice (canvas) ---------- */
+  /* ---------- falling beans, or ice cubes in the cold section ---------- */
   const cv = $('#fall'), ctx = cv.getContext('2d');
-  let W = 0, H = 0, DPR = Math.min(devicePixelRatio || 1, 2);
+  let W = 0, H = 0; const DPR = Math.min(devicePixelRatio || 1, 2);
   const size = () => { W = innerWidth; H = innerHeight; cv.width = W * DPR; cv.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0); };
   size(); addEventListener('resize', size);
-  const N = small ? 8 : 16;
-  const mk = (top) => ({ x: Math.random() * W, y: top ? -40 : Math.random() * H, s: 6 + Math.random() * 14, r: Math.random() * 6.28, vr: (Math.random() - .5) * .02, vy: .25 + Math.random() * .7, vx: (Math.random() - .5) * .25, k: Math.random() * 10 });
+  const N = small ? 7 : 14;
+  const mk = top => ({ x: Math.random() * W, y: top ? -40 : Math.random() * H, s: 6 + Math.random() * 13, r: Math.random() * 6.28, vr: (Math.random() - .5) * .02, vy: .25 + Math.random() * .7, vx: (Math.random() - .5) * .25, k: Math.random() * 10 });
   const ps = Array.from({ length: N }, () => mk(false));
-  let cold = 0; // 0 hot → 1 cold (eased)
-  ScrollTrigger.create({ trigger: '#pairings', start: 'top 70%', end: 'bottom 30%', onToggle: s => state.coldInView = s.isActive });
+  let cold = 0, vel = 0;
+  ScrollTrigger.create({ trigger: '#cold', start: 'top 70%', end: 'bottom 30%', onToggle: s => state.coldInView = s.isActive });
   const drawBean = (p, a) => {
     ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.globalAlpha = a;
     ctx.fillStyle = '#6b4126'; ctx.beginPath(); ctx.ellipse(0, 0, p.s * .62, p.s, 0, 0, 6.29); ctx.fill();
@@ -348,26 +401,16 @@
     ctx.beginPath(); ctx.roundRect(-s / 2, -s / 2, s, s, s * .22); ctx.fill(); ctx.stroke();
     ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.moveTo(-s * .3, -s * .1); ctx.lineTo(-s * .1, -s * .3); ctx.stroke(); ctx.restore();
   };
-  let vel = 0;
   const loop = () => {
     ctx.clearRect(0, 0, W, H);
-    const want = state.cold && state.coldInView ? 1 : 0; cold = lerp(cold, want, .04);
-    const sv = state.lenis ? state.lenis.velocity : 0; vel = lerp(vel, sv, .1);
+    cold = lerp(cold, state.coldInView ? 1 : 0, .04);
+    vel = lerp(vel, state.lenis ? state.lenis.velocity : 0, .1);
     for (const p of ps) {
       p.y += p.vy + Math.abs(vel) * .35; p.x += p.vx + Math.sin(p.y / 90 + p.k) * .25; p.r += p.vr + vel * .002;
       if (p.y > H + 40) Object.assign(p, mk(true), { x: Math.random() * W });
-      const a = .16 + (p.s / 20) * .3;
+      const a = .14 + (p.s / 19) * .26;
       if (cold > .5) drawIce(p, a); else drawBean(p, a);
     }
-    for (let i = trail.length - 1; i >= 0; i--) { // cursor smoke
-      const t = trail[i]; t.x += t.vx; t.y += t.vy; t.r += .25; t.a -= .008;
-      if (t.a <= 0) { trail.splice(i, 1); continue; }
-      const g = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, t.r); g.addColorStop(0, `rgba(241,228,208,${t.a})`); g.addColorStop(1, 'rgba(241,228,208,0)');
-      ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, 6.29); ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-    mouse.rx = lerp(mouse.rx, mouse.x, .18); mouse.ry = lerp(mouse.ry, mouse.y, .18);
-    dot.style.transform = `translate(${mouse.x}px,${mouse.y}px)`; ring.style.transform = `translate(${mouse.rx}px,${mouse.ry}px)`;
     requestAnimationFrame(loop);
   };
   if (!reduce) loop();
