@@ -69,33 +69,6 @@
       <a href="#hot" class="btn ghost" data-pour data-mag>Make a Coffee</a>
     </div>
   </div>
-  <div class="hero-mol" aria-hidden="true">
-    <svg viewBox="40 60 360 290" id="heroMol">
-      <g class="ghost" fill="none" stroke="#f1e4d0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity=".08">
-        <path d="M200 140 L252 170 L252 230 L200 260 L148 230 L148 170 Z M252 170 L309 152 L344 200 L309 248 L252 230"/>
-      </g>
-      <g class="bonds" fill="none" stroke="#f1e4d0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M200 140 L252 170 L252 230 L200 260 L148 230 L148 170 Z"/>
-        <path d="M252 170 L309 152 L344 200 L309 248 L252 230"/>
-        <path d="M200 140 L200 96"/><path d="M193 140 L193 100"/>
-        <path d="M148 170 L110 148"/>
-        <path d="M148 230 L108 252"/><path d="M154 238 L114 262"/>
-        <path d="M200 260 L200 306"/>
-        <path d="M309 152 L330 112"/>
-        <path d="M262 182 L262 218"/>
-        <path d="M319 238 L332 205"/>
-      </g>
-      <g class="atoms" fill="#f1e4d0" font-family="Cormorant Garamond,serif" font-size="26" text-anchor="middle">
-        <text x="200" y="92">O</text><text x="98" y="268">O</text>
-        <text x="148" y="180">N</text><text x="200" y="272">N</text>
-        <text x="309" y="160">N</text><text x="309" y="258">N</text>
-        <text x="94" y="144" font-size="20">H<tspan font-size="14" dy="4">3</tspan><tspan dy="-4">C</tspan></text>
-        <text x="200" y="334" font-size="20">CH<tspan font-size="14" dy="4">3</tspan></text>
-        <text x="336" y="106" font-size="20">CH<tspan font-size="14" dy="4">3</tspan></text>
-      </g>
-    </svg>
-    <p class="mol-cap"><span id="molName">Scroll to build the caffeine molecule</span><b id="molFormula">C<sub>8</sub>H<sub>10</sub>N<sub>4</sub>O<sub>2</sub></b></p>
-  </div>
   <div class="scroll-hint" aria-hidden="true"><span>Scroll</span><b></b></div>
 </section>
 
@@ -107,83 +80,32 @@
   <div class="stat"><b data-count="4">0</b><span>Roast levels</span></div>
 </section>
 
-<!-- JOURNEY (click to change) -->
+<!-- JOURNEY -->
 <section class="journey" id="journey">
-  <div class="jr-wrap">
-    <div class="jr-left">
-      <p class="eyebrow">The Journey</p>
-      <h2 class="h-med">Bean <i>to</i> Cup</h2>
-      <div class="jr-tabs" id="jrTabs" role="tablist" aria-label="Journey steps">
-        <button role="tab" class="on" data-i="0"><span>01</span>Cherry</button>
-        <button role="tab" data-i="1"><span>02</span>Process</button>
-        <button role="tab" data-i="2"><span>03</span>Roast</button>
-        <button role="tab" data-i="3"><span>04</span>Brew</button>
-      </div>
-      <div class="jr-text"><h3 id="jrTitle"></h3><p id="jrText"></p></div>
-      <div class="jr-nav"><button id="jrPrev" aria-label="Previous step">&larr;</button><span id="jrCount">1 / 4</span><button id="jrNext" aria-label="Next step">&rarr;</button></div>
-    </div>
-
-    <div class="jr-stage" id="jrStage">
-      <!-- 1 Cherry -->
-      <div class="jr-panel on" data-i="0" style="--bg:url(../images/cherries.webp)">
-        <svg viewBox="0 0 400 300" class="jr-svg" aria-hidden="true">
-          <path d="M10 56 Q200 20 392 66" fill="none" stroke="#5a3b22" stroke-width="7" stroke-linecap="round"/>
-          <ellipse cx="70" cy="46" rx="34" ry="13" transform="rotate(-20 70 46)" fill="#3f5a2a"/>
-          <ellipse cx="170" cy="40" rx="34" ry="13" transform="rotate(15 170 40)" fill="#4b6a31"/>
-          <ellipse cx="330" cy="58" rx="34" ry="13" transform="rotate(-12 330 58)" fill="#3f5a2a"/>
-          <g stroke="#5a3b22" stroke-width="3" fill="none"><path d="M110 54 Q112 100 110 150"/><path d="M200 46 Q196 110 200 170"/><path d="M290 58 Q294 100 290 148"/></g>
-          <circle class="cherry" cx="110" cy="176" r="28"/><circle class="cherry" cx="200" cy="196" r="28"/><circle class="cherry" cx="290" cy="174" r="28"/>
-          <g fill="#fff" opacity=".22"><ellipse cx="100" cy="166" rx="6" ry="9"/><ellipse cx="190" cy="186" rx="6" ry="9"/><ellipse cx="280" cy="164" rx="6" ry="9"/></g>
-        </svg>
-        <div class="jr-ctl"><label for="cherryRange">Ripeness</label><input type="range" id="cherryRange" min="0" max="100" value="12"><span id="cherryLabel"></span></div>
-      </div>
-
-      <!-- 2 Process -->
-      <div class="jr-panel" data-i="1" style="--bg:url(../images/cherries.webp)">
-        <svg viewBox="0 0 400 300" class="jr-svg" aria-hidden="true">
-          <g id="pNatural">
-            <g class="sun"><circle cx="200" cy="70" r="30" fill="#e8b04a"/>
-              <g stroke="#e8b04a" stroke-width="4" stroke-linecap="round"><path d="M200 18v-12M200 122v12M148 70h-12M264 70h12M163 33l-9-9M237 107l9 9M163 107l-9 9M237 33l9-9"/></g></g>
-            <rect x="40" y="200" width="320" height="16" rx="4" fill="#3a2616"/>
-            <g class="drybeans" fill="#a3322d"><ellipse cx="80" cy="190" rx="14" ry="10"/><ellipse cx="120" cy="188" rx="14" ry="10"/><ellipse cx="160" cy="190" rx="14" ry="10"/><ellipse cx="200" cy="188" rx="14" ry="10"/><ellipse cx="240" cy="190" rx="14" ry="10"/><ellipse cx="280" cy="188" rx="14" ry="10"/><ellipse cx="320" cy="190" rx="14" ry="10"/></g>
-          </g>
-          <g id="pWashed" opacity="0">
-            <rect x="40" y="130" width="320" height="140" rx="10" fill="#7fb4cc" opacity=".22"/>
-            <path class="wave" d="M30 140q20-14 40 0t40 0 40 0 40 0 40 0 40 0 40 0 40 0 40 0" fill="none" stroke="#cfe6f1" stroke-width="3"/>
-            <g class="bub" fill="none" stroke="#cfe6f1" stroke-width="2"><circle cx="100" cy="240" r="6"/><circle cx="170" cy="250" r="9"/><circle cx="240" cy="236" r="5"/><circle cx="300" cy="248" r="8"/></g>
-            <g fill="#c9a66b"><ellipse cx="90" cy="262" rx="14" ry="9"/><ellipse cx="140" cy="266" rx="14" ry="9"/><ellipse cx="190" cy="262" rx="14" ry="9"/><ellipse cx="240" cy="266" rx="14" ry="9"/><ellipse cx="290" cy="262" rx="14" ry="9"/></g>
-          </g>
-        </svg>
-        <div class="jr-ctl"><div class="seg" id="procSeg"><button class="on" data-p="natural">Natural</button><button data-p="washed">Washed</button></div><span id="procLabel"></span></div>
-      </div>
-
-      <!-- 3 Roast -->
-      <div class="jr-panel" data-i="2" style="--bg:url(../images/drum.webp)">
-        <svg viewBox="0 0 400 300" class="jr-svg" aria-hidden="true">
-          <g class="drum"><circle cx="200" cy="150" r="108" fill="none" stroke="#c98b5a" stroke-width="5"/><circle cx="200" cy="150" r="96" fill="rgba(18,13,10,.45)"/>
-            <g stroke="#c98b5a" stroke-width="3" opacity=".6"><path d="M200 54v192M104 150h192M132 82l136 136M268 82L132 218"/></g></g>
-          <ellipse id="roastBean" cx="200" cy="150" rx="34" ry="50" transform="rotate(25 200 150)" fill="#8a9a5b"/>
-          <path d="M190 106c18 24-16 44 2 70" transform="rotate(25 200 150)" fill="none" stroke="#120d0a" stroke-width="5" stroke-linecap="round"/>
-          <g id="crack" opacity="0" stroke="#f1e4d0" stroke-width="3" stroke-linecap="round"><path d="M200 70v-24M200 230v24M120 150H96M280 150h24M143 93l-17-17M257 207l17 17M143 207l-17 17M257 93l17-17"/></g>
-        </svg>
-        <div class="jr-ctl"><label for="roastDial">Temperature</label><input type="range" id="roastDial" min="180" max="240" value="180"><span id="roastLabel"></span></div>
-      </div>
-
-      <!-- 4 Brew -->
-      <div class="jr-panel" data-i="3" style="--bg:url(../images/pourover.webp)">
-        <svg viewBox="0 0 400 320" class="jr-svg" aria-hidden="true">
-          <defs><clipPath id="carafeClip"><path d="M142 190h116l16 120H126z"/></clipPath></defs>
-          <path d="M118 50h164l-52 100h-60z" fill="rgba(241,228,208,.06)" stroke="#f1e4d0" stroke-width="3" stroke-linejoin="round"/>
-          <ellipse cx="200" cy="62" rx="62" ry="9" fill="#4a2c18"/>
-          <rect x="176" y="150" width="48" height="18" fill="none" stroke="#f1e4d0" stroke-width="3"/>
-          <rect id="stream" x="198" y="8" width="4" height="0" rx="2" fill="#cfe6f1"/>
-          <g clip-path="url(#carafeClip)"><rect id="brewFill" x="110" y="310" width="180" height="130" fill="#3a1f10"/></g>
-          <path d="M142 190h116l16 120H126z" fill="none" stroke="#f1e4d0" stroke-width="3" stroke-linejoin="round"/>
-          <circle id="drop1" cx="200" cy="172" r="4" fill="#3a1f10" opacity="0"/><circle id="drop2" cx="200" cy="172" r="4" fill="#3a1f10" opacity="0"/>
-          <g id="brewSteam" opacity="0" fill="none" stroke="#c98b5a" stroke-width="3" stroke-linecap="round"><path d="M170 176c-8-12 8-18 0-34"/><path d="M200 176c-8-12 8-18 0-34"/><path d="M230 176c-8-12 8-18 0-34"/></g>
-        </svg>
-        <div class="jr-ctl"><button class="btn solid" id="pourBtn">Pour water</button><span id="brewLabel">15 g coffee, 240 g water at 93 °C</span></div>
-      </div>
+  <div class="jr-inner">
+    <p class="eyebrow">The Journey</p>
+    <h2 class="h-med">Bean <i>to</i> Cup</h2>
+    <div class="jsteps">
+      <article class="jstep">
+        <figure><img src="images/cherries.webp" alt="Coffee cherries and beans drying on a table" loading="lazy"></figure>
+        <div class="jtxt"><span class="jn">01</span><h3>Cherry</h3>
+          <p>Coffee starts as the seed of a fruit. Cherries ripen from green to deep red, and only the ripe ones are picked by hand. One tree gives roughly half a kilo to a kilo of roasted coffee a year.</p></div>
+      </article>
+      <article class="jstep">
+        <figure><img src="images/origin.webp" alt="A path through a coffee farm on a hillside" loading="lazy"></figure>
+        <div class="jtxt"><span class="jn">02</span><h3>Process</h3>
+          <p>After picking, the seeds are separated from the fruit. Natural coffee dries whole in the sun for weeks and turns sweet and fruity. Washed coffee has the fruit removed in water and tastes clean and bright.</p></div>
+      </article>
+      <article class="jstep">
+        <figure><img src="images/drum.webp" alt="Coffee beans turning in a roasting drum" loading="lazy"></figure>
+        <div class="jtxt"><span class="jn">03</span><h3>Roast</h3>
+          <p>Green beans are roasted in a spinning drum, usually between 180 and 240 °C. They turn yellow, then brown, and around 196 °C you hear the first crack, like popcorn. Time and temperature decide light, medium or dark.</p></div>
+      </article>
+      <article class="jstep">
+        <figure><img src="images/ceremony.webp" alt="A small cup of coffee served on a saucer" loading="lazy"></figure>
+        <div class="jtxt"><span class="jn">04</span><h3>Brew</h3>
+          <p>Fresh grinding, the right water temperature and a little patience. Hot water pulls the oils and sugars out of the grounds, and the first sip completes the ritual.</p></div>
+      </article>
     </div>
   </div>
 </section>
@@ -217,7 +139,6 @@
         <div class="slider"><input type="range" id="rRange" min="0" max="3" step="0.01" value="0" aria-label="Roast level"><div class="s-labels"><span>Light</span><span>Medium</span><span>Med-Dark</span><span>Dark</span></div></div>
       </div>
     </div>
-    <figure class="levels"><img src="images/levels.webp" alt="Coffee beans from green to dark roast, in sample bags" loading="lazy"><figcaption>Green to dark: one bean, different times in the heat.</figcaption></figure>
   </div>
 </section>
 
@@ -267,11 +188,40 @@
 <!-- SCIENCE -->
 <section class="molecule" id="molecule">
   <div class="mol-inner">
-    <p class="eyebrow">The Science</p>
-    <h2 class="h-med">C<sub>8</sub>H<sub>10</sub>N<sub>4</sub>O<sub>2</sub></h2>
-    <p class="def"><b>coffee</b> <span>[kaw-fee] (n.)</span><br><em>The first love of the morning, the one that opens your eyes without saying a word.</em></p>
-    <p class="mol-p">That is the caffeine molecule you built at the top of the page. It blocks adenosine receptors in your brain, which is why you feel less sleepy.</p>
-    <div class="facts" id="facts"></div>
+    <div class="mol-art">
+      <svg viewBox="40 60 360 290" id="molSvg">
+      <g class="ghost" fill="none" stroke="#f1e4d0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity=".08">
+        <path d="M200 140 L252 170 L252 230 L200 260 L148 230 L148 170 Z M252 170 L309 152 L344 200 L309 248 L252 230"/>
+      </g>
+      <g class="bonds" fill="none" stroke="#f1e4d0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M200 140 L252 170 L252 230 L200 260 L148 230 L148 170 Z"/>
+        <path d="M252 170 L309 152 L344 200 L309 248 L252 230"/>
+        <path d="M200 140 L200 96"/><path d="M193 140 L193 100"/>
+        <path d="M148 170 L110 148"/>
+        <path d="M148 230 L108 252"/><path d="M154 238 L114 262"/>
+        <path d="M200 260 L200 306"/>
+        <path d="M309 152 L330 112"/>
+        <path d="M262 182 L262 218"/>
+        <path d="M319 238 L332 205"/>
+      </g>
+      <g class="atoms" fill="#f1e4d0" font-family="Cormorant Garamond,serif" font-size="26" text-anchor="middle">
+        <text x="200" y="92">O</text><text x="98" y="268">O</text>
+        <text x="148" y="180">N</text><text x="200" y="272">N</text>
+        <text x="309" y="160">N</text><text x="309" y="258">N</text>
+        <text x="94" y="144" font-size="20">H<tspan font-size="14" dy="4">3</tspan><tspan dy="-4">C</tspan></text>
+        <text x="200" y="334" font-size="20">CH<tspan font-size="14" dy="4">3</tspan></text>
+        <text x="336" y="106" font-size="20">CH<tspan font-size="14" dy="4">3</tspan></text>
+      </g>
+    </svg>
+      <p class="mol-cap"><span id="molName">Scroll to build the molecule</span><b id="molFormula">C<sub>8</sub>H<sub>10</sub>N<sub>4</sub>O<sub>2</sub></b></p>
+    </div>
+    <div class="mol-text">
+      <p class="eyebrow">The Science</p>
+      <h2 class="h-med">Caffeine</h2>
+      <p class="def"><b>coffee</b> <span>[kaw-fee] (n.)</span><br><em>The first love of the morning, the one that opens your eyes without saying a word.</em></p>
+      <p class="mol-p">This is the caffeine molecule. It blocks adenosine receptors in your brain, which is why you feel less sleepy.</p>
+      <div class="facts" id="facts"></div>
+    </div>
   </div>
 </section>
 

@@ -209,90 +209,10 @@
   const labels = { hero: 'Hero', ceremony: 'Ethiopia', shelf: 'Kenya', drum: 'Roaster', beans: 'Beans', 'moody-cup': 'Cup', latte: 'Latte', cherries: 'Brazil and Journey', filter: 'India', levels: 'Roast levels', grinder: 'Grinder', origin: 'Colombia', pourover: 'Vietnam and Brew' };
   $('#creditList').innerHTML = Object.entries(C).map(([k, v]) => `<li>${labels[k] || k}: <a href="${v.page}" target="_blank" rel="noopener">${v.title || 'Photo'}</a> by ${v.artist || 'Unknown'} (${v.license}), via Wikimedia Commons</li>`).join('');
 
-  /* ---------- journey (click to change) ---------- */
-  const jr = [
-    { t: 'Cherry', x: 'Coffee starts as the seed of a fruit. Cherries ripen from green to deep red, and only the ripe ones are picked by hand. One tree gives roughly half a kilo to a kilo of roasted coffee a year. Slide to ripen them.' },
-    { t: 'Process', x: 'After picking, the seeds have to be separated from the fruit. How that is done shapes the flavour more than most people expect. Try both methods.' },
-    { t: 'Roast', x: 'Green beans are roasted in a spinning drum. Turn the dial up and watch the bean change. Around 196 °C you hear the first crack, like popcorn.' },
-    { t: 'Brew', x: 'Fresh grinding, the right water temperature and a little patience. Press the button to pour a V60.' }
-  ];
-  const panels = $$('.jr-panel'), tabs = $$('#jrTabs button'), jrTitle = $('#jrTitle'), jrText = $('#jrText'), jrCount = $('#jrCount');
-  let ji = 0, jBusy = false;
-  const setText = i => { jrTitle.textContent = jr[i].t; jrText.textContent = jr[i].x; jrCount.textContent = `${i + 1} / ${jr.length}`; tabs.forEach((b, k) => { b.classList.toggle('on', k === i); b.setAttribute('aria-selected', k === i); }); };
-  const goTo = n => {
-    n = (n + jr.length) % jr.length;
-    if (n === ji || jBusy) return;
-    const from = panels[ji], to = panels[n], dir = n > ji ? 1 : -1; ji = n; setText(n);
-    if (!hasG || reduce) { from.classList.remove('on'); to.classList.add('on'); return; }
-    jBusy = true; to.classList.add('on'); to.style.zIndex = 2; from.style.zIndex = 1;
-    G.fromTo(to, { clipPath: dir > 0 ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0 0 0)', duration: 1, ease: 'expo.inOut', onComplete() { from.classList.remove('on'); to.style.clipPath = ''; to.style.zIndex = ''; from.style.zIndex = ''; jBusy = false; } });
-    G.fromTo($('.jr-svg', to), { scale: .86, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.1, delay: .25, ease: 'power3.out' });
-    G.fromTo('.jr-text', { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: .6, delay: .2 });
-  };
-  setText(0);
-  tabs.forEach(b => b.addEventListener('click', () => goTo(+b.dataset.i)));
-  $('#jrPrev').addEventListener('click', () => goTo(ji - 1));
-  $('#jrNext').addEventListener('click', () => goTo(ji + 1));
-  $('#jrTabs').addEventListener('keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { goTo(ji + 1); tabs[ji].focus(); } if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { goTo(ji - 1); tabs[ji].focus(); } });
-
-  // 1 cherry ripeness
-  const cherryRange = $('#cherryRange'), cherries = $$('.cherry'), cherryLabel = $('#cherryLabel');
-  const cherryRender = () => {
-    const t = +cherryRange.value / 100;
-    const c = t < .5 ? mix('#6f8f3a', '#d9a02b', t * 2) : mix('#d9a02b', '#b3262e', (t - .5) * 2);
-    cherries.forEach((el, i) => el.style.fill = mix(c, '#7a1a1f', i === 1 ? .12 : 0));
-    cherryLabel.textContent = t < .35 ? 'Unripe: leave it on the tree' : t < .75 ? 'Almost ready' : 'Ripe: time to pick';
-  };
-  cherryRange.addEventListener('input', cherryRender); cherryRender();
-
-  // 2 process
-  const procLbl = { natural: 'Dried whole in the sun for 2–4 weeks: sweet, fruity, heavy body.', washed: 'Fruit removed, beans fermented and washed in water: clean, bright, tea-like.' };
-  const procSeg = $('#procSeg'), procLabel = $('#procLabel');
-  const setProc = p => {
-    $$('button', procSeg).forEach(b => b.classList.toggle('on', b.dataset.p === p));
-    procLabel.textContent = procLbl[p];
-    const nat = p === 'natural';
-    if (hasG) { G.to('#pNatural', { opacity: nat ? 1 : 0, duration: .6 }); G.to('#pWashed', { opacity: nat ? 0 : 1, duration: .6 }); }
-    else { $('#pNatural').setAttribute('opacity', nat ? 1 : 0); $('#pWashed').setAttribute('opacity', nat ? 0 : 1); }
-  };
-  procSeg.addEventListener('click', e => { const b = e.target.closest('button'); if (b) setProc(b.dataset.p); });
-  setProc('natural');
-
-  // 3 roast dial
-  const dial = $('#roastDial'), roastBean = $('#roastBean'), roastLabel = $('#roastLabel'), crack = $('#crack');
-  const stops = [[180, '#8a9a5b'], [190, '#b3a65a'], [200, '#b07a3c'], [215, '#7a4a29'], [230, '#3f2314'], [240, '#1c0f08']];
-  const dialColor = v => { for (let i = 1; i < stops.length; i++) if (v <= stops[i][0]) return mix(stops[i - 1][1], stops[i][1], (v - stops[i - 1][0]) / (stops[i][0] - stops[i - 1][0])); return stops[stops.length - 1][1]; };
-  let lastTemp = 180;
-  const pop = () => { if (!hasG) return; G.fromTo(crack, { opacity: 1, scale: .7, transformOrigin: '200px 150px' }, { opacity: 0, scale: 1.25, duration: .7, ease: 'power2.out' }); G.fromTo(roastBean, { scale: 1.12, transformOrigin: '200px 150px' }, { scale: 1, duration: .5, ease: 'back.out(3)' }); };
-  const dialRender = () => {
-    const v = +dial.value; roastBean.setAttribute('fill', dialColor(v));
-    roastLabel.textContent = `${v} °C · ` + (v < 190 ? 'Green, drying out' : v < 196 ? 'Turning yellow, smells like hay' : v < 205 ? 'First crack: light roast' : v < 215 ? 'Light to medium' : v < 225 ? 'Medium roast' : v < 235 ? 'Dark roast, second crack' : 'Past dark: burnt');
-    if ((lastTemp < 196 && v >= 196) || (lastTemp < 224 && v >= 224)) pop();
-    lastTemp = v;
-  };
-  dial.addEventListener('input', dialRender); dialRender();
-
-  // 4 brew
-  const pourBtn = $('#pourBtn'), brewLabel = $('#brewLabel');
-  let pouring = false, pourTl = null;
-  pourBtn.addEventListener('click', () => {
-    if (!hasG) { $('#brewFill').setAttribute('y', 222); return; }
-    if (pouring) return;
-    if (pourBtn.dataset.done) { pourBtn.dataset.done = ''; G.set('#brewFill', { attr: { y: 310 } }); G.set('#brewSteam', { opacity: 0 }); G.set('#stream', { attr: { height: 0 } }); }
-    pouring = true; pourBtn.disabled = true; brewLabel.textContent = 'Blooming and pouring…';
-    pourTl = G.timeline({ onComplete() { pouring = false; pourBtn.disabled = false; pourBtn.dataset.done = '1'; pourBtn.textContent = 'Pour again'; brewLabel.textContent = 'Ready. Smells great.'; } })
-      .to('#stream', { attr: { height: 170 }, duration: .5, ease: 'power1.in' })
-      .to('#brewFill', { attr: { y: 224 }, duration: 5, ease: 'none' }, 0.4)
-      .fromTo('#drop1', { attr: { cy: 172 }, opacity: 1 }, { attr: { cy: 300 }, opacity: 0, duration: .8, repeat: 5, ease: 'power1.in' }, .6)
-      .fromTo('#drop2', { attr: { cy: 172 }, opacity: 1 }, { attr: { cy: 300 }, opacity: 0, duration: .8, repeat: 5, delay: .4, ease: 'power1.in' }, .6)
-      .to('#stream', { attr: { height: 0 }, duration: .5 }, 4.6)
-      .to('#brewSteam', { opacity: 1, duration: 1 }, 5);
-  });
-
   /* ---------- no animation library: show everything and stop ---------- */
   if (!hasG) {
     $('#loader').remove(); $$('.reveal').forEach(e => e.classList.remove('reveal')); $$('.ln .ch').forEach(e => e.style.transform = 'none');
-    $$('#heroMol .bonds path').forEach(p => p.style.strokeDashoffset = 0); $$('#heroMol .atoms text').forEach(t => t.style.opacity = 1);
+    $$('#molSvg .bonds path').forEach(p => p.style.strokeDashoffset = 0); $$('#molSvg .atoms text').forEach(t => t.style.opacity = 1);
     $('#molFormula').style.opacity = 1;
     return;
   }
@@ -305,8 +225,7 @@
   const ldFill = $('#ldFill'), ldNum = $('#ldNum'), loader = $('#loader'), cnt = { v: 0 };
   const intro = () => G.timeline()
     .to('#heroTitle .ch', { y: 0, duration: 1.1, stagger: .045, ease: 'expo.out' })
-    .to('.hero .reveal', { opacity: 1, y: 0, duration: .9, stagger: .12, ease: 'power3.out' }, '-=.7')
-    .from('.hero-mol', { opacity: 0, duration: 1.4 }, '-=1');
+    .to('.hero .reveal', { opacity: 1, y: 0, duration: .9, stagger: .12, ease: 'power3.out' }, '-=.7');
   document.body.style.overflow = 'hidden';
   G.timeline({ delay: .2 })
     .to(cnt, { v: 100, duration: reduce ? .1 : 1.9, ease: 'power1.inOut', onUpdate() { ldNum.textContent = Math.round(cnt.v); ldFill.setAttribute('y', 100 - cnt.v * .6); } })
@@ -330,7 +249,7 @@
   }));
 
   /* ---------- reveals and counters ---------- */
-  $$('section:not(.hero) .eyebrow, .h-med, .h-big.sm, .rec-sub, .toggle, .rec-grid, .roast-grid, .levels, .mol-inner > *, .og-list li, .stat, .jr-tabs, .jr-text, .jr-nav, .jr-stage, .pairs-grid')
+  $$('section:not(.hero) .eyebrow, .h-med, .h-big.sm, .rec-sub, .toggle, .rec-grid, .roast-grid, .levels, .mol-inner > *, .og-list li, .stat, .jstep, .pairs-grid')
     .forEach(e => e.classList.add('reveal'));
   ScrollTrigger.batch('section:not(.hero) .reveal', {
     start: 'top 92%', once: true,
@@ -350,19 +269,20 @@
       qs.forEach(([qx, qy, d]) => { qx(x * d); qy(y * d); });
     });
   }
-  const bonds = $$('#heroMol .bonds path'), atoms = $$('#heroMol .atoms text');
+  /* ---------- science: caffeine molecule draws as you scroll ---------- */
+  const bonds = $$('#molSvg .bonds path'), atoms = $$('#molSvg .atoms text');
   bonds.forEach(p => { p._L = p.getTotalLength(); p.style.strokeDasharray = p._L; p.style.strokeDashoffset = p._L; });
   atoms.forEach(a => a.style.opacity = 0);
-  const molName = $('#molName'), molFormula = $('#molFormula'), hint = $('.scroll-hint');
+  const molName = $('#molName'), molFormula = $('#molFormula');
   const molRender = p => {
     const n = bonds.length;
     bonds.forEach((b, i) => { const t = clamp((p * (n + 2) - i) / 2, 0, 1); b.style.strokeDashoffset = b._L * (1 - t); });
     atoms.forEach((a, i) => a.style.opacity = clamp((p - .35) * 2.4 - i * .05, 0, 1));
     molFormula.style.opacity = clamp((p - .85) * 7, 0, 1);
-    molName.textContent = p < .04 ? 'Scroll to build the caffeine molecule' : p < .98 ? 'Building caffeine…' : 'Caffeine';
-    hint.style.opacity = clamp(1 - p * 6, 0, 1);
+    molName.textContent = p < .04 ? 'Scroll to build the molecule' : p < .98 ? 'Building caffeine…' : 'Caffeine';
   };
-  ScrollTrigger.create({ trigger: '#hero', start: 'top top', end: () => '+=' + Math.round(innerHeight * (small ? .9 : 1.15)), pin: true, scrub: .4, anticipatePin: 1, onUpdate: s => molRender(s.progress) });
+  molRender(0);
+  ScrollTrigger.create({ trigger: '#molSvg', start: 'top 85%', end: 'bottom 35%', scrub: .4, onUpdate: s => molRender(s.progress) });
 
   /* ---------- magnetic buttons ---------- */
   if (fine && !reduce) $$('[data-mag]').forEach(b => {
