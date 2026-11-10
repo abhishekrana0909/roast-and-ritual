@@ -243,7 +243,7 @@
     .to('.hero .reveal', { opacity: 1, y: 0, duration: .9, stagger: .12, ease: 'power3.out' }, '-=.7');
   document.body.style.overflow = 'hidden';
   G.timeline({ delay: .2 })
-    .to(cnt, { v: 100, duration: reduce ? .1 : 1.9, ease: 'power1.inOut', onUpdate() { ldNum.textContent = Math.round(cnt.v); ldFill.setAttribute('y', 100 - cnt.v * .6); } })
+    .to(cnt, { v: 100, duration: reduce ? .1 : 1.9, ease: 'power1.inOut', onUpdate() { ldNum.textContent = Math.round(cnt.v); ldFill.setAttribute('y', 142 - cnt.v * .84); } })
     .to('.ld-inner', { opacity: 0, y: -20, duration: .5 })
     .to('.ld-curtain.l', { xPercent: -101, duration: 1, ease: 'expo.inOut' }, '<.1')
     .to('.ld-curtain.r', { xPercent: 101, duration: 1, ease: 'expo.inOut' }, '<')

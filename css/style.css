@@ -51,17 +51,20 @@ main,footer{position:relative;z-index:2}
 .ld-curtain{position:absolute;top:0;bottom:0;width:50.2%;background:#0b0705;z-index:-1}
 .ld-curtain.l{left:0}.ld-curtain.r{right:0}
 .ld-inner{text-align:center}
-.ld-cup{width:120px;height:120px}
+.ld-cup{width:84px;height:126px;overflow:visible}
 .ld-steam{animation:steam 2s ease-in-out infinite}
 @keyframes steam{0%,100%{opacity:.3;transform:translateY(2px)}50%{opacity:1;transform:translateY(-4px)}}
 .ld-word{font-family:var(--serif);font-size:2.2rem;margin-top:.8rem}
+.ld-tag{font-size:.7rem;letter-spacing:.34em;text-transform:uppercase;color:var(--copper);margin-top:.7rem}
 .ld-count{font-size:.8rem;letter-spacing:.3em;color:var(--mute);margin-top:.5rem}
 #pour{position:fixed;inset:0;z-index:250;pointer-events:none;background:linear-gradient(#2a170c,#120d0a 60%);transform:translateY(100%);border-radius:50% 50% 0 0/12% 12% 0 0}
 
 /* nav */
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.3rem clamp(1rem,4vw,3rem);transition:background .4s,backdrop-filter .4s,padding .4s}
 .nav.scrolled{background:rgba(18,13,10,.72);backdrop-filter:blur(14px);padding-block:.8rem;border-bottom:1px solid var(--line)}
-.logo{font-family:var(--serif);font-size:1.5rem;font-weight:500}
+.logo{display:inline-flex;align-items:center;gap:.7rem;font-family:var(--serif);font-size:1.5rem;font-weight:500}
+.lg-bean{height:2.7rem;width:auto;aspect-ratio:2/3;color:var(--copper);flex:none;transition:transform .6s var(--ease)}
+.logo:hover .lg-bean{transform:rotate(-12deg) scale(1.08)}
 .nav nav{display:flex;gap:clamp(.7rem,1.8vw,1.8rem)}
 .nav nav a{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;position:relative;padding:.3rem 0}
 .nav nav a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:100%;background:var(--copper);transform:scaleX(0);transform-origin:right;transition:transform .45s var(--ease)}
@@ -250,6 +253,7 @@ main,footer{position:relative;z-index:2}
 
 /* footer */
 .foot{text-align:center;padding:6rem 1.2rem 3rem;background:linear-gradient(var(--bg),#070504);border-top:1px solid var(--line)}
+.foot-logo{display:block;margin:0 auto;width:clamp(240px,42vw,480px);height:auto}
 .foot-big{font-family:var(--serif);font-size:clamp(3rem,12vw,9rem);line-height:1;font-weight:500}
 .foot-tag{font-family:var(--serif);font-style:italic;color:var(--gold);font-size:1.4rem;margin-top:.8rem}
 .by{margin-top:2.4rem;letter-spacing:.5em;font-size:.8rem;color:var(--mute)}
