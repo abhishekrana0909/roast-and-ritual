@@ -106,7 +106,8 @@
   rRange.addEventListener('input', roastRender); roastRender();
 
   /* ---------- recipe sections (hot, cold, snacks) ---------- */
-  $$('.rec').forEach(sec => {
+  const placers = {};
+  $$('.rec[data-kind]').forEach(sec => {
     const kind = sec.dataset.kind, grid = $('.rec-grid', sec), tg = $('.toggle', sec), thumb = $('.thumb', tg);
     const labels = tg.dataset.labels.split('|'), btns = $$('button', tg);
     btns.forEach((b, i) => b.textContent = labels[i]);
@@ -129,18 +130,8 @@
       c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px');
     });
     grid.addEventListener('click', e => { const c = e.target.closest('.card'); if (c) openModal([c.dataset.id]); });
-    const openBtn = $('.rec-open', sec), body = $('.rec-body', sec); let isOpen = false;
-    $('.ro-count', openBtn).textContent = `· ${D.recipes[kind].a.length + D.recipes[kind].b.length} recipes`;
-    const setOpen = v => {
-      isOpen = v; openBtn.setAttribute('aria-expanded', v); openBtn.classList.toggle('on', v);
-      $('.ro-label', openBtn).textContent = v ? 'Hide recipes' : 'See recipes';
-      if (hasG && !reduce) {
-        G.to(body, { height: v ? 'auto' : 0, duration: .9, ease: 'power3.inOut', onComplete() { place(); ScrollTrigger.refresh(); } });
-        if (v) G.fromTo($$('.card', grid), { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: .7, stagger: .05, delay: .35, ease: 'power3.out' });
-      } else { body.style.height = v ? 'auto' : '0'; place(); }
-    };
-    openBtn.addEventListener('click', () => setOpen(!isOpen));
-    $('.h-big', sec).addEventListener('click', () => setOpen(!isOpen));
+    $('.ro-count', $('.rec-open', sec)).textContent = `· ${D.recipes[kind].a.length + D.recipes[kind].b.length} recipes`;
+    placers[kind] = place;
     place(); addEventListener('resize', place);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
   });
@@ -151,17 +142,6 @@
     return `<button class="pair" data-i="${i}"><span class="kind"><span class="${k}">${k}</span></span>
       <span class="pr-names"><span>${c.name}</span><i>+</i><span>${s.name}</span></span><p>${p.why}</p><span class="more">See both recipes &rarr;</span></button>`;
   }).join('');
-  { const pb = $('#pairsOpen'), pbody = $('#pairsBody'); let pOpen = false;
-    const setP = v => {
-      pOpen = v; pb.setAttribute('aria-expanded', v); pb.classList.toggle('on', v);
-      $('.ro-label', pb).textContent = v ? 'Hide pairs' : 'See pairs';
-      if (typeof hasG !== 'undefined' ? hasG && !reduce : !reduce) {
-        G.to(pbody, { height: v ? 'auto' : 0, duration: .9, ease: 'power3.inOut', onComplete() { ScrollTrigger.refresh(); } });
-        if (v) G.fromTo($$('.pair', pbody), { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: .7, stagger: .06, delay: .35, ease: 'power3.out' });
-      } else { pbody.style.height = v ? 'auto' : '0'; }
-    };
-    pb.addEventListener('click', () => setP(!pOpen));
-    $('#pairs .h-med').addEventListener('click', () => setP(!pOpen)); }
   $('#pairsGrid').addEventListener('click', e => { const b = e.target.closest('.pair'); if (!b) return; const p = D.pairs[+b.dataset.i]; openModal([p.coffee, p.snack], p); });
 
   /* ---------- recipe modal with timers ---------- */
@@ -269,17 +249,67 @@
   $$('[data-pour]').forEach(a => a.addEventListener('click', e => {
     const tgt = $(a.getAttribute('href')); if (!tgt) return;
     e.preventDefault();
-    if (reduce) return scrollToEl(tgt, true);
+    if (cur) history.pushState(null, '', a.getAttribute('href'));
+    if (reduce) { if (cur) applyPage(null); return scrollToEl(tgt, true); }
     G.timeline()
       .set(pour, { yPercent: 0, y: '100%' })
       .to(pour, { y: '0%', duration: .65, ease: 'power3.in' })
-      .add(() => scrollToEl(tgt, true))
+      .add(() => { if (cur) applyPage(null); requestAnimationFrame(() => scrollToEl(tgt, true)); })
       .to(pour, { y: '-100%', duration: .7, ease: 'power3.out', delay: .1 });
   }));
+
+
+  /* ---------- recipe pages (hot, cold, snacks, pairs) ---------- */
+  const rpage = $('#rpage'), mainEl = $('main'), PG = {};
+  let cur = null;
+  [['hot', '#hot'], ['cold', '#cold'], ['snacks', '#snacks'], ['pairs', '#pairs']].forEach(([k, sel]) => {
+    const sec = $(sel);
+    PG[k] = { sec, sel, mode: sec.dataset.mode || 'hot', eye: $('.eyebrow', sec).textContent, title: $('.h-big, .h-med', sec).innerHTML,
+      sub: $('.rec-sub', sec).textContent, img: $('.sp-img', sec).style.backgroundImage, home: $('.rec-body', sec), node: $('.rec-body-in', sec) };
+  });
+  const applyPage = key => {
+    if (cur) PG[cur].home.appendChild(PG[cur].node);
+    cur = key;
+    if (key) {
+      const p = PG[key];
+      rpage.dataset.mode = p.mode; $('#rpEye').textContent = p.eye; $('#rpTitle').innerHTML = p.title; $('#rpSub').textContent = p.sub;
+      $('.sp-img', rpage).style.backgroundImage = p.img;
+      $('#rpBody').appendChild(p.node);
+      rpage.hidden = false; mainEl.hidden = true;
+      if (placers[key]) placers[key]();
+      if (state.lenis) state.lenis.scrollTo(0, { immediate: true }); else scrollTo(0, 0);
+    } else { rpage.hidden = true; mainEl.hidden = false; }
+    if (state.lenis) state.lenis.resize();
+    ScrollTrigger.refresh(); onScroll();
+    if (key && hasG) G.fromTo(['.rp-back', '#rpEye', '#rpTitle', '#rpSub'], { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: .8, stagger: .08, ease: 'power3.out', overwrite: true });
+    if (key && hasG) G.fromTo($$('.card, .pair', rpage), { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: .7, stagger: .05, delay: .2, ease: 'power3.out', overwrite: true });
+  };
+  const swap = fn => {
+    if (reduce || !hasG) return fn();
+    G.timeline().set(pour, { yPercent: 0, y: '100%' }).to(pour, { y: '0%', duration: .55, ease: 'power3.in' }).add(fn)
+      .to(pour, { y: '-100%', duration: .6, ease: 'power3.out', delay: .1 });
+  };
+  const goTo = sel => { try { const t = $(sel); if (t) requestAnimationFrame(() => scrollToEl(t, true)); } catch (e) {} };
+  const openPage = key => { history.pushState(null, '', '#recipes-' + key); swap(() => applyPage(key)); };
+  Object.entries(PG).forEach(([k, p]) => {
+    $('.rec-open', p.sec).addEventListener('click', () => openPage(k));
+    $('.h-big, .h-med', p.sec).addEventListener('click', () => openPage(k));
+  });
+  $('#rpBack').addEventListener('click', () => {
+    const sel = PG[cur].sel; history.pushState(null, '', sel);
+    swap(() => { applyPage(null); goTo(sel); });
+  });
+  const keyFromHash = () => { const m = /^#recipes-(hot|cold|snacks|pairs)$/.exec(location.hash); return m ? m[1] : null; };
+  addEventListener('popstate', () => {
+    const k = keyFromHash(); if (k === cur) return;
+    swap(() => { applyPage(k); if (!k && location.hash.length > 1) goTo(location.hash); });
+  });
+  { const k0 = keyFromHash(); if (k0) applyPage(k0); }
 
   /* ---------- reveals and counters ---------- */
   $$('section:not(.hero) .eyebrow, .h-med, .h-big.sm, .rec-sub, .rec-open, .roast-grid, .levels, .mol-inner > *, .og-list li, .stat, .jstep, .pairs-grid')
     .forEach(e => e.classList.add('reveal'));
+  $$('#rpage .reveal').forEach(e => e.classList.toggle('reveal', false));
   ScrollTrigger.batch('section:not(.hero) .reveal', {
     start: 'top 92%', once: true,
     onEnter: els => G.to(els, { opacity: 1, y: 0, duration: .9, stagger: .09, ease: 'power3.out' })

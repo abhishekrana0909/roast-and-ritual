@@ -308,3 +308,16 @@ main,footer{position:relative;z-index:2}
 .pairs .sec-photo{opacity:.55}
 @media(max-width:900px){.sec-photo{width:100%;height:min(100%,520px);opacity:.26;
   -webkit-mask-image:linear-gradient(to bottom,#000 0,transparent 85%);mask-image:linear-gradient(to bottom,#000 0,transparent 85%)}}
+
+/* recipe pages */
+[hidden]{display:none!important}
+.ro-arr{font-style:normal;font-size:1.15rem;line-height:1;transition:transform .45s var(--ease)}
+.rec-open:hover .ro-arr{transform:translateX(6px)}
+.rpage{min-height:100vh;padding-top:8.5rem}
+.rpage .h-big{cursor:default}
+.rpage .sec-photo{height:470px;opacity:.4}
+.rp-back{display:inline-flex;align-items:center;gap:.8rem;margin-bottom:2.4rem;font-size:.72rem;letter-spacing:.24em;text-transform:uppercase;color:var(--mute);transition:color .3s}
+.rp-back span{font-size:1rem;transition:transform .45s var(--ease)}
+.rp-back:hover{color:var(--acc)}
+.rp-back:hover span{transform:translateX(-6px)}
+.rp-body{margin-top:1.5rem}

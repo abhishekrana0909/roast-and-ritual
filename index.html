@@ -154,7 +154,7 @@
     <p class="eyebrow">Hot Coffee</p>
     <h2 class="h-big sm">Served <i>Hot</i></h2>
     <p class="rec-sub">Start with what is in your kitchen. No machine? You can still make a great cup.</p>
-    <button class="rec-open" aria-expanded="false"><span class="ro-label">See recipes</span><span class="ro-count"></span><i class="ro-ico"></i></button>
+    <button class="rec-open" aria-expanded="false"><span class="ro-label">See recipes</span><span class="ro-count"></span><i class="ro-arr">&rarr;</i></button>
     <div class="rec-body"><div class="rec-body-in">
     <div class="toggle" data-labels="No Machine|With Machine"><button class="on" data-g="a"></button><button data-g="b"></button><i class="thumb"></i></div>
     <div class="rec-grid"></div>
@@ -169,7 +169,7 @@
     <p class="eyebrow">Cold Coffee</p>
     <h2 class="h-big sm">Poured <i>Cold</i></h2>
     <p class="rec-sub">Jar shakes, whipped foam and slow cold brew. Most of these need nothing more than a glass.</p>
-    <button class="rec-open" aria-expanded="false"><span class="ro-label">See recipes</span><span class="ro-count"></span><i class="ro-ico"></i></button>
+    <button class="rec-open" aria-expanded="false"><span class="ro-label">See recipes</span><span class="ro-count"></span><i class="ro-arr">&rarr;</i></button>
     <div class="rec-body"><div class="rec-body-in">
     <div class="toggle" data-labels="No Machine|With Machine"><button class="on" data-g="a"></button><button data-g="b"></button><i class="thumb"></i></div>
     <div class="rec-grid"></div>
@@ -184,7 +184,7 @@
     <p class="eyebrow">Snacks</p>
     <h2 class="h-big sm">Something <i>on the side</i></h2>
     <p class="rec-sub">Simple, vegetarian and egg-free. Pick the tawa and kadhai ones, or switch to oven and microwave.</p>
-    <button class="rec-open" aria-expanded="false"><span class="ro-label">See recipes</span><span class="ro-count"></span><i class="ro-ico"></i></button>
+    <button class="rec-open" aria-expanded="false"><span class="ro-label">See recipes</span><span class="ro-count"></span><i class="ro-arr">&rarr;</i></button>
     <div class="rec-body"><div class="rec-body-in">
     <div class="toggle" data-labels="No Oven|Oven or Microwave"><button class="on" data-g="a"></button><button data-g="b"></button><i class="thumb"></i></div>
     <div class="rec-grid"></div>
@@ -199,7 +199,7 @@
     <p class="eyebrow">Perfect Pairs</p>
     <h2 class="h-med">Coffee <i>and</i> a Bite</h2>
     <p class="rec-sub">Six combinations that work. Open one to see both recipes together.</p>
-    <button class="rec-open" id="pairsOpen" aria-expanded="false"><span class="ro-label">See pairs</span><span class="ro-count">· 6 pairs</span><i class="ro-ico"></i></button>
+    <button class="rec-open" id="pairsOpen" aria-expanded="false"><span class="ro-label">See pairs</span><span class="ro-count">· 6 pairs</span><i class="ro-arr">&rarr;</i></button>
     <div class="rec-body" id="pairsBody"><div class="rec-body-in">
     <div class="pairs-grid" id="pairsGrid"></div>
     </div></div>
@@ -247,6 +247,18 @@
 </section>
 
 </main>
+
+<!-- Recipe page (hot, cold, snacks and pairs open here) -->
+<div id="rpage" class="rec rpage" data-mode="hot" hidden>
+  <div class="sec-photo" aria-hidden="true"><div class="sp-img"></div></div>
+  <div class="rec-inner">
+    <button class="rp-back" id="rpBack"><span>&larr;</span> Back</button>
+    <p class="eyebrow" id="rpEye"></p>
+    <h1 class="h-big sm" id="rpTitle"></h1>
+    <p class="rec-sub" id="rpSub"></p>
+    <div class="rp-body" id="rpBody"></div>
+  </div>
+</div>
 
 <footer class="foot">
   <img class="foot-logo" src="images/logo-full.png" width="687" height="486" alt="Roast &amp; Ritual, Coffee Flavors Across Continents" loading="lazy">
