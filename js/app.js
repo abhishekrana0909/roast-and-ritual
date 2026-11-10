@@ -148,6 +148,17 @@
     return `<button class="pair" data-i="${i}"><span class="kind"><span class="${k}">${k}</span></span>
       <span class="pr-names"><span>${c.name}</span><i>+</i><span>${s.name}</span></span><p>${p.why}</p><span class="more">See both recipes &rarr;</span></button>`;
   }).join('');
+  { const pb = $('#pairsOpen'), pbody = $('#pairsBody'); let pOpen = false;
+    const setP = v => {
+      pOpen = v; pb.setAttribute('aria-expanded', v); pb.classList.toggle('on', v);
+      $('.ro-label', pb).textContent = v ? 'Hide pairs' : 'See pairs';
+      if (typeof hasG !== 'undefined' ? hasG && !reduce : !reduce) {
+        G.to(pbody, { height: v ? 'auto' : 0, duration: .9, ease: 'power3.inOut', onComplete() { ScrollTrigger.refresh(); } });
+        if (v) G.fromTo($$('.pair', pbody), { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: .7, stagger: .06, delay: .35, ease: 'power3.out' });
+      } else { pbody.style.height = v ? 'auto' : '0'; }
+    };
+    pb.addEventListener('click', () => setP(!pOpen));
+    $('#pairs .h-med').addEventListener('click', () => setP(!pOpen)); }
   $('#pairsGrid').addEventListener('click', e => { const b = e.target.closest('.pair'); if (!b) return; const p = D.pairs[+b.dataset.i]; openModal([p.coffee, p.snack], p); });
 
   /* ---------- recipe modal with timers ---------- */

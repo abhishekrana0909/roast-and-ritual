@@ -221,8 +221,9 @@ main,footer{position:relative;z-index:2}
 
 /* pairs */
 .pairs{padding:7rem clamp(1.2rem,6vw,6rem);background:var(--bg)}
-.pairs-inner{max-width:1200px;margin:0 auto}
-.pairs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.2rem;margin-top:2.5rem}
+.pairs-inner{max-width:1200px;margin:0 auto;--acc:var(--copper)}
+.pairs .h-med{cursor:pointer}
+.pairs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.2rem}
 .pair{text-align:left;display:flex;flex-direction:column;gap:.9rem;padding:1.7rem;border:1px solid var(--line);border-radius:20px;background:var(--bg2);transition:border-color .4s,transform .5s var(--ease)}
 .pair:hover{border-color:var(--copper)}
 .pair .pr-names{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;font-family:var(--serif);font-size:1.6rem;line-height:1.1}
