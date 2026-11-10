@@ -96,11 +96,6 @@ main,footer{position:relative;z-index:2}
 @keyframes line{0%{transform:scaleX(0)}60%{transform:scaleX(1)}100%{transform:scaleX(1);opacity:0}}
 @media(max-width:700px){.badge{display:none}.steam{right:6%}}
 
-/* marquee */
-.marquee{overflow:hidden;border-block:1px solid var(--line);background:var(--bg2);padding:1.1rem 0;white-space:nowrap}
-.mq-track{display:inline-flex;gap:2.2rem;animation:mq 32s linear infinite;font-family:var(--serif);font-size:clamp(1.6rem,4vw,3rem);font-style:italic}
-.mq-track em{color:var(--copper);font-style:normal;font-size:.6em;align-self:center}
-@keyframes mq{to{transform:translateX(-50%)}}
 
 /* stats */
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;padding:4rem clamp(1.2rem,6vw,6rem);background:var(--bg)}
