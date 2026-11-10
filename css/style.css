@@ -65,6 +65,9 @@ main,footer{position:relative;z-index:2}
 .logo{display:inline-flex;align-items:center;gap:.7rem;font-family:var(--serif);font-size:1.5rem;font-weight:500}
 .lg-bean{height:2.7rem;width:auto;aspect-ratio:2/3;color:var(--copper);flex:none;transition:transform .6s var(--ease)}
 .logo:hover .lg-bean{transform:rotate(-12deg) scale(1.08)}
+.lg-txt{display:flex;flex-direction:column;line-height:1.1;white-space:nowrap}
+.lg-txt small{font-family:var(--sans);font-size:.52rem;letter-spacing:.5em;color:var(--mute);margin-top:.3rem;font-weight:400}
+.lg-txt small b{color:var(--copper);font-weight:500}
 .nav nav{display:flex;gap:clamp(.7rem,1.8vw,1.8rem)}
 .nav nav a{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;position:relative;padding:.3rem 0}
 .nav nav a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:100%;background:var(--copper);transform:scaleX(0);transform-origin:right;transition:transform .45s var(--ease)}
