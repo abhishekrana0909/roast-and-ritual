@@ -42,6 +42,9 @@
     else scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
   });
 
+  /* ---------- section photos: slow parallax ---------- */
+  if (hasG && !reduce) $$('.sec-photo').forEach(p => G.fromTo($('.sp-img', p), { yPercent: -5 }, { yPercent: 5, ease: 'none', scrollTrigger: { trigger: p.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } }));
+
   /* ---------- recipe lookups ---------- */
   const all = [];
   Object.entries(D.recipes).forEach(([kind, groups]) => Object.entries(groups).forEach(([g, list]) => list.forEach(r => all.push({ ...r, kind, g }))));
@@ -232,7 +235,7 @@
   $('#stCoffee').dataset.count = all.filter(r => r.kind !== 'snacks').length;
   $('#stSnacks').dataset.count = all.filter(r => r.kind === 'snacks').length;
   const C = window.RR_CREDITS || {};
-  const labels = { hero: 'Hero', ceremony: 'Ethiopia', colombia: 'Colombia', cherries: 'Brazil and Journey', vietnam: 'Vietnam', filter: 'India', kenya: 'Kenya', origin: 'Journey', drum: 'Roaster', brew: 'Brew' };
+  const labels = { hero: 'Hero', ceremony: 'Ethiopia', colombia: 'Colombia', cherries: 'Brazil and Journey', vietnam: 'Vietnam', filter: 'India', kenya: 'Kenya', origin: 'Journey', drum: 'Roaster', brew: 'Brew', 'sec-hot': 'Hot section', 'sec-cold': 'Cold section', 'sec-snacks': 'Snacks section', 'sec-pairs': 'Pairs section' };
   $('#creditList').innerHTML = Object.entries(C).map(([k, v]) => `<li>${labels[k] || k}: <a href="${v.page}" target="_blank" rel="noopener">${v.title || 'Photo'}</a> by ${v.artist || 'Unknown'} (${v.license}), via Wikimedia Commons</li>`).join('');
 
   /* ---------- no animation library: show everything and stop ---------- */
