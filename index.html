@@ -14,8 +14,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap">
 <link rel="stylesheet" href="css/style.css">
-<script>window.RR_3d = (window.WebGLRenderingContext && !matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'pending' : 'failed';</script>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/"}}</script>
 </head>
 <body>
 
@@ -64,7 +62,7 @@
 <!-- HERO (pinned while the caffeine formula draws with scroll) -->
 <section class="hero" id="hero">
   <div class="hero-bg" data-depth="0.02"></div>
-  <canvas id="hero3d" aria-hidden="true"></canvas>
+  <video id="heroVid" class="hero-vid" muted playsinline preload="auto" poster="images/hero-pour-poster.webp" aria-hidden="true"><source src="video/hero-pour.mp4" type="video/mp4"></video>
   <div class="hero-shade"></div>
   <canvas id="steam" aria-hidden="true"></canvas>
   <canvas id="pourfx" aria-hidden="true"></canvas>
@@ -292,6 +290,6 @@
 <script src="js/globe-data.js"></script>
 <script src="js/app.js"></script>
 <script src="js/motion.js"></script>
-<script type="module" src="js/hero3d.js"></script>
+<script src="js/herovideo.js"></script>
 </body>
 </html>

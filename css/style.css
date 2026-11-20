@@ -343,9 +343,15 @@ main,footer{position:relative;z-index:2}
 .og-globe{position:absolute;left:-9%;top:50%;width:min(54vw,680px);aspect-ratio:1;transform:translateY(-50%);opacity:.95;pointer-events:none}
 @media(max-width:900px){.og-globe{left:50%;right:auto;top:3rem;transform:translateX(-50%);width:130vw;opacity:.3}}
 
-/* 3D hero */
-#hero3d{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity 1.2s}
-.hero.is3d{background:radial-gradient(46% 62% at 72% 54%,rgba(201,139,90,.22),transparent 70%),radial-gradient(60% 50% at 100% 100%,rgba(90,52,25,.3),transparent 70%)}
-.hero.is3d .hero-bg,.hero.is3d #steam,.hero.is3d #pourfx{display:none}
-.hero.is3d .hero-shade{background:linear-gradient(90deg,rgba(18,13,10,.9) 4%,rgba(18,13,10,.5) 38%,rgba(18,13,10,0) 66%),linear-gradient(0deg,var(--bg),transparent 30%)}
-@media(max-width:820px){.hero.is3d .hero-shade{background:linear-gradient(180deg,rgba(18,13,10,.82) 0%,rgba(18,13,10,.6) 52%,rgba(18,13,10,0) 78%),linear-gradient(0deg,var(--bg),transparent 14%)}}
+/* hero video: real coffee poured into a mug */
+.hero-vid{position:absolute;bottom:0;right:-4%;width:68%;height:68%;object-fit:cover;opacity:0;transition:opacity 1.2s;pointer-events:none;filter:brightness(1.15) saturate(1);
+  -webkit-mask-image:linear-gradient(to right,transparent 0,rgba(0,0,0,.55) 30%,#000 58%),linear-gradient(to bottom,transparent 0,#000 14%,#000 90%,transparent 100%);-webkit-mask-composite:source-in;
+  mask-image:linear-gradient(to right,transparent 0,rgba(0,0,0,.55) 30%,#000 58%),linear-gradient(to bottom,transparent 0,#000 14%,#000 90%,transparent 100%);mask-composite:intersect}
+.hero-vid.on{opacity:1}
+.hero.is-video .hero-bg,.hero.is-video #pourfx{display:none}
+.hero.is-video .hero-shade{background:linear-gradient(90deg,rgba(18,13,10,.92) 6%,rgba(18,13,10,.5) 40%,rgba(18,13,10,.05) 72%),linear-gradient(0deg,var(--bg),transparent 26%)}
+@media(max-width:820px){
+  .hero-vid{top:auto;bottom:0;right:0;width:100%;height:40%;object-position:47% 50%;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 30%,#000 86%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 30%,#000 86%,transparent 100%)}
+  .hero.is-video .hero-shade{background:linear-gradient(180deg,rgba(18,13,10,.85) 0%,rgba(18,13,10,.6) 50%,rgba(18,13,10,.1) 78%),linear-gradient(0deg,var(--bg),transparent 12%)}
+}

@@ -79,20 +79,10 @@
       };
       requestAnimationFrame(frame);
     };
-    const pour2d = window.RR_pour;
-    window.RR_pour = () => {
-      if (window.RR_3d === 'ready') return window.RR_pour3d();
-      if (window.RR_3d === 'pending') {
-        addEventListener('rr3d', () => window.RR_pour(), { once: true });
-        setTimeout(() => { if (window.RR_3d === 'pending') { window.RR_3d = 'failed'; window.RR_pour(); } }, 4500);
-        return;
-      }
-      pour2d();
-    };
     const ps = []; let last = 0, acc = 0;
     visible(hero, t => {
       const dt = Math.min(.05, (t - last) / 1000 || .016); last = t;
-      if (hero.classList.contains('is3d')) return;
+      if (hero.classList.contains('is-video')) { const vs = window.RR_steamSrc && window.RR_steamSrc(); if (vs) src = vs; else { ctx.clearRect(0, 0, W, H); return; } }
       acc += dt; if (acc > (small ? .5 : .28) && ps.length < 26) { acc = 0; ps.push({ x: src.x + (Math.random() - .5) * src.w * .5, y: src.y, t: 0, life: 5 + Math.random() * 2.5, ph: Math.random() * 6.28 }); }
       ctx.clearRect(0, 0, W, H);
       for (let i = ps.length - 1; i >= 0; i--) {

@@ -217,8 +217,8 @@
   $('#stCoffee').dataset.count = all.filter(r => r.kind !== 'snacks').length;
   $('#stSnacks').dataset.count = all.filter(r => r.kind === 'snacks').length;
   const C = window.RR_CREDITS || {};
-  const labels = { hero: 'Hero', ceremony: 'Ethiopia', colombia: 'Colombia', cherries: 'Brazil and Journey', vietnam: 'Vietnam', filter: 'India', kenya: 'Kenya', origin: 'Journey', drum: 'Roaster', brew: 'Brew', 'sec-hot': 'Hot section', 'sec-cold': 'Cold section', 'sec-snacks': 'Snacks section', 'sec-pairs': 'Pairs section' };
-  $('#creditList').innerHTML = Object.entries(C).map(([k, v]) => `<li>${labels[k] || k}: <a href="${v.page}" target="_blank" rel="noopener">${v.title || 'Photo'}</a> by ${v.artist || 'Unknown'} (${v.license}), via Wikimedia Commons</li>`).join('');
+  const labels = { hero: 'Hero photo', 'hero-pour': 'Hero video', ceremony: 'Ethiopia', colombia: 'Colombia', cherries: 'Brazil and Journey', vietnam: 'Vietnam', filter: 'India', kenya: 'Kenya', origin: 'Journey', drum: 'Roaster', brew: 'Brew', 'sec-hot': 'Hot section', 'sec-cold': 'Cold section', 'sec-snacks': 'Snacks section', 'sec-pairs': 'Pairs section' };
+  $('#creditList').innerHTML = Object.entries(C).map(([k, v]) => `<li>${labels[k] || k}: <a href="${v.page}" target="_blank" rel="noopener">${v.title || 'Photo'}</a> by ${v.artist || 'Unknown'} (${v.license}), via ${v.via || 'Wikimedia Commons'}</li>`).join('');
 
   /* ---------- no animation library: show everything and stop ---------- */
   if (!hasG) {
