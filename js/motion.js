@@ -90,7 +90,7 @@
         const p = ps[i]; p.t += dt; const k = p.t / p.life;
         if (k >= 1) { ps.splice(i, 1); continue; }
         const x = p.x + Math.sin(p.ph + k * 3.4) * src.w * .09 * (.4 + k), y = p.y - k * rise, r = src.w * ((vid ? .08 : .1) + (vid ? .16 : .22) * k);
-        const a = (vid ? .32 : .15) * Math.sin(Math.PI * Math.min(1, k * 1.15));
+        const a = (vid ? .4 : .15) * Math.sin(Math.PI * Math.min(1, k * 1.15));
         const g = ctx.createRadialGradient(x, y, 0, x, y, r);
         g.addColorStop(0, `rgba(236,216,186,${a})`); g.addColorStop(1, 'rgba(236,216,186,0)');
         ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2);
