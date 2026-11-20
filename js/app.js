@@ -234,9 +234,13 @@
     l.innerHTML = [...l.textContent].map(c => `<span class="ch">${c}</span>`).join('');
   });
   const ldWave = $('#ldWaveG'), ldFill = $('#ldFill'), ldNum = $('#ldNum'), loader = $('#loader'), cnt = { v: 0 };
-  const intro = () => G.timeline()
-    .to('#heroTitle .ch', { y: 0, duration: 1.1, stagger: .045, ease: 'expo.out' })
-    .to('.hero .reveal', { opacity: 1, y: 0, duration: .9, stagger: .12, ease: 'power3.out' }, '-=.7');
+  const intro = () => {
+    const pour = !reduce && typeof window.RR_pour === 'function';
+    if (pour) window.RR_pour();
+    return G.timeline()
+      .fromTo('#heroTitle .ch', { filter: pour ? 'blur(7px)' : 'blur(0px)' }, { y: 0, filter: 'blur(0px)', duration: 1.2, stagger: .045, ease: 'expo.out' }, pour ? 1 : 0)
+      .to('.hero .reveal', { opacity: 1, y: 0, duration: .9, stagger: .12, ease: 'power3.out' }, '-=.7');
+  };
   document.body.style.overflow = 'hidden';
   G.timeline({ delay: .2 })
     .to(cnt, { v: 100, duration: reduce ? .1 : 1.9, ease: 'power1.inOut', onUpdate() { ldNum.textContent = Math.round(cnt.v); ldFill.setAttribute('y', 142 - cnt.v * .84); ldWave.setAttribute('transform', `translate(0 ${139 - cnt.v * .84})`); } })

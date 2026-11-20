@@ -24,15 +24,61 @@
 
   const sc = $('#steam'), hero = $('#hero');
   if (sc && hero && !reduce) {
-    const ctx = sc.getContext('2d'), IW = 1920, IH = 1280, FX = .54, FY = .31, FW = .2;
+    const ctx = sc.getContext('2d'), pc = $('#pourfx'), pctx = pc.getContext('2d'), IW = 1920, IH = 1280, FX = .54, FY = .31, FW = .2;
     let W = 0, H = 0, src = { x: 0, y: 0, w: 0 };
     const size = () => {
       W = hero.clientWidth; H = hero.clientHeight; sc.width = W * DPR; sc.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      pc.width = W * DPR; pc.height = H * DPR; pctx.setTransform(DPR, 0, 0, DPR, 0, 0);
       const bw = W * 1.08, bh = H * 1.08, s = Math.max(bw / IW, bh / IH);
       const ox = -W * .04 + (bw - IW * s) * .7, oy = -H * .04 + (bh - IH * s) * .5;
       src = { x: ox + FX * IW * s, y: oy + FY * IH * s, w: FW * IW * s };
     };
     size(); addEventListener('resize', size);
+    /* intro pour: a stream of coffee falls into the cup, ripples spread across the surface, a few drops jump */
+    window.RR_pour = () => {
+      const t0 = performance.now(), FALL = .85, HOLD = 1.3, TAIL = .5, drops = [];
+      let hit = false, prev = 0;
+      const frame = now => {
+        const t = (now - t0) / 1000, dt = Math.min(.05, t - prev); prev = t;
+        const ix = src.x, iy = src.y, k = src.w / (FW * IW), sw = Math.max(7, src.w * .034);
+        pctx.clearRect(0, 0, W, H);
+        const head = t < FALL ? -20 + (iy + 20) * (t / FALL) ** 2 : iy;
+        const kt = clamp((t - FALL - HOLD) / TAIL, 0, 1), tail = -20 + (iy + 20) * kt * kt;
+        if (head > tail + 1 && kt < 1) {
+          const wob = y => Math.sin(y / 46 + t * 8) * 1.4, thin = 1 - .22 * kt;
+          const g = pctx.createLinearGradient(ix - sw, 0, ix + sw, 0);
+          g.addColorStop(0, '#24120a'); g.addColorStop(.38, '#6b4126'); g.addColorStop(.5, '#b57a4a'); g.addColorStop(.7, '#4a2a16'); g.addColorStop(1, '#1d0e07');
+          pctx.fillStyle = g; pctx.globalAlpha = .96; pctx.beginPath();
+          const n = 14;
+          for (let i = 0; i <= n; i++) { const y = lerp(tail, head, i / n); pctx.lineTo(ix + wob(y) - sw * thin / 2, y); }
+          for (let i = n; i >= 0; i--) { const y = lerp(tail, head, i / n); pctx.lineTo(ix + wob(y) + sw * thin / 2, y); }
+          pctx.closePath(); pctx.fill(); pctx.globalAlpha = 1;
+        }
+        if (t >= FALL && !hit) {
+          hit = true;
+          for (let i = 0; i < 16; i++) { const a = -Math.PI * (.12 + .76 * Math.random()), v = (70 + Math.random() * 150) * k; drops.push({ x: ix, y: iy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: (1 + Math.random() * 1.6) * k, life: 0 }); }
+        }
+        if (hit) {
+          pctx.save(); pctx.beginPath(); pctx.ellipse(ix, iy, 255 * k, 150 * k, 0, 0, 6.2832); pctx.clip();
+          for (let i = 0; i < 8; i++) {
+            const birth = FALL + i * .3; if (birth > FALL + HOLD + TAIL) break;
+            const r = clamp((t - birth) / 2.4, 0, 1); if (r <= 0 || r >= 1) continue;
+            const e = 1 - (1 - r) ** 2.2, rx = 270 * k * e;
+            pctx.strokeStyle = `rgba(226,190,130,${.5 * (1 - r) ** 1.6})`; pctx.lineWidth = 1.6 * k + 1;
+            pctx.beginPath(); pctx.ellipse(ix, iy, rx, rx * .6, 0, 0, 6.2832); pctx.stroke();
+          }
+          if (t < FALL + HOLD + TAIL) { pctx.fillStyle = 'rgba(226,190,130,.3)'; pctx.beginPath(); pctx.ellipse(ix, iy, sw * 1.5, sw * .9, 0, 0, 6.2832); pctx.fill(); }
+          pctx.restore();
+        }
+        for (let i = drops.length - 1; i >= 0; i--) {
+          const d = drops[i]; d.life += dt; d.vy += 560 * k * dt; d.x += d.vx * dt; d.y += d.vy * dt;
+          if (d.life > .8) { drops.splice(i, 1); continue; }
+          pctx.fillStyle = `rgba(190,130,84,${.8 * (1 - d.life / .8)})`; pctx.beginPath(); pctx.arc(d.x, d.y, d.r, 0, 6.2832); pctx.fill();
+        }
+        if (t < FALL + HOLD + TAIL + 2.6) requestAnimationFrame(frame); else pctx.clearRect(0, 0, W, H);
+      };
+      requestAnimationFrame(frame);
+    };
     const ps = []; let last = 0, acc = 0;
     visible(hero, t => {
       const dt = Math.min(.05, (t - last) / 1000 || .016); last = t;
