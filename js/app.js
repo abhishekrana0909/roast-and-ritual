@@ -217,7 +217,7 @@
   $('#stCoffee').dataset.count = all.filter(r => r.kind !== 'snacks').length;
   $('#stSnacks').dataset.count = all.filter(r => r.kind === 'snacks').length;
   const C = window.RR_CREDITS || {};
-  const labels = { hero: 'Hero', ceremony: 'Ethiopia', colombia: 'Colombia', cherries: 'Brazil and Journey', vietnam: 'Vietnam', filter: 'India', kenya: 'Kenya', origin: 'Journey', drum: 'Roaster', brew: 'Brew', 'sec-hot': 'Hot section', 'sec-cold': 'Cold section', 'sec-snacks': 'Snacks section', 'sec-pairs': 'Pairs section' };
+  const labels = { hero: 'Hero cup slide', 'hero-brew': 'Hero brew slide', ceremony: 'Ethiopia', colombia: 'Colombia', cherries: 'Brazil and Journey', vietnam: 'Vietnam', filter: 'India', kenya: 'Kenya', origin: 'Journey', drum: 'Roaster', brew: 'Brew', 'sec-hot': 'Hot section', 'sec-cold': 'Cold section', 'sec-snacks': 'Snacks section', 'sec-pairs': 'Pairs section' };
   $('#creditList').innerHTML = Object.entries(C).map(([k, v]) => `<li>${labels[k] || k}: <a href="${v.page}" target="_blank" rel="noopener">${v.title || 'Photo'}</a> by ${v.artist || 'Unknown'} (${v.license}), via Wikimedia Commons</li>`).join('');
 
   /* ---------- no animation library: show everything and stop ---------- */
@@ -235,10 +235,9 @@
   });
   const ldWave = $('#ldWaveG'), ldFill = $('#ldFill'), ldNum = $('#ldNum'), loader = $('#loader'), cnt = { v: 0 };
   const intro = () => {
-    const pour = !reduce && typeof window.RR_pour === 'function';
-    if (pour) window.RR_pour();
+    if (typeof window.RR_heroStart === 'function') window.RR_heroStart();
     return G.timeline()
-      .fromTo('#heroTitle .ch', { filter: pour ? 'blur(7px)' : 'blur(0px)' }, { y: 0, filter: 'blur(0px)', duration: 1.2, stagger: .045, ease: 'expo.out' }, pour ? 1 : 0)
+      .fromTo('#heroTitle .ch', { filter: 'blur(7px)' }, { y: 0, filter: 'blur(0px)', duration: 1.2, stagger: .045, ease: 'expo.out' }, 0)
       .to('.hero .reveal', { opacity: 1, y: 0, duration: .9, stagger: .12, ease: 'power3.out' }, '-=.7');
   };
   document.body.style.overflow = 'hidden';

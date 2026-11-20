@@ -20,8 +20,6 @@
   };
 
   /* ---------- hero: slow settle and a little steam over the cup ---------- */
-  if (hasG && !reduce) G.fromTo('.hero-bg', { scale: 1.07 }, { scale: 1, duration: 3.2, ease: 'power2.out', delay: .3 });
-
   const sc = $('#steam'), hero = $('#hero');
   if (sc && hero && !reduce) {
     const ctx = sc.getContext('2d'), pc = $('#pourfx'), pctx = pc.getContext('2d'), IW = 1920, IH = 1280, FX = .54, FY = .31, FW = .2;
@@ -79,11 +77,22 @@
       };
       requestAnimationFrame(frame);
     };
-    const ps = []; let last = 0, acc = 0;
+    const ps = [], spl = []; let last = 0, acc = 0, sacc = 0;
     visible(hero, t => {
       const dt = Math.min(.05, (t - last) / 1000 || .016); last = t;
-      acc += dt; if (acc > (small ? .5 : .28) && ps.length < 26) { acc = 0; ps.push({ x: src.x + (Math.random() - .5) * src.w * .5, y: src.y, t: 0, life: 5 + Math.random() * 2.5, ph: Math.random() * 6.28 }); }
+      const slide = hero.dataset.slide; acc += dt;
+      if (slide === '2' && acc > (small ? .5 : .28) && ps.length < 26) { acc = 0; ps.push({ x: src.x + (Math.random() - .5) * src.w * .5, y: src.y, t: 0, life: 5 + Math.random() * 2.5, ph: Math.random() * 6.28 }); }
       ctx.clearRect(0, 0, W, H);
+      if (slide === '1') {
+        sacc += dt; const bw = W * 1.08, bh = H * 1.08, s = Math.max(bw / 1920, bh / 1920);
+        const sx = -W * .04 + (bw - 1920 * s) * .65 + .657 * 1920 * s, sy = -H * .04 + (bh - 1920 * s) * .5 + .636 * 1920 * s;
+        while (sacc > .07) { sacc -= .07; spl.push({ x: sx + (Math.random() - .5) * 8 * s, y: sy, vx: (Math.random() - .5) * 130 * s, vy: -(70 + Math.random() * 140) * s, r: (1 + Math.random() * 1.8) * Math.max(.7, s), t: 0 }); }
+      }
+      for (let i = spl.length - 1; i >= 0; i--) {
+        const d = spl[i]; d.t += dt; d.vy += 520 * dt; d.x += d.vx * dt; d.y += d.vy * dt;
+        if (d.t > .6) { spl.splice(i, 1); continue; }
+        ctx.fillStyle = `rgba(202,146,98,${.75 * (1 - d.t / .6)})`; ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, 6.2832); ctx.fill();
+      }
       for (let i = ps.length - 1; i >= 0; i--) {
         const p = ps[i]; p.t += dt; const k = p.t / p.life;
         if (k >= 1) { ps.splice(i, 1); continue; }
@@ -94,6 +103,216 @@
         ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2);
       }
     });
+  }
+
+  /* ---------- hero slides: Bean, Brew, Cup. Bean dissolves into dust, a liquid wipe carries one slide into the next ---------- */
+  const bc = $('#beanfx'), wc = $('#wipe');
+  if (hasG && hero && bc && wc) {
+    const SL = [...hero.querySelectorAll('.hs-copy')], BG = [...hero.querySelectorAll('.hs-bg')], DOTS = [...hero.querySelectorAll('.hs-dots button')];
+    const bctx = bc.getContext('2d'), wctx = wc.getContext('2d');
+    let W = 0, H = 0;
+    const mobile = () => innerWidth <= 820;
+
+    /* split the headings of slides 2 and 3 the same way as the main title */
+    SL.forEach(s => {
+      const t = $('.hs-title', s); if (!t) return;
+      t.setAttribute('aria-label', [...t.querySelectorAll('.ln')].map(l => l.textContent).join(' '));
+      t.querySelectorAll('.ln').forEach(l => { l.innerHTML = l.classList.contains('amp') ? `<span class="ch">${l.textContent}</span>` : [...l.textContent].map(c => `<span class="ch">${c}</span>`).join(''); });
+    });
+
+    /* the bean: painted once, then sampled into grains */
+    const SP = 420, sprite = document.createElement('canvas'); sprite.width = sprite.height = SP;
+    (() => {
+      const s = sprite.getContext('2d'), rx = 118, ry = 168;
+      s.translate(SP / 2, SP / 2); s.rotate(25 * Math.PI / 180);
+      s.save(); s.scale(rx / ry, 1);
+      let g = s.createRadialGradient(-ry * .3, -ry * .42, 8, 0, 0, ry * 1.08);
+      g.addColorStop(0, '#c18450'); g.addColorStop(.32, '#8e5833'); g.addColorStop(.68, '#53301a'); g.addColorStop(1, '#2a160a');
+      s.fillStyle = g; s.beginPath(); s.arc(0, 0, ry, 0, 6.2832); s.fill();
+      g = s.createRadialGradient(0, 0, ry * .58, 0, 0, ry); g.addColorStop(0, 'rgba(18,9,4,0)'); g.addColorStop(1, 'rgba(18,9,4,.6)');
+      s.fillStyle = g; s.beginPath(); s.arc(0, 0, ry, 0, 6.2832); s.fill();
+      s.restore();
+      s.save(); s.beginPath(); s.ellipse(0, 0, rx - 2, ry - 2, 0, 0, 6.2832); s.clip();
+      s.lineCap = 'round';
+      const crease = () => { s.beginPath(); s.moveTo(-6, -ry * .98); s.bezierCurveTo(-rx * .62, -ry * .36, rx * .62, ry * .36, 6, ry * .98); };
+      crease(); s.strokeStyle = 'rgba(15,7,3,.35)'; s.lineWidth = 30; s.stroke();
+      crease(); s.strokeStyle = '#0e0603'; s.lineWidth = 13; s.stroke();
+      s.save(); s.translate(7, 0); crease(); s.strokeStyle = 'rgba(214,150,96,.32)'; s.lineWidth = 2.4; s.stroke(); s.restore();
+      s.restore();
+      g = s.createRadialGradient(-rx * .38, -ry * .42, 2, -rx * .38, -ry * .42, 86); g.addColorStop(0, 'rgba(255,226,190,.34)'); g.addColorStop(1, 'rgba(255,226,190,0)');
+      s.fillStyle = g; s.beginPath(); s.ellipse(0, 0, rx, ry, 0, 0, 6.2832); s.fill();
+    })();
+
+    const STEP = mobile() ? 4 : 3;
+    let N = 0, TX, TY, X, Y, VX, VY, DL, DIE, BK; const BCOL = [];
+    const NB = 18;
+    (() => {
+      const d = sprite.getContext('2d').getImageData(0, 0, SP, SP).data, xs = [], ys = [], cs = [];
+      for (let y = 0; y < SP; y += STEP) for (let x = 0; x < SP; x += STEP) {
+        const i = (y * SP + x) * 4; if (d[i + 3] < 150) continue;
+        const n = (Math.random() - .5) * 26; xs.push(x - SP / 2); ys.push(y - SP / 2);
+        cs.push([clamp(d[i] + n, 0, 255), clamp(d[i + 1] + n * .8, 0, 255), clamp(d[i + 2] + n * .6, 0, 255)]);
+      }
+      N = xs.length; TX = Float32Array.from(xs); TY = Float32Array.from(ys);
+      X = new Float32Array(N); Y = new Float32Array(N); VX = new Float32Array(N); VY = new Float32Array(N);
+      DL = new Float32Array(N); DIE = new Float32Array(N); BK = new Uint8Array(N);
+      const sum = Array.from({ length: NB }, () => [0, 0, 0, 0]);
+      cs.forEach((c, i) => { const b = Math.min(NB - 1, Math.floor((c[0] * .3 + c[1] * .59 + c[2] * .11) / 256 * NB * 1.5)); BK[i] = b; const q = sum[b]; q[0] += c[0]; q[1] += c[1]; q[2] += c[2]; q[3]++; });
+      sum.forEach(q => BCOL.push(q[3] ? `rgb(${Math.round(q[0] / q[3])},${Math.round(q[1] / q[3])},${Math.round(q[2] / q[3])})` : '#000'));
+    })();
+
+    const bean = { state: 'off', t: 0, cx: 0, cy: 0, S: 1, mx: -9999, my: -9999 };
+    const layout = () => {
+      const m = mobile();
+      bean.cx = W * (m ? .5 : .7); bean.cy = H * (m ? .8 : .5);
+      bean.S = Math.min(H * (m ? .27 : .64), W * (m ? .62 : .38)) / SP;
+    };
+    const target = (i, a, bob) => {
+      const c = Math.cos(a), s = Math.sin(a), tx = TX[i] * bean.S, ty = TY[i] * bean.S;
+      return [bean.cx + tx * c - ty * s, bean.cy + bob + tx * s + ty * c];
+    };
+    const draw = () => {
+      bctx.clearRect(0, 0, W, H);
+      const sz = STEP * bean.S * 1.08 + .6, bks = Array.from({ length: NB }, () => []);
+      for (let i = 0; i < N; i++) { if (bean.state === 'blow' && bean.t > DIE[i]) continue; bks[BK[i]].push(i); }
+      for (let b = 0; b < NB; b++) {
+        const arr = bks[b]; if (!arr.length) continue;
+        bctx.fillStyle = BCOL[b]; bctx.beginPath();
+        for (const i of arr) { const k = bean.state === 'blow' ? 1 - .55 * clamp(bean.t / DIE[i], 0, 1) : 1, s = sz * k; bctx.rect(X[i] - s / 2, Y[i] - s / 2, s, s); }
+        bctx.fill();
+      }
+      /* small beans orbiting the big one */
+      const al = bean.state === 'blow' ? clamp(1 - bean.t / .7, 0, 1) : clamp(bean.t / 1.4, 0, 1);
+      if (al > 0) [[-.62, -.5, .17, .3], [.6, .56, .12, -.5], [.4, -.68, .085, .9]].forEach(([ox, oy, k, ph], j) => {
+        const t = bean.t + j * 2, s = k * SP * bean.S * 1.4;
+        bctx.save(); bctx.globalAlpha = al * .9;
+        bctx.translate(bean.cx + ox * SP * bean.S * .9 + Math.sin(t * .6 + ph) * 8, bean.cy + oy * SP * bean.S * .9 + Math.cos(t * .5 + ph) * 10);
+        bctx.rotate(ph + t * .25); bctx.drawImage(sprite, -s / 2, -s / 2, s, s); bctx.restore();
+      });
+    };
+    const paintStatic = () => { layout(); bean.t = 2; for (let i = 0; i < N; i++) { const [tx, ty] = target(i, 0, 0); X[i] = tx; Y[i] = ty; } draw(); };
+    const size = () => {
+      W = hero.clientWidth; H = hero.clientHeight;
+      for (const c of [bc, wc]) { c.width = W * DPR; c.height = H * DPR; }
+      bctx.setTransform(DPR, 0, 0, DPR, 0, 0); wctx.setTransform(DPR, 0, 0, DPR, 0, 0); layout();
+      if (reduce && bean.state === 'home') paintStatic();
+    };
+    bean.assemble = () => {
+      bean.state = 'home'; bean.t = 0; layout();
+      for (let i = 0; i < N; i++) {
+        const [tx, ty] = target(i, 0, 0), a = Math.random() * 6.2832, r = 160 + Math.random() * 520;
+        X[i] = tx + Math.cos(a) * r; Y[i] = ty + Math.sin(a) * r * .8; VX[i] = VY[i] = 0; DL[i] = Math.random() * .55; DIE[i] = 9;
+      }
+      if (reduce) paintStatic();
+    };
+    bean.blow = () => { bean.state = 'blow'; bean.t = 0; for (let i = 0; i < N; i++) DIE[i] = .45 + Math.random() * 1.25; };
+    addEventListener('resize', size); size();
+    hero.addEventListener('pointermove', e => { const r = bc.getBoundingClientRect(); bean.mx = e.clientX - r.left; bean.my = e.clientY - r.top; });
+    hero.addEventListener('pointerleave', () => { bean.mx = bean.my = -9999; });
+
+    let lastB = 0;
+    if (!reduce) visible(hero, now => {
+      if (bean.state === 'off') return;
+      const dt = Math.min(.05, (now - lastB) / 1000 || .016); lastB = now; const kk = dt * 60; bean.t += dt;
+      if (bean.state === 'blow' && bean.t > 1.8) { bean.state = 'off'; bctx.clearRect(0, 0, W, H); return; }
+      const a = Math.sin(bean.t * .45) * .05, bob = Math.sin(bean.t * .8) * 7, R = 120 * Math.max(.6, bean.S * 2.2), R2 = R * R;
+      const damp = Math.pow(.78, kk), blow = bean.state === 'blow';
+      for (let i = 0; i < N; i++) {
+        if (blow) {
+          if (bean.t > DIE[i]) continue;
+          VX[i] += (.34 + (i % 7) * .05 + (X[i] - bean.cx) * .0012) * kk; VY[i] += (-.12 - (i % 5) * .03 + Math.sin(Y[i] * .02 + bean.t * 4) * .05 + (Y[i] - bean.cy) * .0009) * kk;
+          VX[i] *= Math.pow(.985, kk); VY[i] *= Math.pow(.985, kk);
+        } else {
+          const [tx, ty] = target(i, a, bob), g = clamp((bean.t - DL[i]) / .5, 0, 1) * .022;
+          VX[i] = (VX[i] + (tx - X[i]) * g * kk) * damp; VY[i] = (VY[i] + (ty - Y[i]) * g * kk) * damp;
+          const dx = X[i] - bean.mx, dy = Y[i] - bean.my, d2 = dx * dx + dy * dy;
+          if (d2 < R2 && d2 > 1) { const d = Math.sqrt(d2), f = (1 - d / R) ** 2 * 5.2 * kk; VX[i] += dx / d * f; VY[i] += dy / d * f; }
+        }
+        X[i] += VX[i] * kk; Y[i] += VY[i] * kk;
+      }
+      draw();
+    });
+
+    /* the liquid wipe */
+    const E = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const FING = Array.from({ length: 6 }, (_, j) => ({ c: (j + .5) / 6, w: 70 + 34 * Math.sin(j * 2.1), h: 90 * (.4 + .6 * Math.sin(j * 1.7 + 1) ** 2), ph: j * 1.3 }));
+    const DRIP = Array.from({ length: 11 }, (_, k) => ({ c: (k + .5) / 11, w: 20 + 17 * ((k * 37) % 10) / 10, len: 55 + 170 * ((k * 53) % 10) / 10, ph: k * 3.1 }));
+    const drawWipe = (p, t) => {
+      wctx.clearRect(0, 0, W, H);
+      const bandH = H * 1.7, topY = lerp(H + 70, -bandH - 140, E(p)), pulse = Math.sin(Math.PI * p), botY = topY + bandH, n = Math.ceil(W / 6) + 1;
+      const top = [], bot = [];
+      for (let i = 0; i <= n; i++) {
+        const x = Math.min(W, i * 6);
+        let yt = topY + 14 * Math.sin(x * .011 + t * 3.1) + 9 * Math.sin(x * .023 - t * 4.3) + 5 * Math.sin(x * .05 + t * 6);
+        for (const f of FING) { const dx = (x - (f.c * W + 60 * Math.sin(t + f.ph))) / f.w; yt -= f.h * pulse * Math.exp(-dx * dx); }
+        let yb = botY + 6 * Math.sin(x * .02 + t * 2);
+        for (const d of DRIP) { const dx = (x - (d.c * W + 30 * Math.sin(d.ph))) / d.w; yb += d.len * pulse * Math.exp(-dx * dx); }
+        top.push([x, yt]); bot.push([x, yb]);
+      }
+      const g = wctx.createLinearGradient(0, topY - 90, 0, botY);
+      g.addColorStop(0, '#cf9560'); g.addColorStop(.012, '#7a4a28'); g.addColorStop(.05, '#3c2112'); g.addColorStop(.5, '#24130a'); g.addColorStop(1, '#150a05');
+      wctx.fillStyle = g; wctx.beginPath(); wctx.moveTo(top[0][0], top[0][1]);
+      for (const q of top) wctx.lineTo(q[0], q[1]);
+      for (let i = bot.length - 1; i >= 0; i--) wctx.lineTo(bot[i][0], bot[i][1]);
+      wctx.closePath(); wctx.fill();
+      wctx.beginPath(); top.forEach((q, i) => i ? wctx.lineTo(q[0], q[1]) : wctx.moveTo(q[0], q[1]));
+      wctx.strokeStyle = 'rgba(244,206,156,.5)'; wctx.lineWidth = 2.2; wctx.stroke();
+      wctx.translate(0, 9); wctx.strokeStyle = 'rgba(244,206,156,.14)'; wctx.lineWidth = 6; wctx.stroke(); wctx.translate(0, -9);
+      for (const d of DRIP) { const y = botY + d.len * pulse * 1.08 + 6, r = d.w * .16 * pulse; if (r > 1.2) { wctx.fillStyle = '#150a05'; wctx.beginPath(); wctx.arc(d.c * W + 30 * Math.sin(d.ph), y, r, 0, 6.2832); wctx.fill(); } }
+    };
+    const runWipe = (onSwap, onDone) => {
+      const o = { p: 0 }; let swapped = false;
+      G.to(o, { p: 1, duration: 1.5, ease: 'none', onUpdate() {
+        const p = o.p; drawWipe(p, p * 1.5);
+        if (!swapped && lerp(H + 70, -H * 1.7 - 140, E(p)) <= -H * .25) { swapped = true; onSwap(); }
+      }, onComplete() { wctx.clearRect(0, 0, W, H); onDone(); } });
+    };
+
+    /* slide logic */
+    let cur = 0, busy = false, auto = null, started = false, vis = true, hov = false; const AUTO = 7.5, pr = { v: 0 };
+    const gate = () => { if (!auto) return; (started && vis && !hov && !document.hidden && !busy) ? auto.resume() : auto.pause(); };
+    const startAuto = () => {
+      if (auto) auto.kill(); pr.v = 0;
+      const bar = DOTS[cur];
+      auto = G.to(pr, { v: 1, duration: AUTO, ease: 'none', onUpdate: () => bar.style.setProperty('--p', pr.v), onComplete: () => go(cur + 1) });
+      gate();
+    };
+    const swap = i => {
+      cur = i; hero.dataset.slide = i;
+      SL.forEach((s, k) => { s.classList.toggle('on', k === i); s.setAttribute('aria-hidden', k !== i); s.querySelectorAll('a').forEach(a => { a.tabIndex = k === i ? 0 : -1; }); });
+      BG.forEach((b, k) => b.classList.toggle('on', k === i));
+      DOTS.forEach((d, k) => { d.classList.toggle('on', k === i); k === i ? d.setAttribute('aria-current', 'true') : d.removeAttribute('aria-current'); d.style.setProperty('--p', 0); });
+    };
+    const reveal = i => {
+      const s = SL[i];
+      G.fromTo(s.querySelectorAll('.ln .ch'), { y: '110%', filter: 'blur(6px)' }, { y: 0, filter: 'blur(0px)', duration: 1.1, stagger: .045, ease: 'expo.out', overwrite: true });
+      G.fromTo(s.querySelectorAll('.reveal, .hs-r'), { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: .9, stagger: .1, delay: .3, ease: 'power3.out', overwrite: true });
+      if (i > 0) G.fromTo(BG[i], { scale: 1.08 }, { scale: 1, duration: 3.2, ease: 'power2.out', overwrite: 'auto' });
+      if (i === 2 && typeof window.RR_pour === 'function') G.delayedCall(.6, window.RR_pour);
+    };
+    function go(i) {
+      i = (i + SL.length) % SL.length; if (busy || i === cur) return;
+      busy = true; if (auto) { auto.kill(); auto = null; }
+      if (cur === 0 && !reduce) bean.blow();
+      const apply = () => { swap(i); if (!reduce) reveal(i); if (i === 0) bean.assemble(); };
+      if (reduce) { apply(); busy = false; return; }
+      runWipe(apply, () => { busy = false; startAuto(); });
+    }
+    hero.querySelectorAll('.hs-arr').forEach(b => b.addEventListener('click', () => go(cur + +b.dataset.d)));
+    DOTS.forEach(b => b.addEventListener('click', () => go(+b.dataset.i)));
+    let tx0 = 0, ty0 = 0;
+    hero.addEventListener('touchstart', e => { tx0 = e.touches[0].clientX; ty0 = e.touches[0].clientY; }, { passive: true });
+    hero.addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - tx0, dy = e.changedTouches[0].clientY - ty0; if (Math.abs(dx) > 60 && Math.abs(dy) < Math.abs(dx) * .6) go(cur + (dx < 0 ? 1 : -1)); }, { passive: true });
+    $('.hs-ctl', hero).addEventListener('mouseenter', () => { hov = true; gate(); });
+    $('.hs-ctl', hero).addEventListener('mouseleave', () => { hov = false; gate(); });
+    new IntersectionObserver(e => { vis = e[0].isIntersecting; gate(); }, { threshold: .25 }).observe(hero);
+    document.addEventListener('visibilitychange', gate);
+
+    window.RR_heroStart = () => {
+      if (started) return; started = true;
+      bean.assemble();
+      if (!reduce) startAuto();
+    };
   }
 
   /* ---------- journey: a bean travels from cherry to cup as you scroll ---------- */
