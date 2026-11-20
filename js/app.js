@@ -1,18 +1,15 @@
-/* Roast & Ritual: interactions and effects */
+/* Roast & Ritual: content, pages and motion */
 (() => {
   const D = window.RR;
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine = matchMedia('(pointer:fine)').matches;
-  const small = matchMedia('(max-width:820px)').matches;
   const G = window.gsap, hasG = !!G && !!window.ScrollTrigger;
   if (hasG) G.registerPlugin(ScrollTrigger);
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
-  const lerp = (a, b, t) => a + (b - a) * t;
-  const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
-  const mix = (a, b, t) => '#' + hex(a).map((v, i) => Math.round(lerp(v, hex(b)[i], t)).toString(16).padStart(2, '0')).join('');
-  const state = { coldInView: false, lenis: null };
+  const state = { lenis: null };
+  try { history.scrollRestoration = 'manual'; } catch (e) {}
 
   /* ---------- smooth scroll ---------- */
   if (hasG && window.Lenis && !reduce) {
@@ -23,9 +20,10 @@
     G.ticker.lagSmoothing(0);
   }
   const scrollToEl = (el, immediate) => {
-    if (state.lenis) state.lenis.scrollTo(el, { immediate: !!immediate, offset: 0 });
-    else el.scrollIntoView();
+    if (state.lenis) state.lenis.scrollTo(el, { immediate: !!immediate, offset: 0, duration: 1.4 });
+    else el.scrollIntoView({ behavior: immediate || reduce ? 'auto' : 'smooth' });
   };
+  const lock = on => { if (state.lenis) (on ? state.lenis.stop() : state.lenis.start()); else document.body.style.overflow = on ? 'hidden' : ''; };
 
   /* ---------- progress, nav, back to top ---------- */
   const prog = $('#progress'), nav = $('#nav'), toTop = $('#toTop'), ttArc = $('#ttArc');
@@ -34,7 +32,7 @@
     prog.style.transform = `scaleX(${p})`;
     ttArc.style.strokeDashoffset = 132 * (1 - p);
     nav.classList.toggle('scrolled', scrollY > 60);
-    toTop.classList.toggle('show', scrollY > 600);
+    toTop.classList.toggle('show', scrollY > 700);
   };
   addEventListener('scroll', onScroll, { passive: true }); onScroll();
   toTop.addEventListener('click', () => {
@@ -42,17 +40,34 @@
     else scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
   });
 
-  /* ---------- section photos: slow parallax ---------- */
-  if (hasG && !reduce) $$('.sec-photo').forEach(p => G.fromTo($('.sp-img', p), { yPercent: -5 }, { yPercent: 5, ease: 'none', scrollTrigger: { trigger: p.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } }));
-
   /* ---------- recipe lookups ---------- */
   const all = [];
   Object.entries(D.recipes).forEach(([kind, groups]) => Object.entries(groups).forEach(([g, list]) => list.forEach(r => all.push({ ...r, kind, g }))));
   const byId = id => all.find(r => r.id === id);
   const kindOf = id => id[0] === 'c' ? 'cold' : id[0] === 's' ? 'snack' : 'hot';
+  const countOf = k => k === 'pairs' ? D.pairs.length : D.recipes[k].a.length + D.recipes[k].b.length;
+  $$('[data-n]').forEach(b => b.textContent = countOf(b.dataset.n));
 
-  /* ---------- origins ---------- */
-  const ogList = $('#ogList'), ogCard = $('#ogCard'), ogBg = $('#ogBg');
+  /* ---------- text splitting (words stay together, letters rise) ---------- */
+  const split = el => {
+    const walk = n => [...n.childNodes].forEach(c => {
+      if (c.nodeType === 3) {
+        const frag = document.createDocumentFragment();
+        c.textContent.split(/(\s+)/).forEach(part => {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(' ')); return; }
+          const wd = document.createElement('span'); wd.className = 'wd';
+          [...part].forEach(ch => { const s = document.createElement('span'); s.className = 'ch'; s.textContent = ch; wd.appendChild(s); });
+          frag.appendChild(wd);
+        });
+        c.replaceWith(frag);
+      } else if (c.nodeType === 1) walk(c);
+    });
+    walk(el); return $$('.ch', el);
+  };
+
+  /* ---------- origins: left story, turning globe, right details ---------- */
+  const ogList = $('#ogList'), ogLeft = $('#ogLeft'), ogRight = $('#ogRight');
   D.regions.forEach((r, i) => {
     const li = document.createElement('li');
     li.innerHTML = `<button data-i="${i}"><small>0${i + 1}</small>${r.name}</button>`;
@@ -63,101 +78,36 @@
     if (i === ogIdx) return; ogIdx = i;
     const r = D.regions[i];
     $$('li', ogList).forEach((li, k) => li.classList.toggle('on', k === i));
-    ogBg.classList.add('swap');
-    setTimeout(() => { ogBg.style.backgroundImage = `url(${r.img})`; ogBg.classList.remove('swap'); }, 280);
-    const bar = (l, v) => `<div class="bar"><span>${l}</span><div><i data-w="${v * 20}"></i></div></div>`;
-    ogCard.innerHTML = `<h3>${r.name}</h3><p class="tag">${r.tag}</p><p>${r.text}</p>
-      <div class="chips">${r.notes.map(n => `<span>${n}</span>`).join('')}</div>
-      <div class="meta"><div><b>Altitude</b>${r.alt}</div><div><b>Process</b>${r.process}</div><div><b>Best for</b>${r.best}</div></div>
+    const bar = (l, v) => `<div class="bar mono"><span>${l}</span><div><i data-w="${v * 20}"></i></div></div>`;
+    ogLeft.innerHTML = `<p class="og-n mono">0${i + 1} / 0${D.regions.length}</p><h3 class="og-name">${r.name}</h3><p class="og-tag">${r.tag}</p><p class="og-text">${r.text}</p><div class="chips">${r.notes.map(n => `<span>${n}</span>`).join('')}</div>`;
+    ogRight.innerHTML = `<dl class="og-meta"><div><dt class="mono">Altitude</dt><dd>${r.alt}</dd></div><div><dt class="mono">Process</dt><dd>${r.process}</dd></div><div><dt class="mono">Best for</dt><dd>${r.best}</dd></div></dl>
       <div class="bars">${bar('Acidity', r.bars.acidity)}${bar('Body', r.bars.body)}${bar('Sweetness', r.bars.sweetness)}</div>
-      <div class="og-coffees"><b>Coffees from ${r.name}</b><div class="og-cl">${r.coffees.map(id => { const c = byId(id); return `<button class="og-c" data-id="${id}"><span>${c.name}</span><small>${c.time}</small></button>`; }).join('')}</div></div>`;
-    requestAnimationFrame(() => requestAnimationFrame(() => $$('.bar i', ogCard).forEach(b => b.style.width = b.dataset.w + '%')));
-    if (hasG) G.fromTo(ogCard.children, { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: .6, stagger: .06, ease: 'power3.out', overwrite: true });
+      <div class="og-coffees"><p class="mono">Coffees from ${r.name}</p><div class="og-cl">${r.coffees.map(id => { const c = byId(id); return `<button class="og-c" data-id="${id}"><span>${c.name}</span><small>${c.time}</small></button>`; }).join('')}</div></div>`;
+    requestAnimationFrame(() => requestAnimationFrame(() => $$('.bar i', ogRight).forEach(b => b.style.width = b.dataset.w + '%')));
+    if (hasG && ogLeft.isConnected) G.fromTo([...ogLeft.children, ...ogRight.children], { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: .8, stagger: .05, ease: 'power3.out', overwrite: true });
   };
   ogList.addEventListener('click', e => { const b = e.target.closest('button'); if (b) showRegion(+b.dataset.i); });
-  ogCard.addEventListener('click', e => { const b = e.target.closest('.og-c'); if (b) openModal([b.dataset.id]); });
   ogList.addEventListener('mouseover', e => { const b = e.target.closest('button'); if (b && fine) showRegion(+b.dataset.i); });
+  ogRight.addEventListener('click', e => { const b = e.target.closest('.og-c'); if (b) openModal([b.dataset.id]); });
   showRegion(0);
-  if (fine && hasG && !reduce) {
-    ogCard.addEventListener('mousemove', e => {
-      const b = ogCard.getBoundingClientRect(), x = (e.clientX - b.left) / b.width - .5, y = (e.clientY - b.top) / b.height - .5;
-      G.to(ogCard, { rotateY: x * 5, rotateX: -y * 5, transformPerspective: 900, duration: .5, ease: 'power2.out' });
-    });
-    ogCard.addEventListener('mouseleave', () => G.to(ogCard, { rotateX: 0, rotateY: 0, duration: .8, ease: 'power3.out' }));
-  }
 
-  /* ---------- roast lab ---------- */
-  const rRange = $('#rRange'), rBody = $('#rbBody'), rSheen = $('#rbSheen');
-  $('#rBars').innerHTML = ['Acidity', 'Body', 'Sweetness'].map(l => `<div class="bar"><span>${l}</span><div><i></i></div></div>`).join('');
-  const rBarEls = $$('#rBars .bar i');
-  let rLast = -1;
-  const roastRender = () => {
-    const v = +rRange.value, a = Math.floor(v), b = Math.min(3, a + 1), t = v - a;
-    const A = D.roasts[a], B = D.roasts[b];
-    rBody.setAttribute('fill', mix(A.color, B.color, t));
-    rBody.setAttribute('rx', 68 + v * 4); rBody.setAttribute('ry', 102 + v * 3.2);
-    rSheen.setAttribute('opacity', .07 + v * .09);
-    ['acid', 'body', 'sweet'].forEach((k, i) => rBarEls[i].style.width = (lerp(A[k], B[k], t) * 20) + '%');
-    const n = Math.round(v);
-    if (n !== rLast) {
-      rLast = n; const R = D.roasts[n];
-      $('#rName').textContent = R.name + ' Roast'; $('#rTemp').textContent = R.temp;
-      $('#rText').textContent = R.text; $('#rNote').textContent = R.note;
-    }
-  };
-  rRange.addEventListener('input', roastRender); roastRender();
-
-  /* ---------- recipe sections (hot, cold, snacks) ---------- */
-  const placers = {};
-  $$('.rec[data-kind]').forEach(sec => {
-    const kind = sec.dataset.kind, grid = $('.rec-grid', sec), tg = $('.toggle', sec), thumb = $('.thumb', tg);
-    const labels = tg.dataset.labels.split('|'), btns = $$('button', tg);
-    btns.forEach((b, i) => b.textContent = labels[i]);
-    let g = 'a';
-    const place = () => { const on = $('button.on', tg); thumb.style.width = on.offsetWidth + 'px'; thumb.style.transform = `translateX(${on.offsetLeft - 5}px)`; };
-    const render = animate => {
-      grid.innerHTML = D.recipes[kind][g].map(r => `<button class="card" data-id="${r.id}">
-        <span class="tagline">${g === 'a' ? (kind === 'snacks' ? 'No oven needed' : 'No machine needed') : (kind === 'snacks' ? 'Oven or microwave' : 'Machine or equipment')}</span>
-        <h3>${r.name}</h3><p>${r.desc}</p>
-        <div class="foot2"><span>${r.time}</span><b>${r.gear}</b></div></button>`).join('');
-      if (animate && hasG) G.fromTo($$('.card', grid), { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: .7, stagger: .06, ease: 'power3.out' });
-    };
-    render(false);
-    tg.addEventListener('click', e => {
-      const b = e.target.closest('button'); if (!b || b.dataset.g === g) return;
-      g = b.dataset.g; btns.forEach(x => x.classList.toggle('on', x === b)); place(); render(true);
-    });
-    grid.addEventListener('mousemove', e => {
-      const c = e.target.closest('.card'); if (!c) return; const r = c.getBoundingClientRect();
-      c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px');
-    });
-    grid.addEventListener('click', e => { const c = e.target.closest('.card'); if (c) openModal([c.dataset.id]); });
-    $('.ro-count', $('.rec-open', sec)).textContent = `· ${D.recipes[kind].a.length + D.recipes[kind].b.length} recipes`;
-    placers[kind] = place;
-    place(); addEventListener('resize', place);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
-  });
-
-  /* ---------- pairs ---------- */
-  $('#pairsGrid').innerHTML = D.pairs.map((p, i) => {
-    const c = byId(p.coffee), s = byId(p.snack), k = kindOf(p.coffee);
-    return `<button class="pair" data-i="${i}"><span class="kind"><span class="${k}">${k}</span></span>
-      <span class="pr-names"><span>${c.name}</span><i>+</i><span>${s.name}</span></span><p>${p.why}</p><span class="more">See both recipes &rarr;</span></button>`;
-  }).join('');
-  $('#pairsGrid').addEventListener('click', e => { const b = e.target.closest('.pair'); if (!b) return; const p = D.pairs[+b.dataset.i]; openModal([p.coffee, p.snack], p); });
+  /* ---------- kitchen panels ---------- */
+  const panels = $$('.mp');
+  const activate = p => panels.forEach(x => x.classList.toggle('on', x === p));
+  panels.forEach(p => { p.addEventListener('mouseenter', () => fine && activate(p)); p.addEventListener('focus', () => activate(p)); });
 
   /* ---------- recipe modal with timers ---------- */
   const modal = $('#modal'), mCard = $('#mCard');
   let lastFocus = null, timers = [];
   const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
   const normSteps = r => r.steps.map(s => Array.isArray(s) ? { t: s[0], s: s[1] } : { t: s, s: 0 });
+  const tagFor = (kind, g) => g === 'a' ? (kind === 'snacks' ? 'No oven needed' : 'No machine needed') : (kind === 'snacks' ? 'Oven or microwave' : 'Machine or equipment');
   const block = (r, single) => {
     const k = kindOf(r.id), steps = normSteps(r), timed = steps.some(s => s.s > 0);
-    const tag = r.g === 'a' ? (r.kind === 'snacks' ? 'No oven needed' : 'No machine needed') : (r.kind === 'snacks' ? 'Oven or microwave' : 'Machine or equipment');
     return `<section class="rblock ${k}" data-rid="${r.id}">
-      <p class="eyebrow" style="color:var(--acc)">${k === 'snack' ? 'Snack' : k === 'cold' ? 'Cold coffee' : 'Hot coffee'}</p>
-      <${single ? 'h3 class="rname" style="font-size:clamp(2rem,5vw,3rem);padding-right:2.6rem"' : 'div class="rname"'}>${r.name}</${single ? 'h3' : 'div'}>
-      <div class="rmeta"><span>${r.time}</span><span>${tag}</span><span>${r.gear}</span></div>
+      <p class="eyebrow mono">${k === 'snack' ? 'Snack' : k === 'cold' ? 'Cold coffee' : 'Hot coffee'}</p>
+      <${single ? 'h3' : 'div'} class="rname">${r.name}</${single ? 'h3' : 'div'}>
+      <div class="rmeta"><span>${r.time}</span><span>${tagFor(r.kind, r.g)}</span><span>${r.gear}</span></div>
       <h4>Ingredients</h4><ul class="ing">${r.ing.map(x => `<li>${x}</li>`).join('')}</ul>
       <h4>Method</h4><ol>${steps.map(s => `<li>${s.t}</li>`).join('')}</ol>
       ${timed ? `<div class="m-timer"><div class="tt">00:00</div><div class="tmsg"></div><button data-t="start">Start timer</button><button data-t="reset">Reset</button></div>` : ''}
@@ -193,147 +143,284 @@
     const rs = ids.map(byId).filter(Boolean); if (!rs.length) return;
     lastFocus = document.activeElement; timers = [];
     const single = rs.length === 1;
+    mCard.style.setProperty('--ac', single ? ({ hot: '#ff7a3d', cold: '#7fd3ff', snack: '#f6c445' })[kindOf(rs[0].id)] : '#e9b45a');
     mCard.innerHTML = `<button class="close" aria-label="Close">&#10005;</button>` +
-      (single ? '' : `<div class="m-head"><p class="eyebrow">Perfect pair</p><h3>${rs[0].name} <i>+</i> ${rs[1].name}</h3><p class="m-why">${pair.why}</p></div><div style="height:1.6rem"></div>`) +
+      (single ? '' : `<div class="m-head"><p class="eyebrow mono">Perfect pair</p><h3>${rs[0].name} <i>+</i> ${rs[1].name}</h3><p class="m-why">${pair.why}</p></div><div style="height:1.8rem"></div>`) +
       rs.map(r => block(r, single)).join('');
     $$('.rblock', mCard).forEach((el, i) => initTimer(el, rs[i]));
     mCard.scrollTop = 0;
     modal.classList.add('open'); modal.setAttribute('aria-hidden', 'false');
-    if (state.lenis) state.lenis.stop(); else document.body.style.overflow = 'hidden';
+    lock(true);
     $('.close', mCard).focus();
   }
   const closeModal = () => {
     timers.forEach(f => f()); timers = [];
     modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true');
-    if (state.lenis) state.lenis.start(); else document.body.style.overflow = '';
+    lock(false);
     if (lastFocus) lastFocus.focus();
   };
   modal.addEventListener('click', e => { if (e.target === modal || e.target.closest('.close')) closeModal(); });
-  addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
 
-  /* ---------- facts, stats, credits ---------- */
-  $('#facts').innerHTML = D.facts.map(([a, b]) => `<div><b>${a}</b><span>${b}</span></div>`).join('');
+  /* ---------- science facts, stats, credits ---------- */
+  $('#facts').innerHTML = D.facts.map(([a, b]) => `<div class="reveal"><b>${a}</b><span>${b}</span></div>`).join('');
   $('#stOrigins').dataset.count = D.regions.length;
   $('#stCoffee').dataset.count = all.filter(r => r.kind !== 'snacks').length;
   $('#stSnacks').dataset.count = all.filter(r => r.kind === 'snacks').length;
+  $('#stPairs').dataset.count = D.pairs.length;
   const C = window.RR_CREDITS || {};
-  const labels = { hero: 'Hero photo', 'hero-pour': 'Hero video', ceremony: 'Ethiopia', colombia: 'Colombia', cherries: 'Brazil and Journey', vietnam: 'Vietnam', filter: 'India', kenya: 'Kenya', origin: 'Journey', drum: 'Roaster', brew: 'Brew', 'sec-hot': 'Hot section', 'sec-cold': 'Cold section', 'sec-snacks': 'Snacks section', 'sec-pairs': 'Pairs section' };
-  $('#creditList').innerHTML = Object.entries(C).map(([k, v]) => `<li>${labels[k] || k}: <a href="${v.page}" target="_blank" rel="noopener">${v.title || 'Photo'}</a> by ${v.artist || 'Unknown'} (${v.license}), via ${v.via || 'Wikimedia Commons'}</li>`).join('');
+  const labels = { 'j-cherry': 'Journey, Cherry', 'j-process': 'Journey, Process', 'j-roast': 'Journey, Roast', 'j-brew': 'Journey, Brew', ceremony: 'Kaldi section', 'sec-hot': 'Hot coffee', 'sec-cold': 'Cold coffee', 'sec-snacks': 'Snacks', 'sec-pairs': 'Pairs' };
+  $('#creditList').innerHTML = Object.entries(C).filter(([k]) => labels[k]).map(([k, v]) => `<li>${labels[k]}: <a href="${v.page}" target="_blank" rel="noopener">${v.title || 'Photo'}</a> by ${v.artist || 'Unknown'} (${v.license}), via ${v.via || 'Wikimedia Commons'}</li>`).join('');
+
+  /* ---------- recipe pages (hot, cold, snacks, pairs) ---------- */
+  const PAGES = {
+    hot: { n: '01', eye: 'Hot coffee', title: 'Served <em>Hot</em>', sub: 'Start with what is in your kitchen. No machine? You can still make a great cup.', ac: '#ff7a3d', img: 'images/sec-hot.webp', labels: ['No machine', 'With machine'], fx: 'ember', next: 'cold' },
+    cold: { n: '02', eye: 'Cold coffee', title: 'Poured <em>Cold</em>', sub: 'Jar shakes, whipped foam and slow cold brew. Most of these need nothing more than a glass.', ac: '#7fd3ff', img: 'images/sec-cold.webp', labels: ['No machine', 'With machine'], fx: 'ice', next: 'snacks' },
+    snacks: { n: '03', eye: 'Snacks', title: 'Something <em>on the side</em>', sub: 'Simple, vegetarian and egg-free. Pick the tawa and kadhai ones, or switch to oven and microwave.', ac: '#f6c445', img: 'images/sec-snacks.webp', labels: ['No oven', 'Oven or microwave'], fx: 'crumb', next: 'pairs' },
+    pairs: { n: '04', eye: 'Perfect pairs', title: 'Coffee <em>and</em> a Bite', sub: 'Six combinations that work. Open one to see both recipes together.', ac: '#e9b45a', img: 'images/sec-pairs.webp', fx: 'dust', next: 'hot' }
+  };
+  const NAMES = { hot: 'Hot coffee', cold: 'Cold coffee', snacks: 'Snacks', pairs: 'Perfect pairs' };
+  const rpage = $('#rpage'), mainEl = $('main'), rpBody = $('#rpBody'), rpSeg = $('#rpSeg'), rpCount = $('#rpCount');
+  let cur = null, grp = 'a';
+
+  /* little particle worlds behind each page title */
+  const fx = (() => {
+    const cv = $('#rpFx'), ctx = cv.getContext('2d'), DPR = Math.min(devicePixelRatio || 1, 2);
+    let W = 0, H = 0, raf = 0, ps = [], M = null, last = 0;
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    const MODES = {
+      ember: { n: 46, col: '255,150,80', glow: 1, make: () => ({ x: rnd(0, W), y: H + rnd(0, 60), vx: rnd(-14, 14), vy: -rnd(26, 84), r: rnd(.8, 2.6), max: rnd(4, 8) }) },
+      ice: { n: 34, col: '170,225,255', glow: 1, ring: 1, make: () => ({ x: rnd(0, W), y: -rnd(10, 60), vx: rnd(-8, 8), vy: rnd(14, 40), r: rnd(1.6, 6), max: rnd(8, 14) }) },
+      crumb: { n: 38, col: '246,196,69', make: () => ({ x: rnd(0, W), y: -rnd(10, 60), vx: rnd(-20, 20), vy: rnd(34, 84), r: rnd(1, 2.6), max: rnd(7, 11) }) },
+      dust: { n: 52, col: '233,180,90', glow: 1, make: () => ({ x: rnd(0, W), y: rnd(0, H), vx: rnd(-12, 12), vy: -rnd(4, 18), r: rnd(.7, 2), max: rnd(5, 10) }) }
+    };
+    const size = () => { const r = cv.parentElement.getBoundingClientRect(); W = r.width; H = r.height; cv.width = W * DPR; cv.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0); };
+    const frame = t => {
+      const dt = Math.min(.05, (t - last) / 1000 || .016); last = t;
+      ctx.clearRect(0, 0, W, H);
+      for (const p of ps) {
+        p.t += dt; if (p.t > p.max || p.y < -80 || p.y > H + 80) Object.assign(p, M.make(), { t: 0, ph: Math.random() * 6.28 });
+        p.x += (p.vx + Math.sin(p.t * 1.3 + p.ph) * 10) * dt; p.y += p.vy * dt;
+        const a = Math.sin(Math.PI * clamp(p.t / p.max, 0, 1)) * (M.glow ? .9 : .75);
+        if (M.glow) { const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 5); g.addColorStop(0, `rgba(${M.col},${a})`); g.addColorStop(1, `rgba(${M.col},0)`); ctx.fillStyle = g; ctx.fillRect(p.x - p.r * 5, p.y - p.r * 5, p.r * 10, p.r * 10); }
+        if (M.ring) { ctx.strokeStyle = `rgba(${M.col},${a * .7})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.stroke(); }
+        else { ctx.fillStyle = `rgba(${M.col},${a})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (M.glow ? .6 : 1), 0, 6.2832); ctx.fill(); }
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    return {
+      start(mode) {
+        cancelAnimationFrame(raf); if (reduce) return;
+        M = MODES[mode]; size(); ps = Array.from({ length: innerWidth < 700 ? Math.round(M.n * .6) : M.n }, () => Object.assign(M.make(), { t: Math.random() * 4, ph: Math.random() * 6.28 }));
+        ps.forEach(p => { if (mode !== 'ember' && mode !== 'dust') p.y = Math.random() * H; });
+        last = 0; raf = requestAnimationFrame(frame);
+      },
+      stop() { cancelAnimationFrame(raf); ctx.clearRect(0, 0, W, H); },
+      size
+    };
+  })();
+  addEventListener('resize', () => { if (cur) fx.size(); });
+
+  const cardsHTML = (kind, g) => D.recipes[kind][g].map((r, i) => `<button class="card${i === 0 ? ' big' : ''}" data-id="${r.id}">
+      <span class="c-top"><span class="c-tag mono">${tagFor(kind, g)}</span></span><span class="c-n" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+      <h3>${r.name}</h3><p>${r.desc}</p>
+      <span class="c-foot mono"><span>${r.time}</span><b>${r.gear}</b><i class="c-go">&rarr;</i></span></button>`).join('');
+  const pairsHTML = () => D.pairs.map((p, i) => {
+    const c = byId(p.coffee), s = byId(p.snack), k = kindOf(p.coffee);
+    return `<button class="pair" data-i="${i}" style="--ac:${k === 'cold' ? '#7fd3ff' : '#ff7a3d'}"><span class="p-kind mono">${k} coffee + a snack</span>
+      <span class="p-row"><span>${c.name}</span><span class="pp">with</span><span>${s.name}</span></span><p>${p.why}</p>
+      <span class="c-foot mono"><span>${c.time} · ${s.time}</span><i class="c-go">&rarr;</i></span></button>`;
+  }).join('');
+
+  const placeSeg = () => {
+    const on = $('button.on', rpSeg), th = $('.thumb', rpSeg); if (!on || !th) return;
+    th.style.width = on.offsetWidth + 'px'; th.style.transform = `translateX(${on.offsetLeft - 4}px)`;
+  };
+  addEventListener('resize', placeSeg);
+  let gridST = [];
+  const revealGrid = sel => {
+    gridST.forEach(t => t.kill()); gridST = [];
+    if (!hasG) return;
+    const els = $$(sel, rpBody); G.set(els, { opacity: 0, y: 46 });
+    gridST = ScrollTrigger.batch(els, { start: 'top 95%', once: true, onEnter: b => G.to(b, { opacity: 1, y: 0, duration: .85, stagger: .07, ease: 'power3.out', overwrite: true }) });
+    ScrollTrigger.refresh();
+  };
+  const renderGrid = key => {
+    if (key === 'pairs') { rpBody.innerHTML = `<div class="pairs-grid">${pairsHTML()}</div>`; rpCount.innerHTML = `<b>${D.pairs.length}</b> pairs`; revealGrid('.pair'); return; }
+    rpBody.innerHTML = `<div class="rec-grid">${cardsHTML(key, grp)}</div>`;
+    rpCount.innerHTML = `<b>${D.recipes[key][grp].length}</b> recipes`;
+    revealGrid('.card');
+  };
+  const renderPage = key => {
+    const p = PAGES[key]; grp = 'a';
+    rpage.dataset.k = key; rpage.style.setProperty('--ac', p.ac);
+    $('#rpEye').textContent = `${p.n} / ${p.eye}`;
+    $('#rpTitle').innerHTML = p.title; split($('#rpTitle'));
+    $('#rpSub').textContent = p.sub;
+    $('.rp-img', rpage).style.backgroundImage = `url(${p.img})`;
+    $('#rpNextT').textContent = NAMES[p.next]; $('#rpNext').setAttribute('href', '#recipes-' + p.next);
+    if (p.labels) {
+      rpSeg.hidden = false;
+      rpSeg.innerHTML = `<button class="on" data-g="a">${p.labels[0]}</button><button data-g="b">${p.labels[1]}</button><i class="thumb"></i>`;
+    } else { rpSeg.hidden = true; rpSeg.innerHTML = ''; }
+    renderGrid(key);
+  };
+  rpSeg.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b || b.dataset.g === grp) return;
+    grp = b.dataset.g; $$('button', rpSeg).forEach(x => x.classList.toggle('on', x === b)); placeSeg(); renderGrid(cur);
+  });
+  rpBody.addEventListener('pointermove', e => {
+    const c = e.target.closest('.card, .pair'); if (!c) return; const r = c.getBoundingClientRect();
+    c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  });
+  rpBody.addEventListener('click', e => {
+    const c = e.target.closest('.card'); if (c) return openModal([c.dataset.id]);
+    const p = e.target.closest('.pair'); if (p) { const q = D.pairs[+p.dataset.i]; openModal([q.coffee, q.snack], q); }
+  });
+
+  const applyPage = key => {
+    cur = key;
+    if (key) {
+      renderPage(key);
+      rpage.hidden = false; mainEl.hidden = true;
+      if (state.lenis) state.lenis.scrollTo(0, { immediate: true }); else scrollTo(0, 0);
+      placeSeg(); fx.start(PAGES[key].fx);
+    } else { rpage.hidden = true; mainEl.hidden = false; fx.stop(); gridST.forEach(t => t.kill()); gridST = []; }
+    if (state.lenis) state.lenis.resize();
+    if (hasG) ScrollTrigger.refresh();
+    onScroll();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeSeg);
+    if (key && hasG) {
+      G.fromTo('.rp-back, #rpEye', { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: .8, stagger: .08, ease: 'power3.out', overwrite: true });
+      G.fromTo('#rpTitle .ch', { yPercent: 110 }, { yPercent: 0, duration: 1.1, stagger: .03, ease: 'expo.out', overwrite: true });
+      G.fromTo('#rpSub', { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: .9, delay: .3, ease: 'power3.out', overwrite: true });
+      G.fromTo('#rpBar', { y: -30, opacity: 0 }, { y: 0, opacity: 1, duration: .8, delay: .45, ease: 'power3.out', overwrite: true });
+    }
+  };
+
+  /* ---------- wipe transition ---------- */
+  const wipe = $('#wipe'), wipeTxt = $('#wipeTxt');
+  const swap = (fn, label) => {
+    if (reduce || !hasG) return fn();
+    wipeTxt.textContent = label || '';
+    G.timeline().set(wipe, { yPercent: 101, visibility: 'visible' })
+      .to(wipe, { yPercent: 0, duration: .7, ease: 'power4.inOut' })
+      .fromTo(wipeTxt, { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: .5, ease: 'power3.out' }, '-=.3')
+      .add(fn)
+      .to(wipe, { yPercent: -101, duration: .8, ease: 'power4.inOut' }, '+=.15')
+      .set(wipe, { visibility: 'hidden' });
+  };
+  const goTo = sel => { try { const t = $(sel); if (t) requestAnimationFrame(() => scrollToEl(t, true)); } catch (e) {} };
+  const openPage = key => { closeMenu(); history.pushState(null, '', '#recipes-' + key); swap(() => applyPage(key), NAMES[key]); };
+  const go = t => {
+    if (t.startsWith('page:')) return openPage(t.slice(5));
+    const sel = t === '#top' ? '#top' : t;
+    if (cur) { history.pushState(null, '', t === '#top' ? location.pathname : t); swap(() => { applyPage(null); goTo(sel); }, 'Roast & Ritual'); }
+    else { const el = $(sel); if (el) { history.pushState(null, '', t === '#top' ? location.pathname : t); scrollToEl(el); } }
+  };
+  document.addEventListener('click', e => {
+    const a = e.target.closest('[data-go]'); if (!a) return;
+    e.preventDefault(); closeMenu(); go(a.dataset.go);
+  });
+  $('#rpBack').addEventListener('click', () => { history.pushState(null, '', '#menu'); swap(() => { applyPage(null); goTo('#menu'); }, 'The Kitchen'); });
+  $('#rpNext').addEventListener('click', e => { e.preventDefault(); openPage(PAGES[cur].next); });
+  const keyFromHash = () => { const m = /^#recipes-(hot|cold|snacks|pairs)$/.exec(location.hash); return m ? m[1] : null; };
+  addEventListener('popstate', () => {
+    const k = keyFromHash(); if (k === cur) return;
+    swap(() => { applyPage(k); if (!k && location.hash.length > 1) goTo(location.hash); }, k ? NAMES[k] : 'Roast & Ritual');
+  });
+  { const k0 = keyFromHash(); if (k0) applyPage(k0); }
+
+  /* ---------- mobile menu ---------- */
+  const menuOv = $('#menuOv'), navBtn = $('#navBtn');
+  function closeMenu() { if (!menuOv.classList.contains('open')) return; menuOv.classList.remove('open'); menuOv.setAttribute('aria-hidden', 'true'); navBtn.setAttribute('aria-expanded', 'false'); lock(false); }
+  navBtn.addEventListener('click', () => {
+    const open = !menuOv.classList.contains('open');
+    menuOv.classList.toggle('open', open); menuOv.setAttribute('aria-hidden', String(!open)); navBtn.setAttribute('aria-expanded', String(open)); lock(open);
+  });
+  addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (modal.classList.contains('open')) closeModal(); else closeMenu();
+  });
 
   /* ---------- no animation library: show everything and stop ---------- */
   if (!hasG) {
-    $('#loader').remove(); $$('.reveal').forEach(e => e.classList.remove('reveal')); $$('.ln .ch').forEach(e => e.style.transform = 'none');
+    $('#loader').remove(); document.documentElement.classList.remove('js');
     $$('#molSvg .bonds path').forEach(p => p.style.strokeDashoffset = 0); $$('#molSvg .atoms text').forEach(t => t.style.opacity = 1);
-    $('#molFormula').style.opacity = 1;
+    $('#molFormula').style.opacity = 1; $$('.manifesto .w').forEach(w => w.style.opacity = 1);
     return;
   }
 
   /* ---------- hero title split + loader ---------- */
-  $$('#heroTitle .ln').forEach(l => {
-    if (l.classList.contains('amp')) { l.innerHTML = `<span class="ch">${l.textContent}</span>`; return; }
-    l.innerHTML = [...l.textContent].map(c => `<span class="ch">${c}</span>`).join('');
-  });
-  const ldWave = $('#ldWaveG'), ldFill = $('#ldFill'), ldNum = $('#ldNum'), loader = $('#loader'), cnt = { v: 0 };
+  split($('#heroTitle'));
+  G.set('#heroTitle .ch', { yPercent: 112 });
+  G.set('.reveal-h', { opacity: 0, y: 24 });
+  const ldNum = $('#ldNum'), ldBar = $('#ldBar'), loader = $('#loader'), cnt = { v: 0 };
   const intro = () => {
-    const pour = !reduce && typeof window.RR_pour === 'function';
-    if (pour) window.RR_pour();
-    return G.timeline()
-      .fromTo('#heroTitle .ch', { filter: pour ? 'blur(7px)' : 'blur(0px)' }, { y: 0, filter: 'blur(0px)', duration: 1.2, stagger: .045, ease: 'expo.out' }, pour ? 1 : 0)
-      .to('.hero .reveal', { opacity: 1, y: 0, duration: .9, stagger: .12, ease: 'power3.out' }, '-=.7');
+    window.RR_introDone = true; dispatchEvent(new Event('rr-intro'));
+    G.timeline()
+      .to('#heroTitle .ch', { yPercent: 0, duration: 1.3, stagger: .04, ease: 'expo.out' }, 0)
+      .to('.reveal-h', { opacity: 1, y: 0, duration: 1, stagger: .1, ease: 'power3.out' }, .45);
   };
   document.body.style.overflow = 'hidden';
-  G.timeline({ delay: .2 })
-    .to(cnt, { v: 100, duration: reduce ? .1 : 1.9, ease: 'power1.inOut', onUpdate() { ldNum.textContent = Math.round(cnt.v); ldFill.setAttribute('y', 142 - cnt.v * .84); ldWave.setAttribute('transform', `translate(0 ${139 - cnt.v * .84})`); } })
-    .to('.ld-inner', { opacity: 0, y: -20, duration: .5 })
-    .to('.ld-curtain.l', { xPercent: -101, duration: 1, ease: 'expo.inOut' }, '<.1')
-    .to('.ld-curtain.r', { xPercent: 101, duration: 1, ease: 'expo.inOut' }, '<')
-    .add(() => { loader.style.pointerEvents = 'none'; document.body.style.overflow = ''; intro(); }, '-=.5')
+  G.timeline({ delay: .15 })
+    .to(cnt, { v: 100, duration: reduce ? .1 : 1.6, ease: 'power1.inOut', onUpdate() { ldNum.textContent = Math.round(cnt.v); ldBar.style.transform = `scaleX(${cnt.v / 100})`; } })
+    .to('.ld-in', { opacity: 0, y: -24, duration: .45 })
+    .to('.ld-curtain.t', { yPercent: -101, duration: .9, ease: 'expo.inOut' }, '<.05')
+    .to('.ld-curtain.b', { yPercent: 101, duration: .9, ease: 'expo.inOut' }, '<')
+    .add(() => { loader.style.pointerEvents = 'none'; document.body.style.overflow = ''; intro(); }, '-=.45')
     .set(loader, { display: 'none' }, '+=.8');
 
-  /* ---------- page pour transition ---------- */
-  const pour = $('#pour');
-  $$('[data-pour]').forEach(a => a.addEventListener('click', e => {
-    const tgt = $(a.getAttribute('href')); if (!tgt) return;
-    e.preventDefault();
-    if (cur) history.pushState(null, '', a.getAttribute('href'));
-    if (reduce) { if (cur) applyPage(null); return scrollToEl(tgt, true); }
-    G.timeline()
-      .set(pour, { yPercent: 0, y: '112%' })
-      .to(pour, { y: '0%', duration: .65, ease: 'power3.in' })
-      .add(() => { if (cur) applyPage(null); requestAnimationFrame(() => scrollToEl(tgt, true)); })
-      .to(pour, { y: '-112%', duration: .7, ease: 'power3.out', delay: .1 });
-  }));
-
-
-  /* ---------- recipe pages (hot, cold, snacks, pairs) ---------- */
-  const rpage = $('#rpage'), mainEl = $('main'), PG = {};
-  let cur = null;
-  [['hot', '#hot'], ['cold', '#cold'], ['snacks', '#snacks'], ['pairs', '#pairs']].forEach(([k, sel]) => {
-    const sec = $(sel);
-    PG[k] = { sec, sel, mode: sec.dataset.mode || 'hot', eye: $('.eyebrow', sec).textContent, title: $('.h-big, .h-med', sec).innerHTML,
-      sub: $('.rec-sub', sec).textContent, img: $('.sp-img', sec).style.backgroundImage, home: $('.rec-body', sec), node: $('.rec-body-in', sec) };
-  });
-  const applyPage = key => {
-    if (cur) PG[cur].home.appendChild(PG[cur].node);
-    cur = key;
-    if (key) {
-      const p = PG[key];
-      rpage.dataset.mode = p.mode; $('#rpEye').textContent = p.eye; $('#rpTitle').innerHTML = p.title; $('#rpSub').textContent = p.sub;
-      $('.sp-img', rpage).style.backgroundImage = p.img;
-      $('#rpBody').appendChild(p.node);
-      rpage.hidden = false; mainEl.hidden = true;
-      if (placers[key]) placers[key]();
-      if (state.lenis) state.lenis.scrollTo(0, { immediate: true }); else scrollTo(0, 0);
-    } else { rpage.hidden = true; mainEl.hidden = false; }
-    if (state.lenis) state.lenis.resize();
-    ScrollTrigger.refresh(); onScroll();
-    if (key && hasG) G.fromTo(['.rp-back', '#rpEye', '#rpTitle', '#rpSub'], { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: .8, stagger: .08, ease: 'power3.out', overwrite: true });
-    if (key && hasG) G.fromTo($$('.card, .pair', rpage), { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: .7, stagger: .05, delay: .2, ease: 'power3.out', overwrite: true });
-  };
-  const swap = fn => {
-    if (reduce || !hasG) return fn();
-    G.timeline().set(pour, { yPercent: 0, y: '112%' }).to(pour, { y: '0%', duration: .55, ease: 'power3.in' }).add(fn)
-      .to(pour, { y: '-112%', duration: .6, ease: 'power3.out', delay: .1 });
-  };
-  const goTo = sel => { try { const t = $(sel); if (t) requestAnimationFrame(() => scrollToEl(t, true)); } catch (e) {} };
-  const openPage = key => { history.pushState(null, '', '#recipes-' + key); swap(() => applyPage(key)); };
-  Object.entries(PG).forEach(([k, p]) => {
-    $('.rec-open', p.sec).addEventListener('click', () => openPage(k));
-    $('.h-big, .h-med', p.sec).addEventListener('click', () => openPage(k));
-  });
-  $('#rpBack').addEventListener('click', () => {
-    const sel = PG[cur].sel; history.pushState(null, '', sel);
-    swap(() => { applyPage(null); goTo(sel); });
-  });
-  const keyFromHash = () => { const m = /^#recipes-(hot|cold|snacks|pairs)$/.exec(location.hash); return m ? m[1] : null; };
-  addEventListener('popstate', () => {
-    const k = keyFromHash(); if (k === cur) return;
-    swap(() => { applyPage(k); if (!k && location.hash.length > 1) goTo(location.hash); });
-  });
-  { const k0 = keyFromHash(); if (k0) applyPage(k0); }
-
-  /* ---------- reveals and counters ---------- */
-  $$('section:not(.hero) .eyebrow, .h-med, .h-big.sm, .rec-sub, .rec-open, .roast-grid, .levels, .mol-inner > *, .og-list li, .stat, .jstep, .pairs-grid')
-    .forEach(e => e.classList.add('reveal'));
-  $$('#rpage .reveal').forEach(e => e.classList.toggle('reveal', false));
-  ScrollTrigger.batch('section:not(.hero) .reveal', {
+  /* ---------- reveals, counters, manifesto ---------- */
+  ScrollTrigger.batch('main .reveal', {
     start: 'top 92%', once: true,
     onEnter: els => G.to(els, { opacity: 1, y: 0, duration: .9, stagger: .09, ease: 'power3.out' })
   });
   $$('[data-count]').forEach(el => ScrollTrigger.create({
-    trigger: el, start: 'top 90%', once: true,
+    trigger: el, start: 'top 92%', once: true,
     onEnter: () => { const o = { v: 0 }; G.to(o, { v: +el.dataset.count, duration: 1.8, ease: 'power2.out', onUpdate: () => el.textContent = Math.round(o.v) }); }
   }));
+  const manifesto = $('#manifesto');
+  manifesto.innerHTML = manifesto.textContent.trim().split(/\s+/).map(w => `<span class="w">${w}</span>`).join(' ');
+  G.fromTo('#manifesto .w', { opacity: .16 }, { opacity: 1, stagger: .06, ease: 'none', scrollTrigger: { trigger: manifesto, start: 'top 82%', end: 'bottom 48%', scrub: true } });
 
-  /* ---------- hero: mouse parallax + pinned scroll-drawn caffeine formula ---------- */
-  if (fine && !reduce) {
-    const layers = $$('[data-depth]');
-    const qs = layers.map(l => [G.quickTo(l, 'x', { duration: .9, ease: 'power3' }), G.quickTo(l, 'y', { duration: .9, ease: 'power3' }), +l.dataset.depth]);
-    $('#hero').addEventListener('mousemove', e => {
-      const x = e.clientX - innerWidth / 2, y = e.clientY - innerHeight / 2;
-      qs.forEach(([qx, qy, d]) => { qx(x * d); qy(y * d); });
-    });
+  /* ---------- marquees speed up with scroll ---------- */
+  const mq = $('#mqTrack'), fm = $('#fmTrack');
+  if (mq && fm) {
+    const t1 = G.to(mq, { xPercent: -50, duration: 36, ease: 'none', repeat: -1 });
+    const t2 = G.fromTo(fm, { xPercent: -50 }, { xPercent: 0, duration: 46, ease: 'none', repeat: -1 });
+    if (!reduce) ScrollTrigger.create({
+      start: 0, end: 'max',
+      onUpdate: self => {
+        const v = Math.min(Math.abs(self.getVelocity()) / 350, 6);
+        G.to([t1, t2], { timeScale: 1 + v, duration: .25, overwrite: true });
+        G.to([t1, t2], { timeScale: 1, duration: 1.4, delay: .25 });
+      }
+    }); else { t1.pause(); t2.pause(); }
   }
+
+  /* ---------- journey: cards stack, images drift ---------- */
+  const jc = $$('.jcard');
+  jc.forEach((c, i) => {
+    G.fromTo($('img', c), { scale: 1.18 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: c, start: 'top bottom', end: 'top 18%', scrub: true } });
+    const nx = jc[i + 1];
+    if (nx) G.to(c, { scale: .93, '--dim': .62, ease: 'none', scrollTrigger: { trigger: nx, start: 'top 88%', end: 'top 24%', scrub: true } });
+  });
+
+  /* ---------- legend, kitchen panels ---------- */
+  G.fromTo('.lg-img', { clipPath: 'inset(16% 16% 16% 16% round 28px)' }, { clipPath: 'inset(0% 0% 0% 0% round 28px)', duration: 1.5, ease: 'expo.out', scrollTrigger: { trigger: '.lg-img', start: 'top 85%', once: true } });
+  G.fromTo('.lg-img img', { yPercent: -7 }, { yPercent: 7, ease: 'none', scrollTrigger: { trigger: '.lg-img', start: 'top bottom', end: 'bottom top', scrub: true } });
+  G.from('.mp', { y: 70, opacity: 0, stagger: .1, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: '.mn-panels', start: 'top 86%', once: true } });
+  G.fromTo('.lg-amh', { xPercent: -50, yPercent: -50, x: -80 }, { x: 80, ease: 'none', scrollTrigger: { trigger: '.legend', start: 'top bottom', end: 'bottom top', scrub: true } });
+
+  /* ---------- hero: scroll hands the bean to the 3D scene, pointer nudges the Amharic ---------- */
+  ScrollTrigger.create({ trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true, onUpdate: s => window.RR_heroP = s.progress });
+  const amh = $('#heroAmh');
+  if (fine && !reduce) {
+    let tx = 0, ty = 0, x = 0, y = 0;
+    $('#hero').addEventListener('mousemove', e => { tx = (e.clientX / innerWidth - .5) * -40; ty = (e.clientY / innerHeight - .5) * -26; });
+    G.ticker.add(() => { x += (tx - x) * .06; y += (ty - y) * .06; amh.style.translate = `${x}px ${y}px`; });
+  }
+
   /* ---------- science: caffeine molecule draws as you scroll ---------- */
   const bonds = $$('#molSvg .bonds path'), atoms = $$('#molSvg .atoms text');
   bonds.forEach(p => { p._L = p.getTotalLength(); p.style.strokeDasharray = p._L; p.style.strokeDashoffset = p._L; });
@@ -347,58 +434,22 @@
     molName.textContent = p < .04 ? 'Scroll to build the molecule' : p < .98 ? 'Building caffeine…' : 'Caffeine';
   };
   molRender(0);
-  ScrollTrigger.create({ trigger: '#molSvg', start: 'top 95%', end: 'top 45%', scrub: .2, onUpdate: s => molRender(s.progress) });
+  ScrollTrigger.create({ trigger: '.sci-grid', start: 'top 80%', end: 'top 20%', scrub: .2, onUpdate: s => molRender(s.progress) });
 
-  /* ---------- magnetic buttons ---------- */
-  if (fine && !reduce) $$('[data-mag]').forEach(b => {
-    b.addEventListener('mousemove', e => { const r = b.getBoundingClientRect(); G.to(b, { x: (e.clientX - r.left - r.width / 2) * .3, y: (e.clientY - r.top - r.height / 2) * .4, duration: .4, ease: 'power3.out' }); });
-    b.addEventListener('mouseleave', () => G.to(b, { x: 0, y: 0, duration: .7, ease: 'elastic.out(1,.4)' }));
-  });
-
-  /* ---------- cursor: a single coffee bean ---------- */
-  const bean = $('#cur-bean');
+  /* ---------- magnetic buttons, cursor ring ---------- */
   if (fine && !reduce) {
+    $$('[data-mag]').forEach(b => {
+      b.addEventListener('mousemove', e => { const r = b.getBoundingClientRect(); G.to(b, { x: (e.clientX - r.left - r.width / 2) * .3, y: (e.clientY - r.top - r.height / 2) * .4, duration: .4, ease: 'power3.out' }); });
+      b.addEventListener('mouseleave', () => G.to(b, { x: 0, y: 0, duration: .7, ease: 'elastic.out(1,.4)' }));
+    });
+    const cur0 = $('#cursor'); let tx = innerWidth / 2, ty = innerHeight / 2, x = tx, y = ty;
     document.body.classList.add('has-cursor');
-    addEventListener('mousemove', e => { bean.style.opacity = 1; bean.style.transform = `translate(${e.clientX}px,${e.clientY}px) rotate(32deg)`; });
-    document.addEventListener('mouseleave', () => bean.style.opacity = 0);
-    document.addEventListener('mouseover', e => bean.classList.toggle('hov', !!e.target.closest('a,button,input,.card,.pair')));
+    addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; cur0.style.opacity = 1; });
+    document.addEventListener('mouseleave', () => cur0.style.opacity = 0);
+    document.addEventListener('mouseover', e => cur0.classList.toggle('hov', !!e.target.closest('a,button,.card,.pair,.mp')));
+    G.ticker.add(() => { x += (tx - x) * .22; y += (ty - y) * .22; cur0.style.transform = `translate(${x}px,${y}px)`; });
   }
 
-  /* ---------- falling beans, or ice cubes in the cold section ---------- */
-  const cv = $('#fall'), ctx = cv.getContext('2d');
-  let W = 0, H = 0; const DPR = Math.min(devicePixelRatio || 1, 2);
-  const size = () => { W = innerWidth; H = innerHeight; cv.width = W * DPR; cv.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0); };
-  size(); addEventListener('resize', size);
-  const N = small ? 7 : 14;
-  const mk = top => ({ x: Math.random() * W, y: top ? -40 : Math.random() * H, s: 6 + Math.random() * 13, r: Math.random() * 6.28, vr: (Math.random() - .5) * .02, vy: .25 + Math.random() * .7, vx: (Math.random() - .5) * .25, k: Math.random() * 10 });
-  const ps = Array.from({ length: N }, () => mk(false));
-  let cold = 0, vel = 0;
-  ScrollTrigger.create({ trigger: '#cold', start: 'top 70%', end: 'bottom 30%', onToggle: s => state.coldInView = s.isActive });
-  const drawBean = (p, a) => {
-    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.globalAlpha = a;
-    ctx.fillStyle = '#6b4126'; ctx.beginPath(); ctx.ellipse(0, 0, p.s * .62, p.s, 0, 0, 6.29); ctx.fill();
-    ctx.strokeStyle = '#2a170c'; ctx.lineWidth = Math.max(1, p.s * .12); ctx.beginPath();
-    ctx.moveTo(0, -p.s * .9); ctx.quadraticCurveTo(p.s * .35, 0, 0, p.s * .9); ctx.stroke(); ctx.restore();
-  };
-  const drawIce = (p, a) => {
-    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.globalAlpha = a; const s = p.s * 1.1;
-    ctx.fillStyle = 'rgba(190,225,240,.22)'; ctx.strokeStyle = 'rgba(220,240,250,.7)'; ctx.lineWidth = 1.2;
-    ctx.beginPath(); ctx.roundRect(-s / 2, -s / 2, s, s, s * .22); ctx.fill(); ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.moveTo(-s * .3, -s * .1); ctx.lineTo(-s * .1, -s * .3); ctx.stroke(); ctx.restore();
-  };
-  const loop = () => {
-    ctx.clearRect(0, 0, W, H);
-    cold = lerp(cold, state.coldInView ? 1 : 0, .04);
-    vel = lerp(vel, state.lenis ? state.lenis.velocity : 0, .1);
-    for (const p of ps) {
-      p.y += p.vy + Math.abs(vel) * .35; p.x += p.vx + Math.sin(p.y / 90 + p.k) * .25; p.r += p.vr + vel * .002;
-      if (p.y > H + 40) Object.assign(p, mk(true), { x: Math.random() * W });
-      const a = .14 + (p.s / 19) * .26;
-      if (cold > .5) drawIce(p, a); else drawBean(p, a);
-    }
-    requestAnimationFrame(loop);
-  };
-  if (!reduce) loop();
-
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ScrollTrigger.refresh());
   addEventListener('load', () => ScrollTrigger.refresh());
 })();
