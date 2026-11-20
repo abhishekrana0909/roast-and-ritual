@@ -85,11 +85,12 @@
       if (hero.classList.contains('is-video')) { const vs = window.RR_steamSrc && window.RR_steamSrc(); if (vs) src = vs; else { ctx.clearRect(0, 0, W, H); return; } }
       acc += dt; if (acc > (small ? .5 : .28) && ps.length < 26) { acc = 0; ps.push({ x: src.x + (Math.random() - .5) * src.w * .5, y: src.y, t: 0, life: 5 + Math.random() * 2.5, ph: Math.random() * 6.28 }); }
       ctx.clearRect(0, 0, W, H);
+      const rise = Math.min(src.w * 1.15, Math.max(150, src.y - 30)), vid = hero.classList.contains('is-video');
       for (let i = ps.length - 1; i >= 0; i--) {
         const p = ps[i]; p.t += dt; const k = p.t / p.life;
         if (k >= 1) { ps.splice(i, 1); continue; }
-        const x = p.x + Math.sin(p.ph + k * 3.4) * src.w * .09 * (.4 + k), y = p.y - k * src.w * 1.15, r = src.w * (.1 + .22 * k);
-        const a = .15 * Math.sin(Math.PI * Math.min(1, k * 1.15));
+        const x = p.x + Math.sin(p.ph + k * 3.4) * src.w * .09 * (.4 + k), y = p.y - k * rise, r = src.w * ((vid ? .08 : .1) + (vid ? .16 : .22) * k);
+        const a = (vid ? .32 : .15) * Math.sin(Math.PI * Math.min(1, k * 1.15));
         const g = ctx.createRadialGradient(x, y, 0, x, y, r);
         g.addColorStop(0, `rgba(236,216,186,${a})`); g.addColorStop(1, 'rgba(236,216,186,0)');
         ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2);
