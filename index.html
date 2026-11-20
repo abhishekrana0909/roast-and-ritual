@@ -22,7 +22,7 @@
   <div class="ld-inner">
     <svg viewBox="0 0 100 150" class="ld-cup">
       <defs><clipPath id="beanclip"><ellipse cx="50" cy="100" rx="29" ry="41" transform="rotate(25 50 100)"/></clipPath></defs>
-      <g clip-path="url(#beanclip)"><rect id="ldFill" x="0" y="142" width="100" height="90" fill="#c98b5a" opacity=".55"/></g>
+      <g clip-path="url(#beanclip)"><rect id="ldFill" x="0" y="142" width="100" height="90" fill="#c98b5a" opacity=".55"/><g id="ldWaveG" transform="translate(0 139)"><path class="ld-wave" d="M-100 3Q-87.5 -3 -75 3T-50 3T-25 3T0 3T25 3T50 3T75 3T100 3T125 3T150 3V12H-100Z" fill="#c98b5a" opacity=".55"/></g></g>
       <g fill="none" stroke="#c98b5a" stroke-width="2.4" stroke-linecap="round"><g transform="rotate(25 50 100)"><ellipse cx="50" cy="100" rx="30" ry="42"/><path d="M50 59C36 82 64 118 50 141"/></g></g>
       <g class="ld-steam" fill="none" stroke="#c98b5a" stroke-width="2.2" stroke-linecap="round"><path d="M50 8C38 20 62 31 50 47"/></g>
     </svg>
@@ -63,6 +63,7 @@
 <section class="hero" id="hero">
   <div class="hero-bg" data-depth="0.02"></div>
   <div class="hero-shade"></div>
+  <canvas id="steam" aria-hidden="true"></canvas>
   <div class="hero-inner">
     <p class="eyebrow reveal">Made for the coffee-obsessed</p>
     <h1 class="h-big" id="heroTitle" aria-label="Roast and Ritual"><span class="ln">Roast</span><span class="ln amp">&amp;</span><span class="ln">Ritual</span></h1>
@@ -90,6 +91,11 @@
   <div class="jr-inner">
     <p class="eyebrow">The Journey</p>
     <h2 class="h-med">Bean <i>to</i> Cup</h2>
+    <div class="jr-track" id="jrTrack" aria-hidden="true">
+      <div class="jr-line"><i id="jrFill"></i>
+        <svg class="jr-tok" id="jrTok" viewBox="0 0 24 34"><ellipse id="jrBean" cx="12" cy="17" rx="9" ry="14"/><path id="jrCrease" d="M10 4c5 6-5 10 0 16s-3 7 2 10"/></svg></div>
+      <ol><li>Cherry</li><li>Process</li><li>Roast</li><li>Brew</li></ol>
+    </div>
     <div class="jsteps">
       <article class="jstep">
         <figure><img src="images/cherries.webp" alt="Coffee cherries and beans drying on a table" loading="lazy"></figure>
@@ -118,6 +124,7 @@
 <!-- ORIGINS -->
 <section class="origins" id="origins">
   <div class="og-bg" id="ogBg"></div><div class="og-shade"></div>
+  <canvas id="ogGlobe" class="og-globe" aria-hidden="true"></canvas>
   <div class="og-inner">
     <div class="og-list">
       <p class="eyebrow">The Bean Belt</p>
@@ -135,7 +142,7 @@
     <p class="eyebrow">Roast Lab</p>
     <h2 class="h-med">Light <i>to</i> Dark</h2>
     <div class="roast-grid">
-      <div class="roast-bean"><svg viewBox="0 0 200 260" id="rbSvg"><ellipse id="rbBody" cx="100" cy="130" rx="70" ry="104" transform="rotate(20 100 130)" fill="#9a6a3f"/><path id="rbCrease" d="M70 40c26 36-22 70 4 110s-12 62 6 96" transform="translate(8 0) rotate(20 100 130)" fill="none" stroke="#120d0a" stroke-width="9" stroke-linecap="round"/><ellipse cx="78" cy="86" rx="14" ry="30" transform="rotate(30 78 86)" fill="#fff" opacity=".08"/></svg></div>
+      <div class="roast-bean"><svg viewBox="0 0 200 260" id="rbSvg"><ellipse id="rbBody" cx="100" cy="130" rx="70" ry="104" transform="rotate(20 100 130)" fill="#9a6a3f"/><path id="rbCrease" d="M70 40c26 36-22 70 4 110s-12 62 6 96" transform="translate(8 0) rotate(20 100 130)" fill="none" stroke="#120d0a" stroke-width="9" stroke-linecap="round"/><ellipse id="rbSheen" cx="78" cy="86" rx="14" ry="30" transform="rotate(30 78 86)" fill="#fff" opacity=".08"/></svg></div>
       <div class="roast-info">
         <h3 id="rName"></h3><div class="r-temp" id="rTemp"></div>
         <p id="rText"></p>
@@ -278,6 +285,8 @@
 <script src="js/data.js"></script>
 <script src="js/more.js"></script>
 <script src="js/credits.js"></script>
+<script src="js/globe-data.js"></script>
 <script src="js/app.js"></script>
+<script src="js/motion.js"></script>
 </body>
 </html>

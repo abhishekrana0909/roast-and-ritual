@@ -87,7 +87,7 @@
   }
 
   /* ---------- roast lab ---------- */
-  const rRange = $('#rRange'), rBody = $('#rbBody');
+  const rRange = $('#rRange'), rBody = $('#rbBody'), rSheen = $('#rbSheen');
   $('#rBars').innerHTML = ['Acidity', 'Body', 'Sweetness'].map(l => `<div class="bar"><span>${l}</span><div><i></i></div></div>`).join('');
   const rBarEls = $$('#rBars .bar i');
   let rLast = -1;
@@ -95,6 +95,8 @@
     const v = +rRange.value, a = Math.floor(v), b = Math.min(3, a + 1), t = v - a;
     const A = D.roasts[a], B = D.roasts[b];
     rBody.setAttribute('fill', mix(A.color, B.color, t));
+    rBody.setAttribute('rx', 68 + v * 4); rBody.setAttribute('ry', 102 + v * 3.2);
+    rSheen.setAttribute('opacity', .07 + v * .09);
     ['acid', 'body', 'sweet'].forEach((k, i) => rBarEls[i].style.width = (lerp(A[k], B[k], t) * 20) + '%');
     const n = Math.round(v);
     if (n !== rLast) {
@@ -231,13 +233,13 @@
     if (l.classList.contains('amp')) { l.innerHTML = `<span class="ch">${l.textContent}</span>`; return; }
     l.innerHTML = [...l.textContent].map(c => `<span class="ch">${c}</span>`).join('');
   });
-  const ldFill = $('#ldFill'), ldNum = $('#ldNum'), loader = $('#loader'), cnt = { v: 0 };
+  const ldWave = $('#ldWaveG'), ldFill = $('#ldFill'), ldNum = $('#ldNum'), loader = $('#loader'), cnt = { v: 0 };
   const intro = () => G.timeline()
     .to('#heroTitle .ch', { y: 0, duration: 1.1, stagger: .045, ease: 'expo.out' })
     .to('.hero .reveal', { opacity: 1, y: 0, duration: .9, stagger: .12, ease: 'power3.out' }, '-=.7');
   document.body.style.overflow = 'hidden';
   G.timeline({ delay: .2 })
-    .to(cnt, { v: 100, duration: reduce ? .1 : 1.9, ease: 'power1.inOut', onUpdate() { ldNum.textContent = Math.round(cnt.v); ldFill.setAttribute('y', 142 - cnt.v * .84); } })
+    .to(cnt, { v: 100, duration: reduce ? .1 : 1.9, ease: 'power1.inOut', onUpdate() { ldNum.textContent = Math.round(cnt.v); ldFill.setAttribute('y', 142 - cnt.v * .84); ldWave.setAttribute('transform', `translate(0 ${139 - cnt.v * .84})`); } })
     .to('.ld-inner', { opacity: 0, y: -20, duration: .5 })
     .to('.ld-curtain.l', { xPercent: -101, duration: 1, ease: 'expo.inOut' }, '<.1')
     .to('.ld-curtain.r', { xPercent: 101, duration: 1, ease: 'expo.inOut' }, '<')
@@ -252,10 +254,10 @@
     if (cur) history.pushState(null, '', a.getAttribute('href'));
     if (reduce) { if (cur) applyPage(null); return scrollToEl(tgt, true); }
     G.timeline()
-      .set(pour, { yPercent: 0, y: '100%' })
+      .set(pour, { yPercent: 0, y: '112%' })
       .to(pour, { y: '0%', duration: .65, ease: 'power3.in' })
       .add(() => { if (cur) applyPage(null); requestAnimationFrame(() => scrollToEl(tgt, true)); })
-      .to(pour, { y: '-100%', duration: .7, ease: 'power3.out', delay: .1 });
+      .to(pour, { y: '-112%', duration: .7, ease: 'power3.out', delay: .1 });
   }));
 
 
@@ -286,8 +288,8 @@
   };
   const swap = fn => {
     if (reduce || !hasG) return fn();
-    G.timeline().set(pour, { yPercent: 0, y: '100%' }).to(pour, { y: '0%', duration: .55, ease: 'power3.in' }).add(fn)
-      .to(pour, { y: '-100%', duration: .6, ease: 'power3.out', delay: .1 });
+    G.timeline().set(pour, { yPercent: 0, y: '112%' }).to(pour, { y: '0%', duration: .55, ease: 'power3.in' }).add(fn)
+      .to(pour, { y: '-112%', duration: .6, ease: 'power3.out', delay: .1 });
   };
   const goTo = sel => { try { const t = $(sel); if (t) requestAnimationFrame(() => scrollToEl(t, true)); } catch (e) {} };
   const openPage = key => { history.pushState(null, '', '#recipes-' + key); swap(() => applyPage(key)); };
