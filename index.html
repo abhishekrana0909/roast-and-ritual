@@ -60,58 +60,21 @@
 <main id="top">
 
 <!-- HERO (pinned while the caffeine formula draws with scroll) -->
-<section class="hero" id="hero" data-slide="0">
-  <div class="hs-stage" aria-hidden="true">
-    <div class="hs-bg hs-bg0 on"></div>
-    <div class="hs-bg hs-bg1" data-depth="0.02" style="background-image:url(images/hero-brew.webp)"></div>
-    <div class="hs-bg hs-bg2 hero-bg" data-depth="0.02"></div>
-  </div>
+<section class="hero" id="hero">
+  <div class="hero-bg" data-depth="0.02"></div>
   <div class="hero-shade"></div>
-  <canvas id="beanfx" aria-hidden="true"></canvas>
   <canvas id="steam" aria-hidden="true"></canvas>
   <canvas id="pourfx" aria-hidden="true"></canvas>
-  <div class="hs-copies">
-    <div class="hero-inner hs-copy on" data-slide="0">
-      <p class="eyebrow reveal">Made for the coffee-obsessed</p>
-      <h1 class="h-big" id="heroTitle" aria-label="Roast and Ritual"><span class="ln">Roast</span><span class="ln amp">&amp;</span><span class="ln">Ritual</span></h1>
-      <p class="hero-tag reveal">Coffee Flavors Across Continents</p>
-      <p class="by-hero reveal">BY <b>DWON</b></p>
-      <p class="hero-sub reveal">Where coffee grows, how it is roasted, and how to make it at home, with a machine or without one. Plus easy snacks to go with every cup.</p>
-      <div class="hero-cta reveal">
-        <a href="#origins" class="btn solid" data-pour data-mag>Explore Origins</a>
-        <a href="#hot" class="btn ghost" data-pour data-mag>Make a Coffee</a>
-      </div>
+  <div class="hero-inner">
+    <p class="eyebrow reveal">Made for the coffee-obsessed</p>
+    <h1 class="h-big" id="heroTitle" aria-label="Roast and Ritual"><span class="ln">Roast</span><span class="ln amp">&amp;</span><span class="ln">Ritual</span></h1>
+    <p class="hero-tag reveal">Coffee Flavors Across Continents</p>
+    <p class="by-hero reveal">BY <b>DWON</b></p>
+    <p class="hero-sub reveal">Where coffee grows, how it is roasted, and how to make it at home, with a machine or without one. Plus easy snacks to go with every cup.</p>
+    <div class="hero-cta reveal">
+      <a href="#origins" class="btn solid" data-pour data-mag>Explore Origins</a>
+      <a href="#hot" class="btn ghost" data-pour data-mag>Make a Coffee</a>
     </div>
-    <div class="hero-inner hs-copy" data-slide="1" aria-hidden="true">
-      <p class="eyebrow hs-r">Brew with patience</p>
-      <h2 class="h-big hs-title"><span class="ln">Let</span><span class="ln">it</span><span class="ln amp">Bloom</span></h2>
-      <p class="hero-tag hs-r">Pour slow, taste more</p>
-      <p class="hero-sub hs-r">Hot water, a slow pour, and the grounds swell and breathe. The first thirty seconds decide the whole cup.</p>
-      <div class="hero-cta hs-r">
-        <a href="#hot" class="btn solid" data-pour data-mag tabindex="-1">Make a Coffee</a>
-        <a href="#roast" class="btn ghost" data-pour data-mag tabindex="-1">Roast Levels</a>
-      </div>
-    </div>
-    <div class="hero-inner hs-copy" data-slide="2" aria-hidden="true">
-      <p class="eyebrow hs-r">Every cup has a place</p>
-      <h2 class="h-big hs-title"><span class="ln">Sip</span><span class="ln">the</span><span class="ln amp">Ritual</span></h2>
-      <p class="hero-tag hs-r">Six origins, one cup</p>
-      <p class="hero-sub hs-r">From Ethiopian hills to a Kerala filter kaapi, every cup carries a place, a roast and a little patience.</p>
-      <div class="hero-cta hs-r">
-        <a href="#origins" class="btn solid" data-pour data-mag tabindex="-1">Explore Origins</a>
-        <a href="#cold" class="btn ghost" data-pour data-mag tabindex="-1">Cold Brews</a>
-      </div>
-    </div>
-  </div>
-  <canvas id="wipe" aria-hidden="true"></canvas>
-  <div class="hs-ctl" role="group" aria-label="Hero slides">
-    <button class="hs-arr" data-d="-1" aria-label="Previous slide">&larr;</button>
-    <div class="hs-dots">
-      <button class="on" data-i="0" aria-label="Slide 1: Bean" aria-current="true"><b>01</b><span>Bean</span><i></i></button>
-      <button data-i="1" aria-label="Slide 2: Brew"><b>02</b><span>Brew</span><i></i></button>
-      <button data-i="2" aria-label="Slide 3: Cup"><b>03</b><span>Cup</span><i></i></button>
-    </div>
-    <button class="hs-arr" data-d="1" aria-label="Next slide">&rarr;</button>
   </div>
   <div class="scroll-hint" aria-hidden="true"><span>Scroll</span><b></b></div>
 </section>
