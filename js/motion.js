@@ -269,7 +269,7 @@
     };
 
     /* slide logic */
-    let cur = 0, busy = false, auto = null, started = false, vis = true, hov = false; const AUTO = 7.5, pr = { v: 0 };
+    let cur = 0, busy = false, auto = null, started = false, vis = true, hov = false; const AUTO = 5, pr = { v: 0 };
     const gate = () => { if (!auto) return; (started && vis && !hov && !document.hidden && !busy) ? auto.resume() : auto.pause(); };
     const startAuto = () => {
       if (auto) auto.kill(); pr.v = 0;
