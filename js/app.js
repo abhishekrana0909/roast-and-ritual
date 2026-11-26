@@ -63,6 +63,7 @@
 
   /* ---------- highlights: a self-playing track of big cards ---------- */
   (() => {
+    if (!$('#hlTrack')) return;
     const track = $('#hlTrack'), cards = $$('.hl-card', track), dotsBox = $('#hlDots'), play = $('#hlPlay');
     if (!track || !cards.length) return;
     const DUR = 5000; let idx = 0, playing = !reduce, t0 = performance.now(), inView = false, lock2 = 0;
