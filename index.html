@@ -15,7 +15,6 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=Anton&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Noto+Sans+Ethiopic:wght@700;800&display=swap">
 <link rel="stylesheet" href="css/style.css">
 <script>document.documentElement.classList.add('js')</script>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/"}}</script>
 </head>
 <body>
 
@@ -73,9 +72,9 @@
 
 <!-- HERO -->
 <section class="hero" id="hero">
-  <div class="hero-glow" aria-hidden="true"></div>
-  <div class="hero-amh" id="heroAmh" aria-hidden="true">ቡና</div>
-  <canvas id="hero3d" aria-hidden="true"></canvas>
+  <div class="hv" aria-hidden="true"><video id="heroVid" src="video/hero-cup.mp4" poster="images/hero-cup-poster.webp" muted playsinline preload="auto"></video></div>
+  <canvas id="heroDust" aria-hidden="true"></canvas>
+  <button class="hv-replay mono" id="heroReplay" type="button">&#8635; Pour again</button>
   <div class="hero-in">
     <p class="mono eyebrow hero-eye reveal-h"><span>Coffee Flavors Across Continents</span></p>
     <h1 class="hero-h" id="heroTitle"><span class="hl"><span class="hw">Roast</span></span><span class="hl"><span class="hw amp">&amp;</span><span class="hw">Ritual</span></span></h1>
@@ -188,29 +187,38 @@
       <p class="mono eyebrow reveal">The Kitchen</p>
       <h2 class="h2 reveal">What are we <em>making?</em></h2>
     </div>
-    <div class="mn-panels" id="mnPanels">
-      <a class="mp on" href="#recipes-hot" data-go="page:hot" data-k="hot" style="--ac:#ff7a3d">
-        <span class="mp-bg" style="background-image:url(images/sec-hot.webp)"></span>
-        <span class="mp-n mono">01</span><span class="mp-vt">Hot</span>
-        <span class="mp-body"><span class="mono mp-k">Hot coffee</span><strong>Served <em>Hot</em></strong><span class="mp-p">Start with what is in your kitchen. No machine? You can still make a great cup.</span><span class="mp-go mono"><b data-n="hot"></b> recipes <i>&rarr;</i></span></span>
-      </a>
-      <a class="mp" href="#recipes-cold" data-go="page:cold" data-k="cold" style="--ac:#7fd3ff">
-        <span class="mp-bg" style="background-image:url(images/sec-cold.webp)"></span>
-        <span class="mp-n mono">02</span><span class="mp-vt">Cold</span>
-        <span class="mp-body"><span class="mono mp-k">Cold coffee</span><strong>Poured <em>Cold</em></strong><span class="mp-p">Jar shakes, whipped foam and slow cold brew. Most of these need nothing more than a glass.</span><span class="mp-go mono"><b data-n="cold"></b> recipes <i>&rarr;</i></span></span>
-      </a>
-      <a class="mp" href="#recipes-snacks" data-go="page:snacks" data-k="snacks" style="--ac:#f6c445">
-        <span class="mp-bg" style="background-image:url(images/sec-snacks.webp)"></span>
-        <span class="mp-n mono">03</span><span class="mp-vt">Snacks</span>
-        <span class="mp-body"><span class="mono mp-k">Snacks</span><strong>On the <em>side</em></strong><span class="mp-p">Simple, vegetarian and egg-free. Pick the tawa and kadhai ones, or switch to oven and microwave.</span><span class="mp-go mono"><b data-n="snacks"></b> recipes <i>&rarr;</i></span></span>
-      </a>
-      <a class="mp" href="#recipes-pairs" data-go="page:pairs" data-k="pairs" style="--ac:#e9b45a">
-        <span class="mp-bg" style="background-image:url(images/sec-pairs.webp)"></span>
-        <span class="mp-n mono">04</span><span class="mp-vt">Pairs</span>
-        <span class="mp-body"><span class="mono mp-k">Perfect pairs</span><strong>Coffee <em>and</em> a Bite</strong><span class="mp-p">Six combinations that work. Open one to see both recipes together.</span><span class="mp-go mono"><b data-n="pairs"></b> pairs <i>&rarr;</i></span></span>
-      </a>
-    </div>
+    <ul class="kl" id="kList">
+      <li><a class="kl-row" href="#recipes-hot" data-go="page:hot" data-k="hot" style="--ac:#ff7a3d">
+        <span class="kl-n mono">01</span>
+        <span class="kl-name"><span class="kl-in">Hot</span></span>
+        <span class="kl-side"><em>Served hot</em><span class="mono"><b data-n="hot"></b> recipes</span></span>
+        <span class="kl-thumb" style="background-image:url(images/sec-hot.webp)"></span>
+        <i class="kl-go" aria-hidden="true">&rarr;</i>
+      </a></li>
+      <li><a class="kl-row" href="#recipes-cold" data-go="page:cold" data-k="cold" style="--ac:#7fd3ff">
+        <span class="kl-n mono">02</span>
+        <span class="kl-name"><span class="kl-in">Cold</span></span>
+        <span class="kl-side"><em>Poured cold</em><span class="mono"><b data-n="cold"></b> recipes</span></span>
+        <span class="kl-thumb" style="background-image:url(images/sec-cold.webp)"></span>
+        <i class="kl-go" aria-hidden="true">&rarr;</i>
+      </a></li>
+      <li><a class="kl-row" href="#recipes-snacks" data-go="page:snacks" data-k="snacks" style="--ac:#f6c445">
+        <span class="kl-n mono">03</span>
+        <span class="kl-name"><span class="kl-in">Snacks</span></span>
+        <span class="kl-side"><em>On the side</em><span class="mono"><b data-n="snacks"></b> recipes</span></span>
+        <span class="kl-thumb" style="background-image:url(images/sec-snacks.webp)"></span>
+        <i class="kl-go" aria-hidden="true">&rarr;</i>
+      </a></li>
+      <li><a class="kl-row" href="#recipes-pairs" data-go="page:pairs" data-k="pairs" style="--ac:#e9b45a">
+        <span class="kl-n mono">04</span>
+        <span class="kl-name"><span class="kl-in">Pairs</span></span>
+        <span class="kl-side"><em>Coffee and a bite</em><span class="mono"><b data-n="pairs"></b> pairs</span></span>
+        <span class="kl-thumb" style="background-image:url(images/sec-pairs.webp)"></span>
+        <i class="kl-go" aria-hidden="true">&rarr;</i>
+      </a></li>
+    </ul>
   </div>
+  <div class="kl-float" id="kFloat" aria-hidden="true"><span data-k="hot" style="background-image:url(images/sec-hot.webp)"></span><span data-k="cold" style="background-image:url(images/sec-cold.webp)"></span><span data-k="snacks" style="background-image:url(images/sec-snacks.webp)"></span><span data-k="pairs" style="background-image:url(images/sec-pairs.webp)"></span></div>
 </section>
 
 <!-- SCIENCE -->
@@ -309,6 +317,5 @@
 <script src="js/globe-data.js"></script>
 <script src="js/app.js"></script>
 <script src="js/motion.js"></script>
-<script type="module" src="js/hero3d.js"></script>
 </body>
 </html>

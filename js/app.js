@@ -91,10 +91,59 @@
   ogRight.addEventListener('click', e => { const b = e.target.closest('.og-c'); if (b) openModal([b.dataset.id]); });
   showRegion(0);
 
-  /* ---------- kitchen panels ---------- */
-  const panels = $$('.mp');
-  const activate = p => panels.forEach(x => x.classList.toggle('on', x === p));
-  panels.forEach(p => { p.addEventListener('mouseenter', () => fine && activate(p)); p.addEventListener('focus', () => activate(p)); });
+  /* ---------- hero video: the pour plays once, then rests on the full cup ---------- */
+  const hv = $('#heroVid'), hvR = $('#heroReplay');
+  const playHero = () => {
+    if (!hv || reduce) return;
+    try { hv.currentTime = 0; } catch (e) {}
+    const p = hv.play(); if (p && p.catch) p.catch(() => {});
+  };
+  if (hv) {
+    hv.addEventListener('ended', () => hvR.classList.add('on'));
+    hvR.addEventListener('click', () => { hvR.classList.remove('on'); playHero(); });
+  }
+
+  /* gold dust drifting up through the hero light */
+  (() => {
+    const c = $('#heroDust'); if (!c || reduce) return;
+    const x = c.getContext('2d'), DPR = Math.min(devicePixelRatio || 1, 2); let W = 0, H = 0, P = [], run = false, last = 0;
+    const size = () => { W = c.clientWidth; H = c.clientHeight; c.width = W * DPR; c.height = H * DPR; x.setTransform(DPR, 0, 0, DPR, 0, 0); };
+    const mk = y => ({ x: W * (innerWidth >= 900 ? .42 + Math.random() * .58 : Math.random()), y: y == null ? H + 10 : y, r: .6 + Math.random() * 1.8, v: 8 + Math.random() * 22, ph: Math.random() * 6.28, t: 0, l: 6 + Math.random() * 6 });
+    size(); addEventListener('resize', size);
+    for (let i = 0; i < (innerWidth < 700 ? 26 : 46); i++) P.push(mk(Math.random() * H));
+    const frame = now => {
+      if (!run) return;
+      const dt = Math.min(.05, (now - last) / 1000 || .016); last = now; x.clearRect(0, 0, W, H);
+      for (const p of P) {
+        p.t += dt; p.y -= p.v * dt; p.x += Math.sin(p.t + p.ph) * .25;
+        if (p.y < -10 || p.t > p.l) Object.assign(p, mk());
+        const a = Math.sin(Math.PI * Math.min(1, p.t / p.l)) * .8, g = x.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 4);
+        g.addColorStop(0, `rgba(246,213,142,${a})`); g.addColorStop(1, 'rgba(246,213,142,0)'); x.fillStyle = g; x.fillRect(p.x - p.r * 4, p.y - p.r * 4, p.r * 8, p.r * 8);
+      }
+      requestAnimationFrame(frame);
+    };
+    new IntersectionObserver(e => { const on = e[0].isIntersecting; if (on && !run) { run = true; last = performance.now(); requestAnimationFrame(frame); } else if (!on) run = false; }).observe(c);
+  })();
+
+  /* ---------- kitchen: a photo follows the cursor over the list ---------- */
+  const kList = $('#kList'), kFloat = $('#kFloat');
+  if (kList && kFloat && fine && !reduce) {
+    const imgs = $$('span', kFloat); let tx = 0, ty = 0, x = 0, y = 0, vis = 0, tv = 0, rot = 0;
+    kList.addEventListener('pointermove', e => { tx = e.clientX; ty = e.clientY; });
+    kList.addEventListener('pointerover', e => {
+      const r = e.target.closest('.kl-row'); if (!r) return;
+      if (vis < .05) { x = tx = e.clientX; y = ty = e.clientY; }
+      tv = 1; kList.classList.add('dim'); imgs.forEach(i => i.classList.toggle('on', i.dataset.k === r.dataset.k));
+    });
+    kList.addEventListener('pointerleave', () => { tv = 0; kList.classList.remove('dim'); });
+    const tick = () => {
+      const px = x; x += (tx - x) * .13; y += (ty - y) * .13; vis += (tv - vis) * .12;
+      rot += (clamp((x - px) * .4, -14, 14) - rot) * .12;
+      kFloat.style.opacity = vis.toFixed(3);
+      kFloat.style.transform = `translate(${x}px,${y}px) translate(-50%,-55%) rotate(${rot.toFixed(2)}deg) scale(${(.72 + vis * .28).toFixed(3)})`;
+    };
+    if (window.gsap) gsap.ticker.add(tick); else { const l = () => { tick(); requestAnimationFrame(l); }; l(); }
+  }
 
   /* ---------- recipe modal with timers ---------- */
   const modal = $('#modal'), mCard = $('#mCard');
@@ -344,7 +393,7 @@
 
   /* ---------- no animation library: show everything and stop ---------- */
   if (!hasG) {
-    $('#loader').remove(); document.documentElement.classList.remove('js');
+    $('#loader').remove(); document.documentElement.classList.remove('js'); playHero();
     $$('#molSvg .bonds path').forEach(p => p.style.strokeDashoffset = 0); $$('#molSvg .atoms text').forEach(t => t.style.opacity = 1);
     $('#molFormula').style.opacity = 1; $$('.manifesto .w').forEach(w => w.style.opacity = 1);
     return;
@@ -357,6 +406,7 @@
   const ldNum = $('#ldNum'), ldBar = $('#ldBar'), loader = $('#loader'), cnt = { v: 0 };
   const intro = () => {
     window.RR_introDone = true; dispatchEvent(new Event('rr-intro'));
+    playHero();
     G.timeline()
       .to('#heroTitle .ch', { yPercent: 0, duration: 1.3, stagger: .04, ease: 'expo.out' }, 0)
       .to('.reveal-h', { opacity: 1, y: 0, duration: 1, stagger: .1, ease: 'power3.out' }, .45);
@@ -406,20 +456,14 @@
     if (nx) G.to(c, { scale: .93, '--dim': .62, ease: 'none', scrollTrigger: { trigger: nx, start: 'top 88%', end: 'top 24%', scrub: true } });
   });
 
-  /* ---------- legend, kitchen panels ---------- */
+  /* ---------- legend, kitchen list ---------- */
   G.fromTo('.lg-img', { clipPath: 'inset(16% 16% 16% 16% round 28px)' }, { clipPath: 'inset(0% 0% 0% 0% round 28px)', duration: 1.5, ease: 'expo.out', scrollTrigger: { trigger: '.lg-img', start: 'top 85%', once: true } });
   G.fromTo('.lg-img img', { yPercent: -7 }, { yPercent: 7, ease: 'none', scrollTrigger: { trigger: '.lg-img', start: 'top bottom', end: 'bottom top', scrub: true } });
-  G.from('.mp', { y: 70, opacity: 0, stagger: .1, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: '.mn-panels', start: 'top 86%', once: true } });
   G.fromTo('.lg-amh', { xPercent: -50, yPercent: -50, x: -80 }, { x: 80, ease: 'none', scrollTrigger: { trigger: '.legend', start: 'top bottom', end: 'bottom top', scrub: true } });
+  ScrollTrigger.create({ trigger: '#kList', start: 'top 88%', once: true, onEnter: () => { const k = $('#kList'); k.classList.add('in'); setTimeout(() => k.classList.add('done'), 1500); } });
 
-  /* ---------- hero: scroll hands the bean to the 3D scene, pointer nudges the Amharic ---------- */
-  ScrollTrigger.create({ trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true, onUpdate: s => window.RR_heroP = s.progress });
-  const amh = $('#heroAmh');
-  if (fine && !reduce) {
-    let tx = 0, ty = 0, x = 0, y = 0;
-    $('#hero').addEventListener('mousemove', e => { tx = (e.clientX / innerWidth - .5) * -40; ty = (e.clientY / innerHeight - .5) * -26; });
-    G.ticker.add(() => { x += (tx - x) * .06; y += (ty - y) * .06; amh.style.translate = `${x}px ${y}px`; });
-  }
+  /* ---------- hero: the video drifts and dims as you scroll away ---------- */
+  G.to('.hv', { yPercent: 12, opacity: .35, ease: 'none', scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true } });
 
   /* ---------- science: caffeine molecule draws as you scroll ---------- */
   const bonds = $$('#molSvg .bonds path'), atoms = $$('#molSvg .atoms text');
@@ -446,7 +490,7 @@
     document.body.classList.add('has-cursor');
     addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; cur0.style.opacity = 1; });
     document.addEventListener('mouseleave', () => cur0.style.opacity = 0);
-    document.addEventListener('mouseover', e => cur0.classList.toggle('hov', !!e.target.closest('a,button,.card,.pair,.mp')));
+    document.addEventListener('mouseover', e => cur0.classList.toggle('hov', !!e.target.closest('a,button,.card,.pair,.kl-row')));
     G.ticker.add(() => { x += (tx - x) * .22; y += (ty - y) * .22; cur0.style.transform = `translate(${x}px,${y}px)`; });
   }
 
