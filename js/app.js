@@ -250,7 +250,7 @@
     G.ticker.add(() => { const d = heroTarget - heroP; if (Math.abs(d) > .0004) { heroP += d * .18; heroRender(); } });
   }
   /* the light local nav appears once the hero is done */
-  ScrollTrigger.create({ trigger: '#highlights', start: 'top 52px', onEnter: () => $('#lnav').classList.add('show'), onLeaveBack: () => $('#lnav').classList.remove('show') });
+  ScrollTrigger.create({ trigger: '#journey', start: 'top 52px', onEnter: () => $('#lnav').classList.add('show'), onLeaveBack: () => $('#lnav').classList.remove('show') });
 
   /* ---------- quiet reveals ---------- */
   ScrollTrigger.batch('main .rv', { start: 'top 90%', once: true, onEnter: els => G.to(els, { opacity: 1, y: 0, duration: 1, stagger: .08, ease: 'power3.out' }) });
