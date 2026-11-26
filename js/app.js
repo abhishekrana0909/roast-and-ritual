@@ -17,6 +17,7 @@
     state.lenis = lenis;
     lenis.on('scroll', ScrollTrigger.update);
     G.ticker.add(t => lenis.raf(t * 1000));
+    G.ticker.add(() => { window.RR_vel = clamp(lenis.velocity / 40, -1, 1); });
     G.ticker.lagSmoothing(0);
   }
   const scrollToEl = (el, immediate) => {
@@ -91,17 +92,33 @@
   ogRight.addEventListener('click', e => { const b = e.target.closest('.og-c'); if (b) openModal([b.dataset.id]); });
   showRegion(0);
 
-  /* ---------- hero video: the pour plays once, then rests on the full cup ---------- */
-  const hv = $('#heroVid'), hvR = $('#heroReplay');
-  const playHero = () => {
-    if (!hv || reduce) return;
-    try { hv.currentTime = 0; } catch (e) {}
-    const p = hv.play(); if (p && p.catch) p.catch(() => {});
-  };
-  if (hv) {
-    hv.addEventListener('ended', () => hvR.classList.add('on'));
-    hvR.addEventListener('click', () => { hvR.classList.remove('on'); playHero(); });
-  }
+  /* ---------- hero: the real pour, as a frame sequence the scroll plays ---------- */
+  const SEQ_N = 95;
+  const seq = (() => {
+    const cv = $('#heroSeq'); if (!cv) return null;
+    const ctx = cv.getContext('2d'), DPR = Math.min(devicePixelRatio || 1, 2), frames = [];
+    let W = 0, H = 0, want = 0, drawn = -1, drawnImg = null;
+    const src = i => `images/pour/p${String(i).padStart(3, '0')}.webp`;
+    const ok = im => im && im.complete && im.naturalWidth;
+    const nearest = i => { for (let d = 0; d < SEQ_N; d++) { if (ok(frames[i - d])) return frames[i - d]; if (ok(frames[i + d])) return frames[i + d]; } return null; };
+    const draw = i => {
+      want = i; const im = nearest(i); if (!im || !W) return;
+      if (i === drawn && im === drawnImg) return; drawn = i; drawnImg = im;
+      const ir = im.naturalWidth / im.naturalHeight, cr = W / H; let dw, dh;
+      if (cr > ir) { dw = W; dh = W / ir; } else { dh = H; dw = H * ir; }
+      ctx.drawImage(im, (W - dw) * .58, (H - dh) * .5, dw, dh);
+    };
+    const size = () => { const r = cv.getBoundingClientRect(); W = Math.round(r.width * DPR); H = Math.round(r.height * DPR); if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; } drawn = -1; draw(want); };
+    const load = i => new Promise(res => { if (i < 0 || i >= SEQ_N || frames[i]) return res(); const im = new Image(); im.decoding = 'async'; im.onload = () => { frames[i] = im; if (Math.abs(i - want) < 4) { drawn = -1; draw(want); } res(); }; im.onerror = res; im.src = src(i); frames[i] = im; });
+    if (window.ResizeObserver) new ResizeObserver(size).observe(cv); else addEventListener('resize', size);
+    size();
+    (async () => {
+      await load(reduce ? SEQ_N - 1 : 0); draw(reduce ? SEQ_N - 1 : 0);
+      if (reduce) return;
+      for (let i = 1; i < SEQ_N; i += 4) await Promise.all([load(i), load(i + 1), load(i + 2), load(i + 3)]);
+    })();
+    return { show: p => draw(Math.round(clamp(p, 0, 1) * (SEQ_N - 1))) };
+  })();
 
   /* gold dust drifting up through the hero light */
   (() => {
@@ -125,20 +142,27 @@
     new IntersectionObserver(e => { const on = e[0].isIntersecting; if (on && !run) { run = true; last = performance.now(); requestAnimationFrame(frame); } else if (!on) run = false; }).observe(c);
   })();
 
+  /* ---------- liquid photos (Journey, Kaldi) ---------- */
+  if (window.RRFluid) $$('[data-fluid]').forEach(b => RRFluid.attach(b));
+
   /* ---------- kitchen: a photo follows the cursor over the list ---------- */
   const kList = $('#kList'), kFloat = $('#kFloat');
   if (kList && kFloat && fine && !reduce) {
     const imgs = $$('span', kFloat); let tx = 0, ty = 0, x = 0, y = 0, vis = 0, tv = 0, rot = 0;
+    const urls = {}; imgs.forEach(i => urls[i.dataset.k] = (i.style.backgroundImage.match(/url\(["']?([^"')]+)/) || [])[1]);
+    const glk = window.RRFluid && RRFluid.float($('#kGl'), urls);
     kList.addEventListener('pointermove', e => { tx = e.clientX; ty = e.clientY; });
     kList.addEventListener('pointerover', e => {
       const r = e.target.closest('.kl-row'); if (!r) return;
       if (vis < .05) { x = tx = e.clientX; y = ty = e.clientY; }
       tv = 1; kList.classList.add('dim'); imgs.forEach(i => i.classList.toggle('on', i.dataset.k === r.dataset.k));
+      if (glk) glk.show(r.dataset.k);
     });
     kList.addEventListener('pointerleave', () => { tv = 0; kList.classList.remove('dim'); });
     const tick = () => {
-      const px = x; x += (tx - x) * .13; y += (ty - y) * .13; vis += (tv - vis) * .12;
+      const px = x, py = y; x += (tx - x) * .13; y += (ty - y) * .13; vis += (tv - vis) * .12;
       rot += (clamp((x - px) * .4, -14, 14) - rot) * .12;
+      if (glk) { if (glk.ok()) kFloat.classList.add('gl'); glk.bend(clamp((x - px) / 70, -1, 1), clamp(-(y - py) / 70, -1, 1)); glk.setVisible(vis > .01); }
       kFloat.style.opacity = vis.toFixed(3);
       kFloat.style.transform = `translate(${x}px,${y}px) translate(-50%,-55%) rotate(${rot.toFixed(2)}deg) scale(${(.72 + vis * .28).toFixed(3)})`;
     };
@@ -393,7 +417,7 @@
 
   /* ---------- no animation library: show everything and stop ---------- */
   if (!hasG) {
-    $('#loader').remove(); document.documentElement.classList.remove('js'); playHero();
+    $('#loader').remove(); document.documentElement.classList.remove('js'); if (seq) seq.show(1);
     $$('#molSvg .bonds path').forEach(p => p.style.strokeDashoffset = 0); $$('#molSvg .atoms text').forEach(t => t.style.opacity = 1);
     $('#molFormula').style.opacity = 1; $$('.manifesto .w').forEach(w => w.style.opacity = 1);
     return;
@@ -403,10 +427,12 @@
   split($('#heroTitle'));
   G.set('#heroTitle .ch', { yPercent: 112 });
   G.set('.reveal-h', { opacity: 0, y: 24 });
+  const heroAuto = { v: 0 }; let heroTarget = 0, heroP = 0;
+  const heroRender = () => { if (seq) seq.show(heroAuto.v + (1 - heroAuto.v) * heroP); };
   const ldNum = $('#ldNum'), ldBar = $('#ldBar'), loader = $('#loader'), cnt = { v: 0 };
   const intro = () => {
     window.RR_introDone = true; dispatchEvent(new Event('rr-intro'));
-    playHero();
+    if (seq && !reduce) G.to(heroAuto, { v: .2, duration: 2.4, ease: 'power2.out', onUpdate: heroRender });
     G.timeline()
       .to('#heroTitle .ch', { yPercent: 0, duration: 1.3, stagger: .04, ease: 'expo.out' }, 0)
       .to('.reveal-h', { opacity: 1, y: 0, duration: 1, stagger: .1, ease: 'power3.out' }, .45);
@@ -419,6 +445,29 @@
     .to('.ld-curtain.b', { yPercent: 101, duration: .9, ease: 'expo.inOut' }, '<')
     .add(() => { loader.style.pointerEvents = 'none'; document.body.style.overflow = ''; intro(); }, '-=.45')
     .set(loader, { display: 'none' }, '+=.8');
+
+  /* ---------- hero: pinned while the scroll pours the coffee ---------- */
+  if (seq && !reduce) {
+    G.timeline({ scrollTrigger: { trigger: '#hero', start: 'top top', end: () => '+=' + Math.round(innerHeight * (innerWidth < 900 ? 1 : 1.35)), pin: true, scrub: .6, invalidateOnRefresh: true, onUpdate: s => { heroTarget = s.progress; } } })
+      .to('.hf-scroll', { opacity: 0, ease: 'none', duration: .15 }, 0)
+      .to('.hero-in', { y: -60, opacity: .12, ease: 'none', duration: .35 }, .65);
+    G.ticker.add(() => { const d = heroTarget - heroP; if (Math.abs(d) > .0004) { heroP += d * .18; heroRender(); } });
+  }
+
+  /* ---------- section headings rise word by word ---------- */
+  $$('main .h2').forEach(h => {
+    h.classList.remove('reveal');
+    const wrap = n => [...n.childNodes].forEach(c => {
+      if (c.nodeType === 3) {
+        const f = document.createDocumentFragment();
+        c.textContent.split(/(\s+)/).forEach(p => { if (!p) return; if (/^\s+$/.test(p)) return f.append(' '); const m = document.createElement('span'); m.className = 'wm'; const i = document.createElement('span'); i.className = 'wi'; i.textContent = p; m.append(i); f.append(m); });
+        c.replaceWith(f);
+      } else if (c.nodeType === 1) wrap(c);
+    });
+    wrap(h);
+    const wi = $$('.wi', h); G.set(wi, { yPercent: 110 });
+    ScrollTrigger.create({ trigger: h, start: 'top 88%', once: true, onEnter: () => G.to(wi, { yPercent: 0, duration: 1.25, stagger: .07, ease: 'expo.out' }) });
+  });
 
   /* ---------- reveals, counters, manifesto ---------- */
   ScrollTrigger.batch('main .reveal', {
@@ -451,19 +500,17 @@
   /* ---------- journey: cards stack, images drift ---------- */
   const jc = $$('.jcard');
   jc.forEach((c, i) => {
-    G.fromTo($('img', c), { scale: 1.18 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: c, start: 'top bottom', end: 'top 18%', scrub: true } });
+    G.fromTo($('.fl', c), { scale: 1.18 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: c, start: 'top bottom', end: 'top 18%', scrub: true } });
     const nx = jc[i + 1];
     if (nx) G.to(c, { scale: .93, '--dim': .62, ease: 'none', scrollTrigger: { trigger: nx, start: 'top 88%', end: 'top 24%', scrub: true } });
   });
 
   /* ---------- legend, kitchen list ---------- */
   G.fromTo('.lg-img', { clipPath: 'inset(16% 16% 16% 16% round 28px)' }, { clipPath: 'inset(0% 0% 0% 0% round 28px)', duration: 1.5, ease: 'expo.out', scrollTrigger: { trigger: '.lg-img', start: 'top 85%', once: true } });
-  G.fromTo('.lg-img img', { yPercent: -7 }, { yPercent: 7, ease: 'none', scrollTrigger: { trigger: '.lg-img', start: 'top bottom', end: 'bottom top', scrub: true } });
+  G.fromTo('.lg-img .fl', { yPercent: -7 }, { yPercent: 7, ease: 'none', scrollTrigger: { trigger: '.lg-img', start: 'top bottom', end: 'bottom top', scrub: true } });
   G.fromTo('.lg-amh', { xPercent: -50, yPercent: -50, x: -80 }, { x: 80, ease: 'none', scrollTrigger: { trigger: '.legend', start: 'top bottom', end: 'bottom top', scrub: true } });
   ScrollTrigger.create({ trigger: '#kList', start: 'top 88%', once: true, onEnter: () => { const k = $('#kList'); k.classList.add('in'); setTimeout(() => k.classList.add('done'), 1500); } });
 
-  /* ---------- hero: the video drifts and dims as you scroll away ---------- */
-  G.to('.hv', { yPercent: 12, opacity: .35, ease: 'none', scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true } });
 
   /* ---------- science: caffeine molecule draws as you scroll ---------- */
   const bonds = $$('#molSvg .bonds path'), atoms = $$('#molSvg .atoms text');

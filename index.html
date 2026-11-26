@@ -72,9 +72,8 @@
 
 <!-- HERO -->
 <section class="hero" id="hero">
-  <div class="hv" aria-hidden="true"><video id="heroVid" src="video/hero-cup.mp4" poster="images/hero-cup-poster.webp" muted playsinline preload="auto"></video></div>
+  <div class="hv" aria-hidden="true"><img class="hv-still" src="images/pour/p000.webp" alt=""><canvas id="heroSeq"></canvas></div>
   <canvas id="heroDust" aria-hidden="true"></canvas>
-  <button class="hv-replay mono" id="heroReplay" type="button">&#8635; Pour again</button>
   <div class="hero-in">
     <p class="mono eyebrow hero-eye reveal-h"><span>Coffee Flavors Across Continents</span></p>
     <h1 class="hero-h" id="heroTitle"><span class="hl"><span class="hw">Roast</span></span><span class="hl"><span class="hw amp">&amp;</span><span class="hw">Ritual</span></span></h1>
@@ -84,7 +83,7 @@
       <a class="btn ghost" href="#menu" data-go="#menu" data-mag>Make a coffee</a>
     </div>
   </div>
-  <div class="hero-foot mono reveal-h"><span>By DWON</span><span class="hf-mid"><u class="tri"></u></span><span class="hf-scroll">Scroll <i></i></span></div>
+  <div class="hero-foot mono reveal-h"><span>By DWON</span><span class="hf-mid"><u class="tri"></u></span><span class="hf-scroll">Scroll to pour <i></i></span></div>
 </section>
 
 <div class="marquee" aria-hidden="true">
@@ -118,25 +117,25 @@
     </div>
     <div class="jr-stack" id="jrStack">
       <article class="jcard" style="--i:0">
-        <figure><img src="images/j-cherry.webp" alt="Ripe red coffee cherries on a branch" width="1700" height="1275" loading="lazy"><figcaption class="mono">01 / 04</figcaption></figure>
+        <figure><div class="fl" data-fluid><img src="images/j-cherry.webp" alt="Ripe red coffee cherries on a branch" width="1700" height="1275" loading="lazy"></div><figcaption class="mono">01 / 04</figcaption></figure>
         <div class="jtxt"><span class="jn" aria-hidden="true">01</span><h3>Cherry</h3>
           <p>Coffee starts as the seed of a fruit. Cherries ripen from green to deep red, and only the ripe ones are picked by hand. One tree gives roughly half a kilo to a kilo of roasted coffee a year.</p>
           <ul class="jchips"><li>Ripe = deep red</li><li>Picked by hand</li><li>0.5–1 kg a year</li></ul></div>
       </article>
       <article class="jcard" style="--i:1">
-        <figure><img src="images/j-process.webp" alt="Two people checking coffee cherries drying on a raised bed" width="1700" height="1275" loading="lazy"><figcaption class="mono">02 / 04</figcaption></figure>
+        <figure><div class="fl" data-fluid><img src="images/j-process.webp" alt="Two people checking coffee cherries drying on a raised bed" width="1700" height="1275" loading="lazy"></div><figcaption class="mono">02 / 04</figcaption></figure>
         <div class="jtxt"><span class="jn" aria-hidden="true">02</span><h3>Process</h3>
           <p>After picking, the seeds are separated from the fruit. Natural coffee dries whole in the sun for weeks and turns sweet and fruity. Washed coffee has the fruit removed in water and tastes clean and bright.</p>
           <ul class="jchips"><li>Natural: sweet, fruity</li><li>Washed: clean, bright</li><li>Weeks in the sun</li></ul></div>
       </article>
       <article class="jcard" style="--i:2">
-        <figure><img src="images/j-roast.webp" alt="Green coffee beans roasting in a pan over charcoal in Ethiopia" width="1700" height="1135" loading="lazy"><figcaption class="mono">03 / 04</figcaption></figure>
+        <figure><div class="fl" data-fluid><img src="images/j-roast.webp" alt="Green coffee beans roasting in a pan over charcoal in Ethiopia" width="1700" height="1135" loading="lazy"></div><figcaption class="mono">03 / 04</figcaption></figure>
         <div class="jtxt"><span class="jn" aria-hidden="true">03</span><h3>Roast</h3>
           <p>Green beans are roasted in a spinning drum, or in a pan over coals as in Ethiopia, usually between 180 and 240 °C. They turn yellow, then brown, and around 196 °C you hear the first crack, like popcorn. Time and temperature decide light, medium or dark.</p>
           <ul class="jchips"><li>180–240 °C</li><li>First crack ≈ 196 °C</li><li>Light to dark</li></ul></div>
       </article>
       <article class="jcard" style="--i:3">
-        <figure><img src="images/j-brew.webp" alt="A V60 pour-over coffee blooming under a gooseneck kettle" width="1700" height="957" loading="lazy"><figcaption class="mono">04 / 04</figcaption></figure>
+        <figure><div class="fl" data-fluid><img src="images/j-brew.webp" alt="A V60 pour-over coffee blooming under a gooseneck kettle" width="1700" height="957" loading="lazy"></div><figcaption class="mono">04 / 04</figcaption></figure>
         <div class="jtxt"><span class="jn" aria-hidden="true">04</span><h3>Brew</h3>
           <p>Fresh grinding, the right water temperature and a little patience. Hot water pulls the oils and sugars out of the grounds, and the first sip completes the ritual.</p>
           <ul class="jchips"><li>Fresh grind</li><li>90–96 °C water</li><li>A little patience</li></ul></div>
@@ -149,7 +148,7 @@
 <section class="legend" id="legend">
   <div class="lg-amh" aria-hidden="true">ቡና</div>
   <div class="wrap lg-grid">
-    <figure class="lg-img"><img src="images/ceremony.webp" alt="A small decorated Ethiopian coffee cup on a saucer" width="1600" height="1066" loading="lazy"></figure>
+    <figure class="lg-img"><div class="fl" data-fluid data-focus=".55"><img src="images/ceremony.webp" alt="A small decorated Ethiopian coffee cup on a saucer" width="1600" height="1066" loading="lazy"></div></figure>
     <div class="lgd-txt">
       <p class="mono eyebrow reveal">Kaffa, Ethiopia</p>
       <h2 class="h2 reveal">The legend <em>of</em> Kaldi</h2>
@@ -218,7 +217,7 @@
       </a></li>
     </ul>
   </div>
-  <div class="kl-float" id="kFloat" aria-hidden="true"><span data-k="hot" style="background-image:url(images/sec-hot.webp)"></span><span data-k="cold" style="background-image:url(images/sec-cold.webp)"></span><span data-k="snacks" style="background-image:url(images/sec-snacks.webp)"></span><span data-k="pairs" style="background-image:url(images/sec-pairs.webp)"></span></div>
+  <div class="kl-float" id="kFloat" aria-hidden="true"><canvas class="kl-gl" id="kGl"></canvas><span data-k="hot" style="background-image:url(images/sec-hot.webp)"></span><span data-k="cold" style="background-image:url(images/sec-cold.webp)"></span><span data-k="snacks" style="background-image:url(images/sec-snacks.webp)"></span><span data-k="pairs" style="background-image:url(images/sec-pairs.webp)"></span></div>
 </section>
 
 <!-- SCIENCE -->
@@ -315,6 +314,7 @@
 <script src="js/more.js"></script>
 <script src="js/credits.js"></script>
 <script src="js/globe-data.js"></script>
+<script src="js/fluid.js"></script>
 <script src="js/app.js"></script>
 <script src="js/motion.js"></script>
 </body>
