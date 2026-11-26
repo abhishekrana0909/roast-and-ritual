@@ -4,232 +4,139 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Roast &amp; Ritual: Coffee Flavors Across Continents</title>
-<meta name="description" content="Coffee Flavors Across Continents. Origins, hot and cold coffee recipes with and without a machine, easy snacks and perfect pairs.">
-<meta name="theme-color" content="#09090a">
+<meta name="description" content="Coffee Flavors Across Continents. Six origins, hot and cold coffee recipes with or without a machine, vegetarian snacks and perfect pairs.">
+<meta name="theme-color" content="#000000">
 <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
 <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 <meta property="og:type" content="website"><meta property="og:title" content="Roast &amp; Ritual: Coffee Flavors Across Continents">
-<meta property="og:description" content="Origins, hot and cold coffee recipes with and without a machine, easy snacks and perfect pairs."><meta property="og:image" content="https://abhishekrana0909.github.io/roast-and-ritual/images/og.png"><meta name="twitter:card" content="summary_large_image">
+<meta property="og:description" content="Six origins, coffee recipes with or without a machine, vegetarian snacks and perfect pairs."><meta property="og:image" content="https://abhishekrana0909.github.io/roast-and-ritual/images/og.png"><meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=Anton&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Noto+Sans+Ethiopic:wght@700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Ethiopic:wght@600&display=swap">
 <link rel="stylesheet" href="css/style.css">
 <script>document.documentElement.classList.add('js')</script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.min.js"}}</script>
 </head>
 <body>
 
-<!-- Loader -->
-<div id="loader" aria-hidden="true">
-  <div class="ld-in">
-    <div class="ld-amh">ቡና</div>
-    <div class="ld-row"><span class="mono">Roast &amp; Ritual</span><span class="mono"><b id="ldNum">0</b>%</span></div>
-    <div class="ld-line"><i id="ldBar"></i></div>
+<header class="gnav" id="gnav">
+  <div class="gnav-in">
+    <a class="g-logo" href="#top" data-go="#top">Roast <i>&amp;</i> Ritual</a>
+    <nav class="g-links" aria-label="Main">
+      <a href="#journey" data-go="#journey">Journey</a><a href="#origins" data-go="#origins">Origins</a><a href="#recipes" data-go="#recipes">Recipes</a><a href="#science" data-go="#science">Science</a>
+    </nav>
+    <span class="g-by">By DWON</span>
+    <button class="g-menu" id="navBtn" aria-label="Open menu" aria-expanded="false" aria-controls="menuOv"><i></i><i></i></button>
   </div>
-  <div class="ld-curtain t"></div><div class="ld-curtain b"></div>
-</div>
-
-<div id="wipe" aria-hidden="true"><span id="wipeTxt"></span></div>
-<div class="grain" aria-hidden="true"></div>
-<div id="cursor" aria-hidden="true"><i></i></div>
-<div id="progress"></div>
-
-<button id="toTop" aria-label="Back to top">
-  <svg viewBox="0 0 48 48" class="tt-ring"><circle cx="24" cy="24" r="21" fill="none" stroke="rgba(244,241,234,.16)" stroke-width="2"/><circle id="ttArc" cx="24" cy="24" r="21" fill="none" stroke="#e9b45a" stroke-width="2.5" stroke-linecap="round" transform="rotate(-90 24 24)"/></svg>
-  <svg viewBox="0 0 24 24" class="tt-arrow"><path d="M12 19V6M6 11l6-6 6 6" fill="none" stroke="#f4f1ea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-</button>
-
-<header class="nav" id="nav">
-  <a href="#top" class="logo" data-go="#top" aria-label="Roast &amp; Ritual, back to top">
-    <svg class="lg-bean" viewBox="0 0 100 150" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" aria-hidden="true"><g transform="rotate(25 50 100)"><ellipse cx="50" cy="100" rx="30" ry="42"/><path d="M50 59C36 82 64 118 50 141"/></g><path d="M50 8C38 20 62 31 50 47"/></svg>
-    <span class="lg-txt"><span class="lg-name">Roast <i>&amp;</i> Ritual</span><span class="lg-by mono">By <b>DWON</b><u class="tri"></u></span></span>
-  </a>
-  <nav class="nav-pill" aria-label="Main">
-    <a href="#journey" data-go="#journey">Journey</a>
-    <a href="#origins" data-go="#origins">Origins</a>
-    <a href="#recipes-hot" data-go="page:hot">Hot</a>
-    <a href="#recipes-cold" data-go="page:cold">Cold</a>
-    <a href="#recipes-snacks" data-go="page:snacks">Snacks</a>
-    <a href="#recipes-pairs" data-go="page:pairs">Pairs</a>
-    <a href="#science" data-go="#science">Science</a>
-  </nav>
-  <button class="nav-btn" id="navBtn" aria-label="Open menu" aria-expanded="false" aria-controls="menuOv"><i></i><i></i></button>
 </header>
-
 <div class="menu-ov" id="menuOv" aria-hidden="true">
   <nav aria-label="Menu">
-    <a href="#journey" data-go="#journey"><small class="mono">01</small>Journey</a>
-    <a href="#origins" data-go="#origins"><small class="mono">02</small>Origins</a>
-    <a href="#recipes-hot" data-go="page:hot"><small class="mono">03</small>Hot coffee</a>
-    <a href="#recipes-cold" data-go="page:cold"><small class="mono">04</small>Cold coffee</a>
-    <a href="#recipes-snacks" data-go="page:snacks"><small class="mono">05</small>Snacks</a>
-    <a href="#recipes-pairs" data-go="page:pairs"><small class="mono">06</small>Pairs</a>
-    <a href="#science" data-go="#science"><small class="mono">07</small>Science</a>
+    <a href="#journey" data-go="#journey">Journey</a><a href="#origins" data-go="#origins">Origins</a><a href="#recipes" data-go="#recipes">Recipes</a>
+    <a href="#recipes-hot" data-go="page:hot">Hot coffee</a><a href="#recipes-cold" data-go="page:cold">Cold coffee</a><a href="#recipes-snacks" data-go="page:snacks">Snacks</a><a href="#recipes-pairs" data-go="page:pairs">Perfect pairs</a><a href="#science" data-go="#science">Science</a>
   </nav>
-  <p class="mono menu-foot">Roast &amp; Ritual · By DWON</p>
+</div>
+<div class="lnav" id="lnav">
+  <div class="lnav-in">
+    <span class="l-title">Roast &amp; Ritual</span>
+    <nav class="l-links" aria-label="On this page"><a href="#highlights" data-go="#highlights">Highlights</a><a href="#journey" data-go="#journey">Journey</a><a href="#origins" data-go="#origins">Origins</a><a href="#recipes" data-go="#recipes">Recipes</a></nav>
+    <a class="pill sm" href="#recipes" data-go="#recipes">Brew now</a>
+  </div>
 </div>
 
 <main id="top">
 
-<!-- HERO -->
 <section class="hero" id="hero">
-  <div class="hv" aria-hidden="true"><img class="hv-still" src="images/pour/p000.webp" alt=""><canvas id="heroSeq"></canvas></div>
-  <canvas id="heroDust" aria-hidden="true"></canvas>
-  <div class="hero-in">
-    <p class="mono eyebrow hero-eye reveal-h"><span>Coffee Flavors Across Continents</span></p>
-    <h1 class="hero-h" id="heroTitle"><span class="hl"><span class="hw">Roast</span></span><span class="hl"><span class="hw amp">&amp;</span><span class="hw">Ritual</span></span></h1>
-    <p class="hero-sub reveal-h">From the birthplace of coffee to your kitchen. Where it grows, how it is roasted, and how to make it at home, with a machine or without one.</p>
-    <div class="hero-cta reveal-h">
-      <a class="btn solid" href="#origins" data-go="#origins" data-mag>Explore origins <i>&rarr;</i></a>
-      <a class="btn ghost" href="#menu" data-go="#menu" data-mag>Make a coffee</a>
-    </div>
+  <div class="hero-copy">
+    <p class="h-eyebrow">Roast &amp; Ritual</p>
+    <h1 class="h-title">Coffee,<br>perfected at home.</h1>
+    <p class="h-sub"><span data-n="origins"></span> origins. <span data-n="coffees"></span> coffees. <span data-n="snacks"></span> vegetarian snacks.</p>
+    <div class="h-cta"><a class="pill" href="#recipes" data-go="#recipes">Start brewing</a><a class="link light" href="#journey" data-go="#journey">See the journey ›</a></div>
   </div>
-  <div class="hero-foot mono reveal-h"><span>By DWON</span><span class="hf-mid"><u class="tri"></u></span><span class="hf-scroll">Scroll to pour <i></i></span></div>
+  <div class="hero-stage" aria-hidden="true"><img class="hero-still" src="images/pour/p000.webp" alt=""><canvas id="heroSeq"></canvas></div>
+  <p class="h-end" id="hEnd">Every cup. Every origin.<br><span>Every ritual.</span></p>
 </section>
 
-<div class="marquee" aria-hidden="true">
-  <div class="mq-track" id="mqTrack">
-    <div class="mq-set"><span>Born in Kaffa</span><b>✦</b><span class="o">Roasted in fire</span><b>✦</b><span>Poured with care</span><b>✦</b><span class="o">Shared with friends</span><b>✦</b></div>
-    <div class="mq-set"><span>Born in Kaffa</span><b>✦</b><span class="o">Roasted in fire</span><b>✦</b><span>Poured with care</span><b>✦</b><span class="o">Shared with friends</span><b>✦</b></div>
+<section class="hl" id="highlights">
+  <div class="wrap hl-head rv"><h2 class="t2">Get the highlights.</h2><a class="link" href="#recipes" data-go="#recipes">See all recipes ›</a></div>
+  <div class="hl-track" id="hlTrack">
+      <article class="hl-card"><img src="images/nat/ceremony.webp" alt="" loading="lazy" width="1400" height="1050"><p class="hl-txt"><b>Born in Ethiopia.</b> Where the story of coffee began, and where it is still a ceremony.</p></article>
+      <article class="hl-card"><img src="images/nat/j-cherry.webp" alt="" loading="lazy" width="1400" height="1050"><p class="hl-txt"><b><span data-n="origins"></span> origins.</b> From Ethiopia to Colombia, each one with its own taste.</p></article>
+      <article class="hl-card"><img src="images/nat/sec-hot.webp" alt="" loading="lazy" width="1400" height="1050"><p class="hl-txt"><b>No machine? No problem.</b> Many recipes need only a saucepan, a jar or a glass.</p></article>
+      <article class="hl-card"><img src="images/nat/sec-snacks.webp" alt="" loading="lazy" width="1400" height="1050"><p class="hl-txt"><b>All vegetarian.</b> Not one recipe uses egg. Tawa, kadhai, oven or microwave.</p></article>
+      <article class="hl-card"><img src="images/nat/sec-pairs.webp" alt="" loading="lazy" width="1400" height="1050"><p class="hl-txt"><b>Perfect pairs.</b> A coffee and a bite that belong together.</p></article>
   </div>
-</div>
+  <div class="hl-ctrl"><div class="hl-dots" id="hlDots"></div><button class="hl-play" id="hlPlay" aria-label="Pause the highlights"><i></i></button></div>
+</section>
 
-<!-- MANIFESTO -->
-<section class="about" id="about">
-  <div class="wrap">
-    <p class="mono eyebrow reveal">The Ritual</p>
-    <p class="manifesto" id="manifesto">Every cup carries a journey. From a red cherry on an Ethiopian hillside to a quiet moment in your kitchen. This is a guide to where coffee comes from, how it is roasted, and how to make it your own.</p>
-    <div class="stats">
-      <div class="stat reveal"><b data-count="6" id="stOrigins">0</b><span class="mono">Origins</span></div>
-      <div class="stat reveal"><b data-count="24" id="stCoffee">0</b><span class="mono">Coffee recipes</span></div>
-      <div class="stat reveal"><b data-count="12" id="stSnacks">0</b><span class="mono">Snack recipes</span></div>
-      <div class="stat reveal"><b data-count="6" id="stPairs">0</b><span class="mono">Perfect pairs</span></div>
+<section class="story" id="journey">
+  <div class="wrap"><h2 class="t2 center rv">From cherry<br>to cup.</h2></div>
+  <div class="wrap st-grid">
+    <div class="st-media"><div class="st-frame" id="stFrame"><img data-i="0" src="images/nat/j-cherry.webp" alt="Ripe red coffee cherries on a branch" width="1400" height="1050"><img data-i="1" src="images/nat/j-process.webp" alt="Two people checking coffee cherries drying on a raised bed" width="1400" height="1050" loading="lazy"><img data-i="2" src="images/nat/j-roast.webp" alt="Green coffee beans roasting in a pan over charcoal in Ethiopia" width="1400" height="1050" loading="lazy"><img data-i="3" src="images/nat/j-brew.webp" alt="A V60 pour-over coffee blooming under a gooseneck kettle" width="1400" height="1050" loading="lazy"></div></div>
+    <div class="st-steps">
+        <div class="st-step" data-i="0"><img class="st-mimg" src="images/nat/j-cherry.webp" alt="Ripe red coffee cherries on a branch" loading="lazy" width="1400" height="1050"><p class="st-k">Cherry</p><h3>It starts as a fruit.</h3><p>Coffee is the seed of a cherry. The cherries ripen from green to deep red, and only the ripe ones are picked by hand. One tree gives roughly half a kilo to a kilo of roasted coffee a year.</p></div>
+        <div class="st-step" data-i="1"><img class="st-mimg" src="images/nat/j-process.webp" alt="Two people checking coffee cherries drying on a raised bed" loading="lazy" width="1400" height="1050"><p class="st-k">Process</p><h3>Then the sun does its work.</h3><p>The seeds are separated from the fruit. Natural coffee dries whole in the sun for weeks and turns sweet and fruity. Washed coffee has the fruit removed in water and tastes clean and bright.</p></div>
+        <div class="st-step" data-i="2"><img class="st-mimg" src="images/nat/j-roast.webp" alt="Green coffee beans roasting in a pan over charcoal in Ethiopia" loading="lazy" width="1400" height="1050"><p class="st-k">Roast</p><h3>Fire turns green to brown.</h3><p>Green beans are roasted in a drum, or in a pan over coals as in Ethiopia, between about 180 and 240 °C. Around 196 °C the first crack sounds like popcorn. Time and heat decide light, medium or dark.</p></div>
+        <div class="st-step" data-i="3"><img class="st-mimg" src="images/nat/j-brew.webp" alt="A V60 pour-over coffee blooming under a gooseneck kettle" loading="lazy" width="1400" height="1050"><p class="st-k">Brew</p><h3>And then, the ritual.</h3><p>Fresh grinding, water at 90 to 96 °C and a little patience. Hot water pulls the oils and sugars out of the grounds, and the first sip completes the ritual.</p></div>
     </div>
   </div>
 </section>
 
-<!-- JOURNEY -->
-<section class="journey" id="journey">
+<section class="say" id="legend">
   <div class="wrap">
-    <div class="sec-head">
-      <p class="mono eyebrow reveal">The Journey</p>
-      <h2 class="h2 reveal">Bean <em>to</em> Cup</h2>
-      <p class="sec-sub reveal">Four steps from a fruit on a branch to the cup in your hands.</p>
+    <p class="say-k rv">Kaffa, Ethiopia</p>
+    <p class="say-t" id="sayT">Legend says a goat herder named Kaldi saw his goats dancing after eating red cherries. Monks brewed the first cup. In Ethiopia, coffee is still a ceremony: roasted in front of you, brewed in a clay jebena, and shared in three rounds.</p>
+    <p class="say-amh rv"><span lang="am">ቡና</span> Buna, the Amharic word for coffee.</p>
+  </div>
+</section>
+
+<section class="og" id="origins">
+  <div class="wrap">
+    <h2 class="t2 center rv">Six origins.<br>One planet.</h2>
+    <div class="og-tabs rv" id="ogTabs" role="tablist" aria-label="Choose an origin"></div>
+    <div class="og-grid">
+      <div class="og-globe rv"><canvas id="globe3d" aria-label="A 3D globe turning to the chosen origin" role="img"></canvas><p class="og-hint">Drag to turn the globe</p></div>
+      <div class="og-info" id="ogInfo" aria-live="polite"></div>
     </div>
-    <div class="jr-stack" id="jrStack">
-      <article class="jcard" style="--i:0">
-        <figure><div class="fl" data-fluid><img src="images/j-cherry.webp" alt="Ripe red coffee cherries on a branch" width="1700" height="1275" loading="lazy"></div><figcaption class="mono">01 / 04</figcaption></figure>
-        <div class="jtxt"><span class="jn" aria-hidden="true">01</span><h3>Cherry</h3>
-          <p>Coffee starts as the seed of a fruit. Cherries ripen from green to deep red, and only the ripe ones are picked by hand. One tree gives roughly half a kilo to a kilo of roasted coffee a year.</p>
-          <ul class="jchips"><li>Ripe = deep red</li><li>Picked by hand</li><li>0.5–1 kg a year</li></ul></div>
+  </div>
+</section>
+
+<section class="rc" id="recipes">
+  <div class="wrap">
+    <h2 class="t2 center rv">Which one is<br>right for you?</h2>
+    <div class="rc-grid">
+      <article class="rc-col rv" data-k="hot">
+        <a class="rc-img" href="#recipes-hot" data-go="page:hot"><img src="images/nat/sec-hot.webp" alt="Hot coffee" loading="lazy" width="1400" height="1050"></a>
+        <h3>Hot coffee</h3><p>Start with what is in your kitchen. No machine? You can still make a great cup.</p>
+        <p class="rc-n"><b data-n="hot"></b> recipes</p>
+        <div class="rc-cta"><a class="pill" href="#recipes-hot" data-go="page:hot">Explore</a><a class="link" href="#recipes-hot" data-go="page:hot">Learn more ›</a></div>
       </article>
-      <article class="jcard" style="--i:1">
-        <figure><div class="fl" data-fluid><img src="images/j-process.webp" alt="Two people checking coffee cherries drying on a raised bed" width="1700" height="1275" loading="lazy"></div><figcaption class="mono">02 / 04</figcaption></figure>
-        <div class="jtxt"><span class="jn" aria-hidden="true">02</span><h3>Process</h3>
-          <p>After picking, the seeds are separated from the fruit. Natural coffee dries whole in the sun for weeks and turns sweet and fruity. Washed coffee has the fruit removed in water and tastes clean and bright.</p>
-          <ul class="jchips"><li>Natural: sweet, fruity</li><li>Washed: clean, bright</li><li>Weeks in the sun</li></ul></div>
+      <article class="rc-col rv" data-k="cold">
+        <a class="rc-img" href="#recipes-cold" data-go="page:cold"><img src="images/nat/sec-cold.webp" alt="Cold coffee" loading="lazy" width="1400" height="1050"></a>
+        <h3>Cold coffee</h3><p>Jar shakes, whipped foam and slow cold brew. Most need nothing more than a glass.</p>
+        <p class="rc-n"><b data-n="cold"></b> recipes</p>
+        <div class="rc-cta"><a class="pill" href="#recipes-cold" data-go="page:cold">Explore</a><a class="link" href="#recipes-cold" data-go="page:cold">Learn more ›</a></div>
       </article>
-      <article class="jcard" style="--i:2">
-        <figure><div class="fl" data-fluid><img src="images/j-roast.webp" alt="Green coffee beans roasting in a pan over charcoal in Ethiopia" width="1700" height="1135" loading="lazy"></div><figcaption class="mono">03 / 04</figcaption></figure>
-        <div class="jtxt"><span class="jn" aria-hidden="true">03</span><h3>Roast</h3>
-          <p>Green beans are roasted in a spinning drum, or in a pan over coals as in Ethiopia, usually between 180 and 240 °C. They turn yellow, then brown, and around 196 °C you hear the first crack, like popcorn. Time and temperature decide light, medium or dark.</p>
-          <ul class="jchips"><li>180–240 °C</li><li>First crack ≈ 196 °C</li><li>Light to dark</li></ul></div>
+      <article class="rc-col rv" data-k="snacks">
+        <a class="rc-img" href="#recipes-snacks" data-go="page:snacks"><img src="images/nat/sec-snacks.webp" alt="Snacks" loading="lazy" width="1400" height="1050"></a>
+        <h3>Snacks</h3><p>Simple, vegetarian and egg-free. Tawa and kadhai, or oven and microwave.</p>
+        <p class="rc-n"><b data-n="snacks"></b> recipes</p>
+        <div class="rc-cta"><a class="pill" href="#recipes-snacks" data-go="page:snacks">Explore</a><a class="link" href="#recipes-snacks" data-go="page:snacks">Learn more ›</a></div>
       </article>
-      <article class="jcard" style="--i:3">
-        <figure><div class="fl" data-fluid><img src="images/j-brew.webp" alt="A V60 pour-over coffee blooming under a gooseneck kettle" width="1700" height="957" loading="lazy"></div><figcaption class="mono">04 / 04</figcaption></figure>
-        <div class="jtxt"><span class="jn" aria-hidden="true">04</span><h3>Brew</h3>
-          <p>Fresh grinding, the right water temperature and a little patience. Hot water pulls the oils and sugars out of the grounds, and the first sip completes the ritual.</p>
-          <ul class="jchips"><li>Fresh grind</li><li>90–96 °C water</li><li>A little patience</li></ul></div>
+      <article class="rc-col rv" data-k="pairs">
+        <a class="rc-img" href="#recipes-pairs" data-go="page:pairs"><img src="images/nat/sec-pairs.webp" alt="Perfect pairs" loading="lazy" width="1400" height="1050"></a>
+        <h3>Perfect pairs</h3><p>A coffee and a bite that belong together. Open one to see both recipes.</p>
+        <p class="rc-n"><b data-n="pairs"></b> pairs</p>
+        <div class="rc-cta"><a class="pill" href="#recipes-pairs" data-go="page:pairs">Explore</a><a class="link" href="#recipes-pairs" data-go="page:pairs">Learn more ›</a></div>
       </article>
     </div>
   </div>
 </section>
 
-<!-- LEGEND -->
-<section class="legend" id="legend">
-  <div class="lg-amh" aria-hidden="true">ቡና</div>
-  <div class="wrap lg-grid">
-    <figure class="lg-img"><div class="fl" data-fluid data-focus=".55"><img src="images/ceremony.webp" alt="A small decorated Ethiopian coffee cup on a saucer" width="1600" height="1066" loading="lazy"></div></figure>
-    <div class="lgd-txt">
-      <p class="mono eyebrow reveal">Kaffa, Ethiopia</p>
-      <h2 class="h2 reveal">The legend <em>of</em> Kaldi</h2>
-      <p class="reveal">Legend says a goat herder named Kaldi noticed his goats dancing after eating red cherries from a wild shrub. He carried them to a monastery, and the monks brewed the first cup. Whatever the truth, coffee began in the forests of Ethiopia.</p>
-      <p class="reveal">The coffee ceremony is still the heart of Ethiopian hospitality. Beans are roasted in front of you, brewed in a clay <em>jebena</em>, and served in three rounds.</p>
-      <ul class="lg-facts reveal">
-        <li><b>ቡና</b><span class="mono">Buna, the Amharic word for coffee</span></li>
-        <li><b>Jebena</b><span class="mono">The clay pot the coffee is brewed in</span></li>
-        <li><b>Abol · Tona · Baraka</b><span class="mono">The three rounds of the ceremony</span></li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<!-- ORIGINS -->
-<section class="origins" id="origins">
+<section class="sc" id="science">
   <div class="wrap">
-    <div class="sec-head og-head">
-      <p class="mono eyebrow reveal">The Bean Belt</p>
-      <h2 class="h2 reveal">Six <em>Origins</em></h2>
-    </div>
-    <div class="og-stage">
-      <div class="og-globe-wrap"><canvas id="ogGlobe" class="og-globe" aria-label="A globe turning to the chosen coffee origin" role="img"></canvas></div>
-      <ul class="og-rail" id="ogList" aria-label="Choose an origin"></ul>
-      <div class="og-left" id="ogLeft" aria-live="polite"></div>
-      <div class="og-right" id="ogRight"></div>
-    </div>
-  </div>
-</section>
-
-<!-- THE KITCHEN: four pages -->
-<section class="menu" id="menu">
-  <div class="wrap">
-    <div class="sec-head">
-      <p class="mono eyebrow reveal">The Kitchen</p>
-      <h2 class="h2 reveal">What are we <em>making?</em></h2>
-    </div>
-    <ul class="kl" id="kList">
-      <li><a class="kl-row" href="#recipes-hot" data-go="page:hot" data-k="hot" style="--ac:#ff7a3d">
-        <span class="kl-n mono">01</span>
-        <span class="kl-name"><span class="kl-in">Hot</span></span>
-        <span class="kl-side"><em>Served hot</em><span class="mono"><b data-n="hot"></b> recipes</span></span>
-        <span class="kl-thumb" style="background-image:url(images/sec-hot.webp)"></span>
-        <i class="kl-go" aria-hidden="true">&rarr;</i>
-      </a></li>
-      <li><a class="kl-row" href="#recipes-cold" data-go="page:cold" data-k="cold" style="--ac:#7fd3ff">
-        <span class="kl-n mono">02</span>
-        <span class="kl-name"><span class="kl-in">Cold</span></span>
-        <span class="kl-side"><em>Poured cold</em><span class="mono"><b data-n="cold"></b> recipes</span></span>
-        <span class="kl-thumb" style="background-image:url(images/sec-cold.webp)"></span>
-        <i class="kl-go" aria-hidden="true">&rarr;</i>
-      </a></li>
-      <li><a class="kl-row" href="#recipes-snacks" data-go="page:snacks" data-k="snacks" style="--ac:#f6c445">
-        <span class="kl-n mono">03</span>
-        <span class="kl-name"><span class="kl-in">Snacks</span></span>
-        <span class="kl-side"><em>On the side</em><span class="mono"><b data-n="snacks"></b> recipes</span></span>
-        <span class="kl-thumb" style="background-image:url(images/sec-snacks.webp)"></span>
-        <i class="kl-go" aria-hidden="true">&rarr;</i>
-      </a></li>
-      <li><a class="kl-row" href="#recipes-pairs" data-go="page:pairs" data-k="pairs" style="--ac:#e9b45a">
-        <span class="kl-n mono">04</span>
-        <span class="kl-name"><span class="kl-in">Pairs</span></span>
-        <span class="kl-side"><em>Coffee and a bite</em><span class="mono"><b data-n="pairs"></b> pairs</span></span>
-        <span class="kl-thumb" style="background-image:url(images/sec-pairs.webp)"></span>
-        <i class="kl-go" aria-hidden="true">&rarr;</i>
-      </a></li>
-    </ul>
-  </div>
-  <div class="kl-float" id="kFloat" aria-hidden="true"><canvas class="kl-gl" id="kGl"></canvas><span data-k="hot" style="background-image:url(images/sec-hot.webp)"></span><span data-k="cold" style="background-image:url(images/sec-cold.webp)"></span><span data-k="snacks" style="background-image:url(images/sec-snacks.webp)"></span><span data-k="pairs" style="background-image:url(images/sec-pairs.webp)"></span></div>
-</section>
-
-<!-- SCIENCE -->
-<section class="sci" id="science">
-  <div class="sci-glow" aria-hidden="true"></div>
-  <div class="wrap">
-    <div class="sec-head">
-      <p class="mono eyebrow reveal">The Science</p>
-      <h2 class="h2 sci-title reveal">Caffeine</h2>
-    </div>
-    <div class="sci-grid">
-      <div class="sci-mol reveal">
+    <h2 class="t2 center rv">The science<br>of your cup.</h2>
+    <div class="sc-grid">
+      <div class="sc-mol rv">
         <svg viewBox="40 60 360 290" id="molSvg" role="img" aria-label="The caffeine molecule being drawn">
           <g class="ghost" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity=".1">
             <path d="M200 140 L252 170 L252 230 L200 260 L148 230 L148 170 Z M252 170 L309 152 L344 200 L309 248 L252 230"/>
@@ -254,58 +161,43 @@
             <text x="336" y="106" font-size="18">CH<tspan font-size="12" dy="4">3</tspan></text>
           </g>
         </svg>
-        <p class="mol-cap mono"><span id="molName">Scroll to build the molecule</span><b id="molFormula">C<sub>8</sub>H<sub>10</sub>N<sub>4</sub>O<sub>2</sub></b></p>
+        <p class="mol-cap"><span id="molName">Scroll to build the molecule</span><b id="molFormula">C<sub>8</sub>H<sub>10</sub>N<sub>4</sub>O<sub>2</sub></b></p>
       </div>
-      <div class="sci-side">
-        <div class="sci-def reveal"><p class="sd-w"><b>coffee</b> <span class="mono">[kaw-fee] (n.)</span></p><p class="sd-d">The first love of the morning, the one that opens your eyes without saying a word.</p></div>
-        <p class="sci-p reveal">This is the caffeine molecule. It blocks adenosine receptors in your brain, which is why you feel less sleepy.</p>
-        <div class="sci-facts" id="facts"></div>
-      </div>
+      <div class="sc-facts" id="facts"></div>
     </div>
   </div>
 </section>
 
 </main>
 
-<!-- Recipe pages (hot, cold, snacks and pairs open here) -->
-<div id="rpage" class="rpage" data-k="hot" hidden>
+<div id="rpage" class="rp" hidden>
   <section class="rp-hero">
-    <div class="rp-bg" aria-hidden="true"><div class="rp-img"></div></div>
-    <canvas id="rpFx" aria-hidden="true"></canvas>
-    <div class="wrap rp-in">
-      <button class="rp-back mono" id="rpBack"><span>&larr;</span> Back</button>
-      <p class="mono eyebrow" id="rpEye"></p>
+    <div class="wrap">
+      <button class="link rp-back" id="rpBack" type="button">‹ All recipes</button>
+      <p class="h-eyebrow" id="rpEye"></p>
       <h1 class="rp-title" id="rpTitle"></h1>
       <p class="rp-sub" id="rpSub"></p>
+      <div class="rp-img"><img id="rpImg" alt="" width="1400" height="1050"></div>
     </div>
   </section>
-  <div class="rp-bar" id="rpBar"><div class="wrap rp-bar-in"><div class="seg" id="rpSeg"></div><p class="mono rp-count" id="rpCount"></p></div></div>
+  <div class="rp-bar"><div class="wrap rp-bar-in"><div class="seg" id="rpSeg"></div><p class="rp-count" id="rpCount"></p></div></div>
   <div class="wrap rp-body" id="rpBody"></div>
-  <a class="wrap rp-next" id="rpNext" href="#"><span class="mono">Next</span><strong id="rpNextT"></strong><i>&rarr;</i></a>
+  <div class="wrap"><a class="rp-next" id="rpNext" href="#"><span>Next</span><strong id="rpNextT"></strong><i>›</i></a></div>
 </div>
 
-<footer class="foot">
-  <div class="foot-mq" aria-hidden="true"><div class="fm-track" id="fmTrack"><span>Roast <em>&amp;</em> Ritual</span><span>Roast <em>&amp;</em> Ritual</span><span>Roast <em>&amp;</em> Ritual</span><span>Roast <em>&amp;</em> Ritual</span></div></div>
-  <div class="wrap foot-grid">
-    <div class="fg-brand">
-      <p class="fg-tag">Coffee Flavors Across Continents</p>
-      <p class="mono fg-by">By <b>DWON</b><u class="tri"></u></p>
-    </div>
-    <nav class="fg-links" aria-label="Footer">
-      <a href="#journey" data-go="#journey">Journey</a><a href="#origins" data-go="#origins">Origins</a><a href="#science" data-go="#science">Science</a>
-      <a href="#recipes-hot" data-go="page:hot">Hot coffee</a><a href="#recipes-cold" data-go="page:cold">Cold coffee</a><a href="#recipes-snacks" data-go="page:snacks">Snacks</a><a href="#recipes-pairs" data-go="page:pairs">Pairs</a>
-    </nav>
-  </div>
+<footer class="ft">
   <div class="wrap">
-    <details class="credits"><summary class="mono">Photo credits</summary><ul id="creditList"></ul></details>
-    <p class="small mono">Every recipe is vegetarian and egg-free. Caffeine figures are approximate.</p>
+    <p class="ft-note">Every recipe is vegetarian and egg-free. Caffeine figures are approximate and vary by cup.</p>
+    <nav class="ft-links" aria-label="Footer">
+      <div><b>Explore</b><a href="#journey" data-go="#journey">Journey</a><a href="#origins" data-go="#origins">Origins</a><a href="#science" data-go="#science">Science</a></div>
+      <div><b>Recipes</b><a href="#recipes-hot" data-go="page:hot">Hot coffee</a><a href="#recipes-cold" data-go="page:cold">Cold coffee</a><a href="#recipes-snacks" data-go="page:snacks">Snacks</a><a href="#recipes-pairs" data-go="page:pairs">Perfect pairs</a></div>
+    </nav>
+    <details class="credits"><summary>Photo credits</summary><ul id="creditList"></ul></details>
+    <div class="ft-bottom"><span>Roast &amp; Ritual. Coffee Flavors Across Continents.</span><span>By DWON</span></div>
   </div>
 </footer>
 
-<!-- Recipe modal -->
-<div class="modal" id="modal" aria-hidden="true" role="dialog" aria-modal="true">
-  <div class="m-card" id="mCard"></div>
-</div>
+<div class="modal" id="modal" aria-hidden="true" role="dialog" aria-modal="true"><div class="m-card" id="mCard"></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -314,8 +206,7 @@
 <script src="js/more.js"></script>
 <script src="js/credits.js"></script>
 <script src="js/globe-data.js"></script>
-<script src="js/fluid.js"></script>
 <script src="js/app.js"></script>
-<script src="js/motion.js"></script>
+<script type="module" src="js/globe3d.js"></script>
 </body>
 </html>
