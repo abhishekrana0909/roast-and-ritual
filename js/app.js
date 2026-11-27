@@ -37,8 +37,17 @@
   const tagFor = (kind, g) => g === 'a' ? (kind === 'snacks' ? 'No oven needed' : 'No machine needed') : (kind === 'snacks' ? 'Oven or microwave' : 'Machine or equipment');
 
   /* ---------- header: paper strip once you scroll ---------- */
-  const nav = $('#nav');
-  const onScroll = () => nav.classList.toggle('stuck', scrollY > 40);
+  const nav = $('#nav'), toTop = $('#toTop'), tpFill = $('#tpFill'), RING = 2 * Math.PI * 27;
+  const onScroll = () => {
+    nav.classList.toggle('stuck', scrollY > 40);
+    const max = document.documentElement.scrollHeight - innerHeight, p = max > 0 ? clamp(scrollY / max, 0, 1) : 0;
+    tpFill.style.strokeDashoffset = (RING * (1 - p)).toFixed(2);
+    toTop.classList.toggle('show', scrollY > innerHeight * .6);
+  };
+  toTop.addEventListener('click', () => {
+    history.replaceState(null, '', location.pathname);
+    if (state.lenis) state.lenis.scrollTo(0, { duration: 1.6 }); else scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  });
   addEventListener('scroll', onScroll, { passive: true }); onScroll();
 
   /* ---------- origins: tabs, details, the 3D globe ---------- */
