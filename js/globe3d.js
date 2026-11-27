@@ -1,4 +1,4 @@
-/* Roast & Ritual: the six origins on a real 3D globe (Three.js). Light theme: a white planet, land as dots,
+/* Roast & Ritual: the six origins on a real 3D globe (Three.js). Paper theme: a cream planet, land as dots,
    the coffee belt in the accent colour, a pin per origin. Turns to the chosen origin, can be dragged. */
 import * as THREE from 'three';
 
@@ -15,26 +15,26 @@ try {
   /* the planet: white with a soft grey rim */
   world.add(new THREE.Mesh(new THREE.SphereGeometry(R, 96, 64), new THREE.ShaderMaterial({
     vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }',
-    fragmentShader: 'varying vec3 vN; varying vec3 vV; void main(){ float f = pow(1. - max(dot(vN, vV), 0.), 2.2); float l = .55 + .45 * max(dot(vN, normalize(vec3(-.4,.6,.8))), 0.); vec3 c = mix(vec3(1.), vec3(.84,.84,.87), f) * mix(.93, 1., l); gl_FragColor = vec4(c, 1.); }'
+    fragmentShader: 'varying vec3 vN; varying vec3 vV; void main(){ float f = pow(1. - max(dot(vN, vV), 0.), 2.2); float l = .55 + .45 * max(dot(vN, normalize(vec3(-.4,.6,.8))), 0.); vec3 c = mix(vec3(.985,.958,.91), vec3(.79,.70,.57), f) * mix(.9, 1., l); gl_FragColor = vec4(c, 1.); }'
   })));
   /* a faint warm halo */
   scene.add(new THREE.Mesh(new THREE.SphereGeometry(R * 1.1, 64, 48), new THREE.ShaderMaterial({
     transparent: true, depthWrite: false, side: THREE.BackSide,
     vertexShader: 'varying vec3 vN; void main(){ vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }',
-    fragmentShader: 'varying vec3 vN; void main(){ float a = pow(.72 - dot(vN, vec3(0.,0.,1.)), 3.); gl_FragColor = vec4(.89,.64,.35, clamp(a,0.,1.) * .35); }'
+    fragmentShader: 'varying vec3 vN; void main(){ float a = pow(.72 - dot(vN, vec3(0.,0.,1.)), 3.); gl_FragColor = vec4(.55,.36,.2, clamp(a,0.,1.) * .28); }'
   })));
 
   /* land as round dots, the belt in coffee brown */
   const dot = document.createElement('canvas'); dot.width = dot.height = 64;
   { const g = dot.getContext('2d'), q = g.createRadialGradient(32, 32, 0, 32, 32, 30); q.addColorStop(0, '#fff'); q.addColorStop(.7, '#fff'); q.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = q; g.beginPath(); g.arc(32, 32, 30, 0, 6.283); g.fill(); }
-  const L = window.RR_LAND || [], pos = [], col = [], ink = new THREE.Color(0x1d1d1f), belt = new THREE.Color(0xa0592a);
+  const L = window.RR_LAND || [], pos = [], col = [], ink = new THREE.Color(0x3a3029), belt = new THREE.Color(0x8a5a3c);
   for (let i = 0; i < L.length; i += 2) { const v = toV(L[i], L[i + 1], R * 1.004); pos.push(v.x, v.y, v.z); const c = Math.abs(L[i]) <= 24 ? belt : ink; col.push(c.r, c.g, c.b); }
   const pg = new THREE.BufferGeometry(); pg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); pg.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
   world.add(new THREE.Points(pg, new THREE.PointsMaterial({ size: .05, map: new THREE.CanvasTexture(dot), vertexColors: true, transparent: true, alphaTest: .3, depthWrite: true })));
 
   /* the six pins */
   const PINS = [[9.1, 40.5], [5.2, -74.5], [-19.5, -45.5], [12.5, 108], [13, 76], [-0.4, 37.3]];
-  const pinMat = new THREE.MeshBasicMaterial({ color: 0xa0592a }), ringMat = new THREE.MeshBasicMaterial({ color: 0xa0592a, transparent: true, side: THREE.DoubleSide, depthWrite: false });
+  const pinMat = new THREE.MeshBasicMaterial({ color: 0x9b3d22 }), ringMat = new THREE.MeshBasicMaterial({ color: 0x9b3d22, transparent: true, side: THREE.DoubleSide, depthWrite: false });
   const pins = PINS.map(([la, lo]) => {
     const g = new THREE.Group(), p = toV(la, lo, R * 1.01); g.position.copy(p); g.lookAt(p.clone().multiplyScalar(2));
     const head = new THREE.Mesh(new THREE.SphereGeometry(.032, 16, 12), pinMat); g.add(head);

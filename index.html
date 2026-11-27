@@ -5,130 +5,152 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Roast &amp; Ritual: Coffee Flavors Across Continents</title>
 <meta name="description" content="Coffee Flavors Across Continents. Six origins, hot and cold coffee recipes with or without a machine, vegetarian snacks and perfect pairs.">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#e2d1b3">
 <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
 <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 <meta property="og:type" content="website"><meta property="og:title" content="Roast &amp; Ritual: Coffee Flavors Across Continents">
 <meta property="og:description" content="Six origins, coffee recipes with or without a machine, vegetarian snacks and perfect pairs."><meta property="og:image" content="https://abhishekrana0909.github.io/roast-and-ritual/images/og.png"><meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Ethiopic:wght@600&display=swap">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Jost:wght@400;500&family=Noto+Sans+Ethiopic:wght@500&display=swap">
+<link rel="preload" as="image" href="images/px/hero-cup.webp"><link rel="preload" as="image" href="images/px/hero-beans.webp">
+<link rel="stylesheet" href="css/style.css?v=kraft1">
 <script>document.documentElement.classList.add('js')</script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.min.js"}}</script>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="bean" viewBox="0 0 20 28"><ellipse cx="10" cy="14" rx="8.6" ry="12.6" fill="currentColor"/><path d="M10.6 2.2C6.4 7 13.8 9.6 10 14s3.8 7.2-.6 11.8" fill="none" stroke="var(--crease,#e2d1b3)" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-cherry" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="32" r="8"/><circle cx="31" cy="35" r="7"/><path d="M16 24c1-8 6-13 14-16M31 28c-1-7-1-13-1-20"/><path d="M30 8c5-3 10-2 13 1-4 3-9 3-13-1z"/></g></symbol>
+  <symbol id="i-globe" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="24" cy="24" r="16"/><ellipse cx="24" cy="24" rx="7" ry="16"/><path d="M8 24h32M11 15h26M11 33h26"/></g></symbol>
+  <symbol id="i-cup" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h26v9a11 11 0 0 1-11 11h-4A11 11 0 0 1 9 27z"/><path d="M35 21h3a4 4 0 0 1 0 8h-4"/><path d="M6 42h34"/></g></symbol>
+</svg>
 
-<header class="gnav" id="gnav">
-  <div class="gnav-in">
-    <a class="g-logo" href="#top" data-go="#top">Roast <i>&amp;</i> Ritual</a>
-    <nav class="g-links" aria-label="Main">
-      <a href="#journey" data-go="#journey">Journey</a><a href="#origins" data-go="#origins">Origins</a><a href="#recipes" data-go="#recipes">Recipes</a><a href="#science" data-go="#science">Science</a>
-    </nav>
-    <span class="g-by">By DWON</span>
-    <button class="g-menu" id="navBtn" aria-label="Open menu" aria-expanded="false" aria-controls="menuOv"><i></i><i></i></button>
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <nav class="nav-l" aria-label="Main"><a href="#journey" data-go="#journey">Journey</a><a href="#origins" data-go="#origins">Origins</a></nav>
+    <a class="logo" href="#top" data-go="#top" aria-label="Roast and Ritual, back to top"><span class="logo-box"><svg class="logo-bean"><use href="#bean"/></svg><b>Roast &amp; Ritual</b><small>By DWON</small></span></a>
+    <nav class="nav-r" aria-label="More"><a href="#recipes" data-go="#recipes">Menu</a><a href="#science" data-go="#science">Science</a></nav>
+    <button class="burger" id="navBtn" aria-label="Open menu" aria-expanded="false" aria-controls="menuOv"><i></i><i></i></button>
   </div>
 </header>
 <div class="menu-ov" id="menuOv" aria-hidden="true">
   <nav aria-label="Menu">
-    <a href="#journey" data-go="#journey">Journey</a><a href="#origins" data-go="#origins">Origins</a><a href="#recipes" data-go="#recipes">Recipes</a>
-    <a href="#recipes-hot" data-go="page:hot">Hot coffee</a><a href="#recipes-cold" data-go="page:cold">Cold coffee</a><a href="#recipes-snacks" data-go="page:snacks">Snacks</a><a href="#recipes-pairs" data-go="page:pairs">Perfect pairs</a><a href="#science" data-go="#science">Science</a>
+    <a href="#journey" data-go="#journey">Journey</a><a href="#origins" data-go="#origins">Origins</a><a href="#recipes" data-go="#recipes">Menu</a><a href="#science" data-go="#science">Science</a>
+    <span class="mo-div"><i></i><svg><use href="#bean"/></svg><i></i></span>
+    <a class="mo-s" href="#recipes-hot" data-go="tab:hot">Hot coffee</a><a class="mo-s" href="#recipes-cold" data-go="tab:cold">Cold coffee</a><a class="mo-s" href="#recipes-snacks" data-go="tab:snacks">Snacks</a><a class="mo-s" href="#recipes-pairs" data-go="tab:pairs">Perfect pairs</a>
   </nav>
-</div>
-<div class="lnav" id="lnav">
-  <div class="lnav-in">
-    <span class="l-title">Roast &amp; Ritual</span>
-    <nav class="l-links" aria-label="On this page"><a href="#journey" data-go="#journey">Journey</a><a href="#origins" data-go="#origins">Origins</a><a href="#recipes" data-go="#recipes">Recipes</a></nav>
-    <a class="pill sm" href="#recipes" data-go="#recipes">Brew now</a>
-  </div>
 </div>
 
 <main id="top">
 
 <section class="hero" id="hero">
-  <img class="hero-bg" src="images/nat/ceremony.webp" alt="" width="1400" height="933">
-  <div class="hero-copy">
-    <p class="h-eyebrow">Roast &amp; Ritual</p>
-    <h1 class="h-title">Coffee,<br>perfected at home.</h1>
-    <p class="h-sub"><span data-n="origins"></span> origins. <span data-n="coffees"></span> coffees. <span data-n="snacks"></span> vegetarian snacks.</p>
-    <div class="h-cta"><a class="pill" href="#recipes" data-go="#recipes">Start brewing</a><a class="link light" href="#journey" data-go="#journey">See the journey ›</a></div>
+  <div class="h-art" aria-hidden="true">
+    <div class="hb"><div class="pm" data-d="14"><img class="hb-img" src="images/px/hero-beans.webp" alt="" width="1400" height="1046"></div></div>
+    <div class="hc"><div class="pm" data-d="-22"><img class="hc-img" src="images/px/hero-cup.webp" alt="" width="1100" height="1094"></div></div>
+    <div class="fb fb1"><div class="pm" data-d="46"><img src="images/px/bean-0.webp" alt="" width="238" height="240"></div></div>
+    <div class="fb fb2"><div class="pm" data-d="-34"><img src="images/px/bean-1.webp" alt="" width="236" height="286"></div></div>
+    <div class="fb fb3"><div class="pm" data-d="28"><img src="images/px/bean-2.webp" alt="" width="260" height="240"></div></div>
+    <div class="fb fb4"><div class="pm" data-d="-50"><img src="images/px/bean-3.webp" alt="" width="256" height="270"></div></div>
+    <div class="fb fb5"><div class="pm" data-d="36"><img src="images/px/bean-1.webp" alt="" width="236" height="286"></div></div>
+  </div>
+  <div class="h-copy">
+    <p class="h-eye">Coffee flavors across continents</p>
+    <h1 class="h-title"><span class="ln">Roast <em>&amp;</em></span><span class="ln">Ritual</span></h1>
+    <div class="divider"><i></i><svg><use href="#bean"/></svg><i></i></div>
+    <p class="h-sub">Six origins, <span data-n="coffees"></span> home recipes and <span data-n="snacks"></span> vegetarian bites, brewed the way the world does it.</p>
+    <div class="h-cta"><a class="btn dark" href="#recipes" data-go="#recipes">View the menu</a><a class="btn" href="#journey" data-go="#journey">Our story</a></div>
+  </div>
+  <a class="h-scroll" href="#intro" data-go="#intro"><span>Scroll</span><i></i></a>
+</section>
+
+<section class="cards" id="intro">
+  <div class="wrap cards-grid">
+    <article class="card rv">
+      <a class="c-img" href="#journey" data-go="#journey" tabindex="-1"><img src="images/px/card-journey.webp" alt="Hands holding fresh red and yellow coffee cherries over a basket" loading="lazy" width="900" height="675"></a>
+      <div class="c-body"><svg class="c-ic"><use href="#i-cherry"/></svg><h3>The Journey</h3><p>From a red cherry on a hillside to the cup in your hand, in four honest steps.</p><a class="btn sm" href="#journey" data-go="#journey">Read more</a></div>
+    </article>
+    <article class="card rv">
+      <a class="c-img" href="#origins" data-go="#origins" tabindex="-1"><img src="images/px/card-origins.webp" alt="Sunlit coffee branch with red and yellow berries" loading="lazy" width="900" height="675"></a>
+      <div class="c-body"><svg class="c-ic"><use href="#i-globe"/></svg><h3>Six Origins</h3><p>Ethiopia to Colombia. Spin the globe and taste how altitude and sun change a cup.</p><a class="btn sm" href="#origins" data-go="#origins">Explore</a></div>
+    </article>
+    <article class="card rv">
+      <a class="c-img" href="#recipes" data-go="#recipes" tabindex="-1"><img src="images/px/card-recipes.webp" alt="Espresso pouring from a machine into a small glass" loading="lazy" width="900" height="675"></a>
+      <div class="c-body"><svg class="c-ic"><use href="#i-cup"/></svg><h3>The Menu</h3><p>Hot, cold and vegetarian bites, with or without a machine. Timers built in.</p><a class="btn sm" href="#recipes" data-go="#recipes">View menu</a></div>
+    </article>
   </div>
 </section>
 
-<section class="story" id="journey">
-  <div class="wrap"><h2 class="t2 center rv">From cherry<br>to cup.</h2></div>
-  <div class="wrap st-grid">
-    <div class="st-media"><div class="st-frame" id="stFrame"><img data-i="0" src="images/nat/j-cherry.webp" alt="Ripe red coffee cherries on a branch" width="1400" height="1050"><img data-i="1" src="images/nat/j-process.webp" alt="Two people checking coffee cherries drying on a raised bed" width="1400" height="1050" loading="lazy"><img data-i="2" src="images/nat/j-roast.webp" alt="Green coffee beans roasting in a pan over charcoal in Ethiopia" width="1400" height="1050" loading="lazy"><img data-i="3" src="images/nat/j-brew.webp" alt="A V60 pour-over coffee blooming under a gooseneck kettle" width="1400" height="1050" loading="lazy"></div></div>
-    <div class="st-steps">
-        <div class="st-step" data-i="0"><img class="st-mimg" src="images/nat/j-cherry.webp" alt="Ripe red coffee cherries on a branch" loading="lazy" width="1400" height="1050"><p class="st-k">Cherry</p><h3>It starts as a fruit.</h3><p>Coffee is the seed of a cherry. The cherries ripen from green to deep red, and only the ripe ones are picked by hand. One tree gives roughly half a kilo to a kilo of roasted coffee a year.</p></div>
-        <div class="st-step" data-i="1"><img class="st-mimg" src="images/nat/j-process.webp" alt="Two people checking coffee cherries drying on a raised bed" loading="lazy" width="1400" height="1050"><p class="st-k">Process</p><h3>Then the sun does its work.</h3><p>The seeds are separated from the fruit. Natural coffee dries whole in the sun for weeks and turns sweet and fruity. Washed coffee has the fruit removed in water and tastes clean and bright.</p></div>
-        <div class="st-step" data-i="2"><img class="st-mimg" src="images/nat/j-roast.webp" alt="Green coffee beans roasting in a pan over charcoal in Ethiopia" loading="lazy" width="1400" height="1050"><p class="st-k">Roast</p><h3>Fire turns green to brown.</h3><p>Green beans are roasted in a drum, or in a pan over coals as in Ethiopia, between about 180 and 240 °C. Around 196 °C the first crack sounds like popcorn. Time and heat decide light, medium or dark.</p></div>
-        <div class="st-step" data-i="3"><img class="st-mimg" src="images/nat/j-brew.webp" alt="A V60 pour-over coffee blooming under a gooseneck kettle" loading="lazy" width="1400" height="1050"><p class="st-k">Brew</p><h3>And then, the ritual.</h3><p>Fresh grinding, water at 90 to 96 °C and a little patience. Hot water pulls the oils and sugars out of the grounds, and the first sip completes the ritual.</p></div>
+<section class="journey" id="journey">
+  <div class="wrap">
+    <header class="sh rv"><p class="eye">Since the ninth century</p><h2>From Cherry to Cup</h2><div class="divider"><i></i><svg><use href="#bean"/></svg><i></i></div><p class="lead">Every cup has travelled a long way before it reaches you. This is the road it took.</p></header>
+    <div class="steps">
+      <article class="step">
+        <figure class="s-fig"><span class="s-frame"></span><div class="s-clip"><img src="images/px/j-cherry.webp" alt="Ripe red coffee cherries on a branch" loading="lazy" width="1000" height="1250"></div></figure>
+        <div class="s-txt rv"><span class="s-n">01</span><p class="eye">Cherry</p><h3>It starts as a fruit</h3><p>Coffee is the seed of a cherry. The cherries ripen from green to deep red, and only the ripe ones are picked by hand. One tree gives roughly half a kilo to a kilo of roasted coffee a year.</p></div>
+      </article>
+      <article class="step">
+        <figure class="s-fig"><span class="s-frame"></span><div class="s-clip"><img src="images/px/j-process.webp" alt="Coffee drying on long raised beds in a hillside village" loading="lazy" width="1000" height="1250"></div></figure>
+        <div class="s-txt rv"><span class="s-n">02</span><p class="eye">Process</p><h3>Then the sun does its work</h3><p>The seeds are separated from the fruit. Natural coffee dries whole in the sun for weeks and turns sweet and fruity. Washed coffee has the fruit removed in water and tastes clean and bright.</p></div>
+      </article>
+      <article class="step">
+        <figure class="s-fig"><span class="s-frame"></span><div class="s-clip"><img src="images/px/j-roast.webp" alt="Freshly roasted coffee beans pouring from a drum roaster with steam" loading="lazy" width="1000" height="1250"></div></figure>
+        <div class="s-txt rv"><span class="s-n">03</span><p class="eye">Roast</p><h3>Fire turns green to brown</h3><p>Green beans are roasted in a drum, or in a pan over coals as in Ethiopia, between about 180 and 240 °C. Around 196 °C the first crack sounds like popcorn. Time and heat decide light, medium or dark.</p></div>
+      </article>
+      <article class="step">
+        <figure class="s-fig"><span class="s-frame"></span><div class="s-clip"><img src="images/px/j-brew.webp" alt="Hot water poured from a gooseneck kettle into a pour-over cone" loading="lazy" width="1000" height="1250"></div></figure>
+        <div class="s-txt rv"><span class="s-n">04</span><p class="eye">Brew</p><h3>And then, the ritual</h3><p>Fresh grinding, water at 90 to 96 °C and a little patience. Hot water pulls the oils and sugars out of the grounds, and the first sip completes the ritual.</p></div>
+      </article>
     </div>
   </div>
 </section>
 
-<section class="say" id="legend">
-  <div class="wrap">
-    <p class="say-k rv">Kaffa, Ethiopia</p>
-    <p class="say-t" id="sayT">Legend says a goat herder named Kaldi saw his goats dancing after eating red cherries. Monks brewed the first cup. In Ethiopia, coffee is still a ceremony: roasted in front of you, brewed in a clay jebena, and shared in three rounds.</p>
-    <p class="say-amh rv"><span lang="am">ቡና</span> Buna, the Amharic word for coffee.</p>
+<section class="band" id="legend">
+  <img class="bn-img" src="images/px/ceremony.webp" alt="" loading="lazy" width="1800" height="1012">
+  <div class="bn-in wrap">
+    <p class="eye light rv">Kaffa, Ethiopia</p>
+    <p class="bn-quote rv">“Legend says a goat herder named Kaldi saw his goats dancing after eating red cherries. In Ethiopia, coffee is still a ceremony: roasted in front of you, brewed in a clay jebena, and shared in three rounds.”</p>
+    <div class="divider light rv"><i></i><svg><use href="#bean"/></svg><i></i></div>
+    <p class="bn-amh rv"><span lang="am">ቡና</span> Buna, the Amharic word for coffee</p>
   </div>
 </section>
 
-<section class="og" id="origins">
+<section class="origins" id="origins">
   <div class="wrap">
-    <h2 class="t2 center rv">Six origins.<br>One planet.</h2>
+    <header class="sh rv"><p class="eye">Where it grows</p><h2>Six Origins, One Planet</h2><div class="divider"><i></i><svg><use href="#bean"/></svg><i></i></div></header>
     <div class="og-tabs rv" id="ogTabs" role="tablist" aria-label="Choose an origin"></div>
     <div class="og-grid">
       <div class="og-globe rv"><canvas id="globe3d" aria-label="A 3D globe turning to the chosen origin" role="img"></canvas><p class="og-hint">Drag to turn the globe</p></div>
-      <div class="og-info" id="ogInfo" aria-live="polite"></div>
+      <div class="og-info rv" id="ogInfo" aria-live="polite"></div>
     </div>
   </div>
 </section>
 
-<section class="rc" id="recipes">
+<section class="menu" id="recipes">
   <div class="wrap">
-    <h2 class="t2 center rv">Which one is<br>right for you?</h2>
-    <div class="rc-grid">
-      <article class="rc-col rv" data-k="hot">
-        <a class="rc-img" href="#recipes-hot" data-go="page:hot"><img src="images/nat/sec-hot.webp" alt="Hot coffee" loading="lazy" width="1400" height="1050"></a>
-        <h3>Hot coffee</h3><p>Start with what is in your kitchen. No machine? You can still make a great cup.</p>
-        <p class="rc-n"><b data-n="hot"></b> recipes</p>
-        <div class="rc-cta"><a class="pill" href="#recipes-hot" data-go="page:hot">Explore</a><a class="link" href="#recipes-hot" data-go="page:hot">Learn more ›</a></div>
-      </article>
-      <article class="rc-col rv" data-k="cold">
-        <a class="rc-img" href="#recipes-cold" data-go="page:cold"><img src="images/nat/sec-cold.webp" alt="Cold coffee" loading="lazy" width="1400" height="1050"></a>
-        <h3>Cold coffee</h3><p>Jar shakes, whipped foam and slow cold brew. Most need nothing more than a glass.</p>
-        <p class="rc-n"><b data-n="cold"></b> recipes</p>
-        <div class="rc-cta"><a class="pill" href="#recipes-cold" data-go="page:cold">Explore</a><a class="link" href="#recipes-cold" data-go="page:cold">Learn more ›</a></div>
-      </article>
-      <article class="rc-col rv" data-k="snacks">
-        <a class="rc-img" href="#recipes-snacks" data-go="page:snacks"><img src="images/nat/sec-snacks.webp" alt="Snacks" loading="lazy" width="1400" height="1050"></a>
-        <h3>Snacks</h3><p>Simple, vegetarian and egg-free. Tawa and kadhai, or oven and microwave.</p>
-        <p class="rc-n"><b data-n="snacks"></b> recipes</p>
-        <div class="rc-cta"><a class="pill" href="#recipes-snacks" data-go="page:snacks">Explore</a><a class="link" href="#recipes-snacks" data-go="page:snacks">Learn more ›</a></div>
-      </article>
-      <article class="rc-col rv" data-k="pairs">
-        <a class="rc-img" href="#recipes-pairs" data-go="page:pairs"><img src="images/nat/sec-pairs.webp" alt="Perfect pairs" loading="lazy" width="1400" height="1050"></a>
-        <h3>Perfect pairs</h3><p>A coffee and a bite that belong together. Open one to see both recipes.</p>
-        <p class="rc-n"><b data-n="pairs"></b> pairs</p>
-        <div class="rc-cta"><a class="pill" href="#recipes-pairs" data-go="page:pairs">Explore</a><a class="link" href="#recipes-pairs" data-go="page:pairs">Learn more ›</a></div>
-      </article>
+    <header class="sh rv"><p class="eye">Made at home</p><h2>Our Menu</h2><div class="divider"><i></i><svg><use href="#bean"/></svg><i></i></div><p class="lead">Pick a list, then open any recipe for ingredients, method and a built-in timer. Every recipe is vegetarian and egg-free.</p></header>
+    <div class="mn-tabs rv" id="mnTabs" role="tablist" aria-label="Menu lists">
+      <button role="tab" data-k="hot" class="on" aria-selected="true">Hot coffee</button><button role="tab" data-k="cold" aria-selected="false">Cold coffee</button><button role="tab" data-k="snacks" aria-selected="false">Snacks</button><button role="tab" data-k="pairs" aria-selected="false">Perfect pairs</button>
+    </div>
+    <div class="mn-seg rv" id="mnSeg"></div>
+    <div class="mn-grid">
+      <ul class="mn-list" id="mnL"></ul>
+      <figure class="mn-fig rv"><span class="s-frame"></span><div class="mn-ph"><img id="mnImg" src="images/px/m-hot.webp" alt="A white cup of coffee on a saucer" loading="lazy" width="900" height="1125"></div><figcaption id="mnCap"></figcaption></figure>
+      <ul class="mn-list" id="mnR"></ul>
     </div>
   </div>
 </section>
 
-<section class="sc" id="science">
+<section class="science" id="science">
   <div class="wrap">
-    <h2 class="t2 center rv">The science<br>of your cup.</h2>
+    <header class="sh rv"><p class="eye">In every sip</p><h2>The Science of Your Cup</h2><div class="divider"><i></i><svg><use href="#bean"/></svg><i></i></div></header>
     <div class="sc-grid">
       <div class="sc-mol rv">
         <svg viewBox="40 60 360 290" id="molSvg" role="img" aria-label="The caffeine molecule being drawn">
-          <g class="ghost" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity=".1">
+          <g class="ghost" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity=".12">
             <path d="M200 140 L252 170 L252 230 L200 260 L148 230 L148 170 Z M252 170 L309 152 L344 200 L309 248 L252 230"/>
           </g>
-          <g class="bonds" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <g class="bonds" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
             <path d="M200 140 L252 170 L252 230 L200 260 L148 230 L148 170 Z"/>
             <path d="M252 170 L309 152 L344 200 L309 248 L252 230"/>
             <path d="M200 140 L200 96"/><path d="M193 140 L193 100"/>
@@ -139,7 +161,7 @@
             <path d="M262 182 L262 218"/>
             <path d="M319 238 L332 205"/>
           </g>
-          <g class="atoms" font-family="DM Mono,monospace" font-weight="500" font-size="24" text-anchor="middle">
+          <g class="atoms" font-family="Marcellus,Georgia,serif" font-size="24" text-anchor="middle">
             <text x="200" y="92">O</text><text x="98" y="268">O</text>
             <text x="148" y="180">N</text><text x="200" y="272">N</text>
             <text x="309" y="160">N</text><text x="309" y="258">N</text>
@@ -155,32 +177,28 @@
   </div>
 </section>
 
+<section class="band cta" id="brew">
+  <img class="bn-img" src="images/px/pour.webp" alt="" loading="lazy" width="1800" height="1012">
+  <div class="bn-in wrap">
+    <p class="eye light rv">Your turn</p>
+    <h2 class="rv">Brew something<br>beautiful today</h2>
+    <div class="divider light rv"><i></i><svg><use href="#bean"/></svg><i></i></div>
+    <a class="btn light rv" href="#recipes" data-go="#recipes">Open the menu</a>
+  </div>
+</section>
+
 </main>
 
-<div id="rpage" class="rp" hidden>
-  <section class="rp-hero">
-    <div class="wrap">
-      <button class="link rp-back" id="rpBack" type="button">‹ All recipes</button>
-      <p class="h-eyebrow" id="rpEye"></p>
-      <h1 class="rp-title" id="rpTitle"></h1>
-      <p class="rp-sub" id="rpSub"></p>
-      <div class="rp-img"><img id="rpImg" alt="" width="1400" height="1050"></div>
-    </div>
-  </section>
-  <div class="rp-bar"><div class="wrap rp-bar-in"><div class="seg" id="rpSeg"></div><p class="rp-count" id="rpCount"></p></div></div>
-  <div class="wrap rp-body" id="rpBody"></div>
-  <div class="wrap"><a class="rp-next" id="rpNext" href="#"><span>Next</span><strong id="rpNextT"></strong><i>›</i></a></div>
-</div>
-
 <footer class="ft">
+  <div class="wrap ft-grid">
+    <div class="ft-brand"><span class="logo-box light"><svg class="logo-bean"><use href="#bean"/></svg><b>Roast &amp; Ritual</b><small>By DWON</small></span><p>Coffee flavors across continents. Six origins, home recipes and vegetarian bites.</p></div>
+    <nav class="ft-col" aria-label="Explore"><b>Explore</b><a href="#journey" data-go="#journey">Journey</a><a href="#origins" data-go="#origins">Origins</a><a href="#science" data-go="#science">Science</a></nav>
+    <nav class="ft-col" aria-label="Menu"><b>Menu</b><a href="#recipes-hot" data-go="tab:hot">Hot coffee</a><a href="#recipes-cold" data-go="tab:cold">Cold coffee</a><a href="#recipes-snacks" data-go="tab:snacks">Snacks</a><a href="#recipes-pairs" data-go="tab:pairs">Perfect pairs</a></nav>
+    <div class="ft-col"><b>Good to know</b><p>Every recipe is vegetarian and egg-free. Caffeine figures are approximate and vary by cup.</p></div>
+  </div>
   <div class="wrap">
-    <p class="ft-note">Every recipe is vegetarian and egg-free. Caffeine figures are approximate and vary by cup.</p>
-    <nav class="ft-links" aria-label="Footer">
-      <div><b>Explore</b><a href="#journey" data-go="#journey">Journey</a><a href="#origins" data-go="#origins">Origins</a><a href="#science" data-go="#science">Science</a></div>
-      <div><b>Recipes</b><a href="#recipes-hot" data-go="page:hot">Hot coffee</a><a href="#recipes-cold" data-go="page:cold">Cold coffee</a><a href="#recipes-snacks" data-go="page:snacks">Snacks</a><a href="#recipes-pairs" data-go="page:pairs">Perfect pairs</a></div>
-    </nav>
     <details class="credits"><summary>Photo credits</summary><ul id="creditList"></ul></details>
-    <div class="ft-bottom"><span>Roast &amp; Ritual. Coffee Flavors Across Continents.</span><span>By DWON</span></div>
+    <div class="ft-bottom"><span>Roast &amp; Ritual · Coffee Flavors Across Continents</span><span>By DWON</span></div>
   </div>
 </footer>
 
@@ -189,11 +207,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
-<script src="js/data.js"></script>
-<script src="js/more.js"></script>
-<script src="js/credits.js"></script>
-<script src="js/globe-data.js"></script>
-<script src="js/app.js"></script>
-<script type="module" src="js/globe3d.js"></script>
+<script src="js/data.js?v=kraft1"></script>
+<script src="js/more.js?v=kraft1"></script>
+<script src="js/credits.js?v=kraft1"></script>
+<script src="js/globe-data.js?v=kraft1"></script>
+<script src="js/app.js?v=kraft1"></script>
+<script type="module" src="js/globe3d.js?v=kraft1"></script>
 </body>
 </html>

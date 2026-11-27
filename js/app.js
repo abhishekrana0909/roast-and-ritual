@@ -1,9 +1,10 @@
-/* Roast & Ritual: an Apple-like product page for coffee */
+/* Roast & Ritual: a coffee house on kraft paper. GSAP + ScrollTrigger + Lenis. */
 (() => {
   const D = window.RR;
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const G = window.gsap, hasG = !!G && !!window.ScrollTrigger;
   if (hasG) G.registerPlugin(ScrollTrigger);
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -19,10 +20,11 @@
     G.ticker.lagSmoothing(0);
   }
   const scrollToEl = (el, immediate) => {
-    if (state.lenis) state.lenis.scrollTo(el, { immediate: !!immediate, offset: el.id === 'top' ? 0 : -50, duration: 1.3 });
-    else el.scrollIntoView({ behavior: immediate || reduce ? 'auto' : 'smooth' });
+    const off = el.id === 'top' ? 0 : -70;
+    if (state.lenis) state.lenis.scrollTo(el, { immediate: !!immediate, offset: off, duration: 1.4 });
+    else scrollTo({ top: el.getBoundingClientRect().top + scrollY + off, behavior: immediate || reduce ? 'auto' : 'smooth' });
   };
-  const lock = on => { if (state.lenis) (on ? state.lenis.stop() : state.lenis.start()); else document.body.style.overflow = on ? 'hidden' : ''; };
+  const lock = on => { if (state.lenis) (on ? state.lenis.stop() : state.lenis.start()); document.documentElement.style.overflow = on ? 'hidden' : ''; };
 
   /* ---------- data ---------- */
   const all = [];
@@ -34,66 +36,16 @@
   $$('[data-n]').forEach(e => e.textContent = counts[e.dataset.n] != null ? counts[e.dataset.n] : countOf(e.dataset.n));
   const tagFor = (kind, g) => g === 'a' ? (kind === 'snacks' ? 'No oven needed' : 'No machine needed') : (kind === 'snacks' ? 'Oven or microwave' : 'Machine or equipment');
 
-  /* ---------- hero: the real pour as a frame sequence ---------- */
-  const SEQ_N = 95;
-  const seq = (() => {
-    const cv = $('#heroSeq'); if (!cv) return null;
-    const ctx = cv.getContext('2d'), DPR = Math.min(devicePixelRatio || 1, 2), frames = [];
-    let W = 0, H = 0, want = 0, drawn = -1, drawnImg = null;
-    const ok = im => im && im.complete && im.naturalWidth;
-    const nearest = i => { for (let d = 0; d < SEQ_N; d++) { if (ok(frames[i - d])) return frames[i - d]; if (ok(frames[i + d])) return frames[i + d]; } return null; };
-    const draw = i => {
-      want = i; const im = nearest(i); if (!im || !W) return;
-      if (i === drawn && im === drawnImg) return; drawn = i; drawnImg = im;
-      const ir = im.naturalWidth / im.naturalHeight, cr = W / H; let dw, dh;
-      if (cr > ir) { dw = W; dh = W / ir; } else { dh = H; dw = H * ir; }
-      ctx.clearRect(0, 0, W, H); ctx.drawImage(im, (W - dw) * .56, (H - dh) * .5, dw, dh);
-    };
-    const size = () => { const r = cv.getBoundingClientRect(); W = Math.round(r.width * DPR); H = Math.round(r.height * DPR); if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; } drawn = -1; draw(want); };
-    const load = i => new Promise(res => { if (i < 0 || i >= SEQ_N || frames[i]) return res(); const im = new Image(); im.decoding = 'async'; im.onload = () => { if (Math.abs(i - want) < 4) { drawn = -1; draw(want); } res(); }; im.onerror = res; im.src = `images/pour/p${String(i).padStart(3, '0')}.webp`; frames[i] = im; });
-    if (window.ResizeObserver) new ResizeObserver(size).observe(cv); else addEventListener('resize', size);
-    size();
-    (async () => {
-      await load(reduce ? SEQ_N - 1 : 0); draw(reduce ? SEQ_N - 1 : 0);
-      if (reduce) return;
-      for (let i = 1; i < SEQ_N; i += 4) await Promise.all([load(i), load(i + 1), load(i + 2), load(i + 3)]);
-    })();
-    return { show: p => draw(Math.round(clamp(p, 0, 1) * (SEQ_N - 1))) };
-  })();
-
-  /* ---------- highlights: a self-playing track of big cards ---------- */
-  (() => {
-    if (!$('#hlTrack')) return;
-    const track = $('#hlTrack'), cards = $$('.hl-card', track), dotsBox = $('#hlDots'), play = $('#hlPlay');
-    if (!track || !cards.length) return;
-    const DUR = 5000; let idx = 0, playing = !reduce, t0 = performance.now(), inView = false, lock2 = 0;
-    dotsBox.innerHTML = cards.map((_, i) => `<button aria-label="Highlight ${i + 1}"></button>`).join('');
-    const dots = $$('button', dotsBox);
-    const mark = () => { dots.forEach((d, i) => { d.classList.toggle('on', i === idx); if (i !== idx) d.style.removeProperty('--p'); }); cards.forEach((c, i) => c.classList.toggle('on', i === idx)); };
-    const pad = () => parseFloat(getComputedStyle(track).paddingLeft) || 0;
-    const go = i => { idx = (i + cards.length) % cards.length; lock2 = performance.now(); track.scrollTo({ left: cards[idx].offsetLeft - pad(), behavior: reduce ? 'auto' : 'smooth' }); t0 = performance.now(); mark(); };
-    dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
-    play.addEventListener('click', () => { playing = !playing; play.classList.toggle('paused', !playing); play.setAttribute('aria-label', playing ? 'Pause the highlights' : 'Play the highlights'); t0 = performance.now(); });
-    if (!playing) { play.classList.add('paused'); play.setAttribute('aria-label', 'Play the highlights'); }
-    track.addEventListener('scroll', () => {
-      if (performance.now() - lock2 < 900) return;
-      const x = track.scrollLeft + pad(); let best = 0, bd = 1e9;
-      cards.forEach((c, i) => { const d = Math.abs(c.offsetLeft - x); if (d < bd) { bd = d; best = i; } });
-      if (best !== idx) { idx = best; t0 = performance.now(); mark(); }
-    }, { passive: true });
-    new IntersectionObserver(e => { inView = e[0].isIntersecting; t0 = performance.now(); }, { threshold: .4 }).observe(track);
-    const tick = now => {
-      if (playing && inView) { const p = (now - t0) / DUR; if (dots[idx]) dots[idx].style.setProperty('--p', Math.min(1, p)); if (p >= 1) go(idx + 1); }
-      requestAnimationFrame(tick);
-    };
-    mark(); requestAnimationFrame(tick);
-  })();
+  /* ---------- header: paper strip once you scroll ---------- */
+  const nav = $('#nav');
+  const onScroll = () => nav.classList.toggle('stuck', scrollY > 40);
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
 
   /* ---------- origins: tabs, details, the 3D globe ---------- */
   const ogTabs = $('#ogTabs'), ogInfo = $('#ogInfo');
-  ogTabs.innerHTML = D.regions.map((r, i) => `<button role="tab" data-i="${i}">${r.name}</button>`).join('');
+  ogTabs.innerHTML = D.regions.map((r, i) => `<button role="tab" data-i="${i}" aria-selected="false">${r.name}</button>`).join('');
   let ogIdx = -1;
-  const showRegion = i => {
+  const showRegion = (i, quiet) => {
     if (i === ogIdx) return; ogIdx = i; window.RR_ogIndex = i;
     const r = D.regions[i];
     $$('button', ogTabs).forEach((b, k) => { b.classList.toggle('on', k === i); b.setAttribute('aria-selected', String(k === i)); });
@@ -102,14 +54,54 @@
       <div class="chips">${r.notes.map(n => `<span>${n}</span>`).join('')}</div>
       <dl class="og-meta"><div><dt>Altitude</dt><dd>${r.alt}</dd></div><div><dt>Process</dt><dd>${r.process}</dd></div><div><dt>Best for</dt><dd>${r.best}</dd></div></dl>
       <div class="bars">${bar('Acidity', r.bars.acidity)}${bar('Body', r.bars.body)}${bar('Sweetness', r.bars.sweetness)}</div>
-      <div class="og-coffees"><p>Coffees from ${r.name}</p>${r.coffees.map(id => { const c = byId(id); return `<button class="og-c" data-id="${id}"><span>${c.name} ›</span><small>${c.time}</small></button>`; }).join('')}</div>`;
+      <div class="og-coffees"><p>Coffees from ${r.name}</p>${r.coffees.map(id => { const c = byId(id); return c ? `<button class="og-c" data-id="${id}"><span>${c.name}</span><small>${c.time}</small></button>` : ''; }).join('')}</div>`;
     requestAnimationFrame(() => requestAnimationFrame(() => $$('.bar i', ogInfo).forEach(b => b.style.width = b.dataset.w + '%')));
-    if (hasG) G.fromTo(ogInfo.children, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: .6, stagger: .04, ease: 'power3.out', overwrite: true });
+    if (hasG && !reduce && !quiet) G.fromTo(ogInfo.children, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: .6, stagger: .04, ease: 'power3.out', overwrite: true });
     dispatchEvent(new CustomEvent('rr-og', { detail: i }));
   };
   ogTabs.addEventListener('click', e => { const b = e.target.closest('button'); if (b) showRegion(+b.dataset.i); });
   ogInfo.addEventListener('click', e => { const b = e.target.closest('.og-c'); if (b) openModal([b.dataset.id]); });
-  showRegion(0);
+  showRegion(0, true);
+
+  /* ---------- the menu: four lists, a photo in the middle ---------- */
+  const MENU = {
+    hot: { img: 'm-hot', alt: 'A white cup of black coffee on a saucer beside roasted beans', cap: 'Start with what is in your kitchen.', labels: ['No machine', 'With machine'] },
+    cold: { img: 'm-cold', alt: 'Cream pouring into a glass of iced coffee', cap: 'Jar shakes, whipped foam and slow cold brew.', labels: ['No machine', 'With machine'] },
+    snacks: { img: 'm-snacks', alt: 'A cup of coffee with biscuits on a wooden tray', cap: 'Vegetarian, egg-free, made on a tawa or in an oven.', labels: ['No oven', 'Oven or microwave'] },
+    pairs: { img: 'm-pairs', alt: 'A latte with heart art next to cookies', cap: 'A coffee and a bite that belong together.' }
+  };
+  const mnTabs = $('#mnTabs'), mnSeg = $('#mnSeg'), mnL = $('#mnL'), mnR = $('#mnR'), mnImg = $('#mnImg'), mnCap = $('#mnCap');
+  let mKey = 'hot', mGrp = 'a';
+  const item = (attrs, name, time, desc) => `<li><button class="mn-item" ${attrs}><span class="mn-row"><span class="mn-name">${name}</span><span class="mn-dots"></span><span class="mn-time">${time}</span></span><span class="mn-desc">${desc}</span></button></li>`;
+  const renderMenu = animate => {
+    const m = MENU[mKey];
+    let rows;
+    if (mKey === 'pairs') rows = D.pairs.map((p, i) => { const c = byId(p.coffee), s = byId(p.snack); return item(`data-pair="${i}"`, `${c.name} <i>+</i> ${s.name}`, c.time, p.why); });
+    else rows = D.recipes[mKey][mGrp].map(r => item(`data-id="${r.id}"`, r.name, r.time, r.desc));
+    const half = Math.ceil(rows.length / 2);
+    mnL.innerHTML = rows.slice(0, half).join(''); mnR.innerHTML = rows.slice(half).join('');
+    mnSeg.innerHTML = m.labels ? `<button data-g="a" class="${mGrp === 'a' ? 'on' : ''}">${m.labels[0]}</button><span>·</span><button data-g="b" class="${mGrp === 'b' ? 'on' : ''}">${m.labels[1]}</button>` : '';
+    mnCap.textContent = m.cap;
+    const src = `images/px/${m.img}.webp`;
+    if (!mnImg.src.endsWith(src)) {
+      mnImg.style.opacity = 0;
+      const im = new Image(); im.onload = im.onerror = () => { mnImg.src = src; mnImg.alt = m.alt; mnImg.style.opacity = 1; }; im.src = src;
+    }
+    if (animate && hasG && !reduce) G.fromTo($$('.mn-item', $('.mn-grid')), { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: .6, stagger: .03, ease: 'power3.out' });
+  };
+  const setTab = (k, animate) => {
+    if (!MENU[k]) return; mKey = k; mGrp = 'a';
+    $$('button', mnTabs).forEach(b => { const on = b.dataset.k === k; b.classList.toggle('on', on); b.setAttribute('aria-selected', String(on)); });
+    renderMenu(animate);
+  };
+  mnTabs.addEventListener('click', e => { const b = e.target.closest('button'); if (b && b.dataset.k !== mKey) { setTab(b.dataset.k, true); history.replaceState(null, '', '#recipes-' + b.dataset.k); } });
+  mnSeg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b || b.dataset.g === mGrp) return; mGrp = b.dataset.g; renderMenu(true); });
+  $('.mn-grid').addEventListener('click', e => {
+    const b = e.target.closest('.mn-item'); if (!b) return;
+    if (b.dataset.id) openModal([b.dataset.id]);
+    else { const p = D.pairs[+b.dataset.pair]; openModal([p.coffee, p.snack], p); }
+  });
+  setTab('hot', false);
 
   /* ---------- recipe sheet with timers ---------- */
   const modal = $('#modal'), mCard = $('#mCard');
@@ -151,7 +143,7 @@
     const rs = ids.map(byId).filter(Boolean); if (!rs.length) return;
     lastFocus = document.activeElement; timers = [];
     mCard.innerHTML = `<button class="close" aria-label="Close">✕</button>` +
-      (rs.length > 1 ? `<div class="m-head"><h3>${rs[0].name} <i>+</i> ${rs[1].name}</h3><p class="m-why">${pair.why}</p></div><div style="height:26px"></div>` : '') +
+      (rs.length > 1 ? `<div class="m-head"><p class="r-k">Perfect pair</p><h3 style="margin-top:10px">${rs[0].name} <i>+</i> ${rs[1].name}</h3><p class="m-why">${pair.why}</p></div><div style="height:34px"></div>` : '') +
       rs.map(block).join('');
     $$('.rblock', mCard).forEach((el, i) => initTimer(el, rs[i]));
     mCard.scrollTop = 0; modal.classList.add('open'); modal.setAttribute('aria-hidden', 'false'); lock(true); $('.close', mCard).focus();
@@ -161,113 +153,86 @@
 
   /* ---------- science facts and photo credits ---------- */
   $('#facts').innerHTML = D.facts.map(([a, b]) => `<div class="rv"><b>${a}</b><span>${b}</span></div>`).join('');
-  const C = window.RR_CREDITS || {};
-  const labels = { 'j-cherry': 'Cherry', 'j-process': 'Process', 'j-roast': 'Roast', 'j-brew': 'Brew', ceremony: 'Ethiopia', 'sec-hot': 'Hot coffee', 'sec-cold': 'Cold coffee', 'sec-snacks': 'Snacks', 'sec-pairs': 'Perfect pairs' };
-  $('#creditList').innerHTML = Object.entries(C).filter(([k]) => labels[k]).map(([k, v]) => `<li>${labels[k]}: <a href="${v.page}" target="_blank" rel="noopener">${v.title || 'Photo'}</a> by ${v.artist || 'Unknown'} (${v.license}), via ${v.via || 'Wikimedia Commons'}</li>`).join('');
+  $('#creditList').innerHTML = (Array.isArray(window.RR_CREDITS) ? window.RR_CREDITS : []).map(([k, t, a, u]) => `<li>${k}: <a href="${u}" target="_blank" rel="noopener">${t}</a> by ${a}, via Pexels</li>`).join('');
 
-  /* ---------- recipe pages ---------- */
-  const PAGES = {
-    hot: { eye: 'Hot coffee', title: 'Served hot.', sub: 'Start with what is in your kitchen. No machine? You can still make a great cup.', labels: ['No machine', 'With machine'], next: 'cold' },
-    cold: { eye: 'Cold coffee', title: 'Poured cold.', sub: 'Jar shakes, whipped foam and slow cold brew. Most need nothing more than a glass.', labels: ['No machine', 'With machine'], next: 'snacks' },
-    snacks: { eye: 'Snacks', title: 'On the side.', sub: 'Simple, vegetarian and egg-free. Tawa and kadhai, or oven and microwave.', labels: ['No oven', 'Oven or microwave'], next: 'pairs' },
-    pairs: { eye: 'Perfect pairs', title: 'Better together.', sub: 'A coffee and a bite that belong together. Open one to see both recipes.', next: 'hot' }
-  };
-  const NAMES = { hot: 'Hot coffee', cold: 'Cold coffee', snacks: 'Snacks', pairs: 'Perfect pairs' };
-  const rpage = $('#rpage'), mainEl = $('main'), rpBody = $('#rpBody'), rpSeg = $('#rpSeg'), rpCount = $('#rpCount');
-  let cur = null, grp = 'a';
-  const renderGrid = key => {
-    if (key === 'pairs') {
-      rpBody.innerHTML = `<div class="pairs-grid">${D.pairs.map((p, i) => { const c = byId(p.coffee), s = byId(p.snack), k = kindOf(p.coffee);
-        return `<button class="pair" data-i="${i}"><span class="c-tag">${k === 'cold' ? 'Cold' : 'Hot'} coffee + a snack</span><span class="p-row"><span>${c.name}</span><span class="pp">with</span><span>${s.name}</span></span><p>${p.why}</p><span class="c-foot"><span>${c.time} · ${s.time}</span><i class="c-go">View both ›</i></span></button>`; }).join('')}</div>`;
-      rpCount.textContent = `${D.pairs.length} pairs`;
-    } else {
-      rpBody.innerHTML = `<div class="rec-grid">${D.recipes[key][grp].map(r => `<button class="card" data-id="${r.id}"><span class="c-tag">${tagFor(key, grp)}</span><h3>${r.name}</h3><p>${r.desc}</p><span class="c-foot"><span>${r.time}</span><span>${r.gear}</span><i class="c-go">View ›</i></span></button>`).join('')}</div>`;
-      rpCount.textContent = `${D.recipes[key][grp].length} recipes`;
-    }
-    if (hasG && !reduce) G.fromTo($$('.card, .pair', rpBody), { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: .7, stagger: .035, ease: 'power3.out' });
-  };
-  const applyPage = key => {
-    cur = key;
-    if (key) {
-      const p = PAGES[key]; grp = 'a';
-      $('#rpEye').textContent = p.eye; $('#rpTitle').textContent = p.title; $('#rpSub').textContent = p.sub;
-      $('#rpImg').src = `images/nat/sec-${key}.webp`; $('#rpImg').alt = NAMES[key];
-      $('#rpNextT').textContent = NAMES[p.next]; $('#rpNext').setAttribute('href', '#recipes-' + p.next);
-      rpSeg.hidden = !p.labels;
-      rpSeg.innerHTML = p.labels ? `<button class="on" data-g="a">${p.labels[0]}</button><button data-g="b">${p.labels[1]}</button>` : '';
-      renderGrid(key);
-      rpage.hidden = false; mainEl.hidden = true; document.body.classList.add('on-page');
-    } else { rpage.hidden = true; mainEl.hidden = false; document.body.classList.remove('on-page'); }
-    if (state.lenis) { state.lenis.resize(); state.lenis.scrollTo(0, { immediate: true }); } else scrollTo(0, 0);
-    if (hasG) ScrollTrigger.refresh();
-  };
-  rpSeg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b || b.dataset.g === grp) return; grp = b.dataset.g; $$('button', rpSeg).forEach(x => x.classList.toggle('on', x === b)); renderGrid(cur); });
-  rpBody.addEventListener('click', e => {
-    const c = e.target.closest('.card'); if (c) return openModal([c.dataset.id]);
-    const p = e.target.closest('.pair'); if (p) { const q = D.pairs[+p.dataset.i]; openModal([q.coffee, q.snack], q); }
-  });
-  const swap = fn => {
-    if (reduce || !hasG) return fn();
-    const out = cur ? rpage : mainEl;
-    G.to(out, { opacity: 0, duration: .25, ease: 'power1.in', onComplete: () => { fn(); G.set(out, { opacity: 1 }); G.fromTo(cur ? rpage : mainEl, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .5, ease: 'power2.out', clearProps: 'transform' }); } });
-  };
-  const goTo = sel => { const t = $(sel); if (t) requestAnimationFrame(() => requestAnimationFrame(() => scrollToEl(t, true))); };
-  const openPage = key => { closeMenu(); history.pushState(null, '', '#recipes-' + key); swap(() => applyPage(key)); };
-  const go = t => {
-    if (t.startsWith('page:')) return openPage(t.slice(5));
-    history.pushState(null, '', t === '#top' ? location.pathname : t);
-    if (cur) swap(() => { applyPage(null); goTo(t); }); else { const el = $(t); if (el) scrollToEl(el); }
-  };
-  document.addEventListener('click', e => { const a = e.target.closest('[data-go]'); if (!a) return; e.preventDefault(); closeMenu(); go(a.dataset.go); });
-  $('#rpBack').addEventListener('click', () => { history.pushState(null, '', '#recipes'); swap(() => { applyPage(null); goTo('#recipes'); }); });
-  $('#rpNext').addEventListener('click', e => { e.preventDefault(); openPage(PAGES[cur].next); });
-  const keyFromHash = () => { const m = /^#recipes-(hot|cold|snacks|pairs)$/.exec(location.hash); return m ? m[1] : null; };
-  addEventListener('popstate', () => { const k = keyFromHash(); if (k === cur) return; swap(() => { applyPage(k); if (!k && location.hash.length > 1) goTo(location.hash); }); });
-  { const k0 = keyFromHash(); if (k0) applyPage(k0); }
-
-  /* ---------- mobile menu ---------- */
+  /* ---------- links: scroll, or open a menu list ---------- */
   const menuOv = $('#menuOv'), navBtn = $('#navBtn');
   function closeMenu() { if (!menuOv.classList.contains('open')) return; menuOv.classList.remove('open'); menuOv.setAttribute('aria-hidden', 'true'); navBtn.setAttribute('aria-expanded', 'false'); lock(false); }
   navBtn.addEventListener('click', () => { const open = !menuOv.classList.contains('open'); menuOv.classList.toggle('open', open); menuOv.setAttribute('aria-hidden', String(!open)); navBtn.setAttribute('aria-expanded', String(open)); lock(open); });
   addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (modal.classList.contains('open')) closeModal(); else closeMenu(); });
-
-  /* ---------- the statement: words light up as you read ---------- */
-  const sayT = $('#sayT');
-  sayT.innerHTML = sayT.textContent.trim().split(/\s+/).map(w => `<span class="w">${w}</span>`).join(' ');
+  const go = t => {
+    if (t.startsWith('tab:')) { const k = t.slice(4); setTab(k, true); history.replaceState(null, '', '#recipes-' + k); return scrollToEl($('#recipes')); }
+    history.replaceState(null, '', t === '#top' ? location.pathname : t);
+    const el = $(t); if (el) scrollToEl(el);
+  };
+  document.addEventListener('click', e => { const a = e.target.closest('[data-go]'); if (!a) return; e.preventDefault(); const wasOpen = menuOv.classList.contains('open'); closeMenu(); if (wasOpen) setTimeout(() => go(a.dataset.go), 60); else go(a.dataset.go); });
+  { const m = /^#recipes-(hot|cold|snacks|pairs)$/.exec(location.hash); if (m) { setTab(m[1], false); addEventListener('load', () => scrollToEl($('#recipes'), true)); } }
 
   /* ---------- no animation library: show everything ---------- */
-  if (!hasG) { document.documentElement.classList.remove('js'); if (seq) seq.show(1); $$('#molSvg .bonds path').forEach(p => p.style.strokeDashoffset = 0); $('#molFormula').style.opacity = 1; $$('.say-t .w').forEach(w => w.style.color = '#f5f5f7'); return; }
+  if (!hasG) { document.documentElement.classList.remove('js'); $$('#molSvg .bonds path').forEach(p => p.style.strokeDashoffset = 0); return; }
+  if (reduce) { G.set('.rv', { opacity: 1 }); return; }
 
-  /* ---------- hero: the copy rises, the pour starts, the scroll finishes it ---------- */
-  const heroAuto = { v: 0 }; let heroTarget = 0, heroP = 0;
-  const heroRender = () => { if (seq) seq.show(heroAuto.v + (1 - heroAuto.v) * heroP); };
-  if (!reduce) G.from('.hero-copy > *', { y: 30, opacity: 0, duration: 1.1, stagger: .1, ease: 'power3.out', delay: .15 });
-  if (seq && !reduce) {
-    G.to(heroAuto, { v: .16, duration: 2.6, ease: 'power2.out', delay: .4, onUpdate: heroRender });
-    G.timeline({ scrollTrigger: { trigger: '#hero', start: 'top top', end: () => '+=' + Math.round(innerHeight * 1.4), pin: true, scrub: .5, invalidateOnRefresh: true, onUpdate: s => { heroTarget = s.progress; } } })
-      .to('.hero-copy', { y: -50, opacity: 0, ease: 'none', duration: .3 }, 0)
-      .fromTo('#hEnd', { opacity: 0, y: 30 }, { opacity: 1, y: 0, ease: 'none', duration: .25 }, .72);
-    G.ticker.add(() => { const d = heroTarget - heroP; if (Math.abs(d) > .0004) { heroP += d * .18; heroRender(); } });
+  /* ---------- hero: the table is set ---------- */
+  G.set('.fb img', { rotation: i => [-24, 38, -62, 14, 80][i] || 0 });
+  const intro = G.timeline({ defaults: { ease: 'power3.out' }, delay: .1 });
+  intro.from('.hb', { x: -180, y: 80, rotation: -10, opacity: 0, duration: 1.8 }, 0)
+    .from('.hc', { x: 200, y: -30, rotation: 48, opacity: 0, duration: 1.9 }, .1)
+    .from('.h-eye', { y: 20, opacity: 0, duration: 1 }, .45)
+    .from('.h-title .ln', { y: 46, opacity: 0, letterSpacing: '.42em', duration: 1.5, stagger: .14, ease: 'expo.out' }, .5)
+    .from('.h-copy .divider i', { scaleX: 0, duration: 1.1, ease: 'power2.inOut' }, .95)
+    .from('.h-copy .divider svg', { scale: 0, rotation: -120, duration: .9, ease: 'back.out(2)' }, 1.05)
+    .from('.h-sub, .h-cta', { y: 24, opacity: 0, duration: 1, stagger: .12 }, 1.15)
+    .from('.fb', { scale: 0, opacity: 0, duration: 1, stagger: .09, ease: 'back.out(2.2)' }, .9)
+    .from('.h-scroll', { opacity: 0, duration: 1 }, 1.6);
+  /* beans drift on their own */
+  $$('.fb img').forEach((im, i) => G.to(im, { y: i % 2 ? 10 : -12, rotation: `+=${i % 2 ? 14 : -12}`, duration: 3.2 + i * .45, ease: 'sine.inOut', yoyo: true, repeat: -1 }));
+  /* the scene answers the pointer */
+  if (fine) {
+    const movers = $$('.hero .pm').map(el => ({ d: +el.dataset.d, x: G.quickTo(el, 'x', { duration: 1.1, ease: 'power3.out' }), y: G.quickTo(el, 'y', { duration: 1.1, ease: 'power3.out' }) }));
+    $('#hero').addEventListener('pointermove', e => {
+      const nx = e.clientX / innerWidth - .5, ny = e.clientY / innerHeight - .5;
+      movers.forEach(m => { m.x(nx * m.d); m.y(ny * m.d); });
+    });
   }
-  /* the light local nav appears once the hero is done */
-  ScrollTrigger.create({ trigger: '#journey', start: 'top 52px', onEnter: () => $('#lnav').classList.add('show'), onLeaveBack: () => $('#lnav').classList.remove('show') });
+  /* scroll: the cup turns, the beans slide away, the words lift */
+  const hs = { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true };
+  G.to('.hc-img', { rotation: 34, ease: 'none', scrollTrigger: hs });
+  G.to('.hc', { yPercent: 26, ease: 'none', scrollTrigger: hs });
+  G.to('.hb', { yPercent: -16, ease: 'none', scrollTrigger: hs });
+  $$('.fb').forEach((f, i) => G.to(f, { yPercent: -(140 + i * 90), ease: 'none', scrollTrigger: hs }));
+  G.to('.h-copy', { yPercent: 18, opacity: .15, ease: 'none', scrollTrigger: { ...hs, start: 'top top', end: 'bottom 20%' } });
 
   /* ---------- quiet reveals ---------- */
-  ScrollTrigger.batch('main .rv', { start: 'top 90%', once: true, onEnter: els => G.to(els, { opacity: 1, y: 0, duration: 1, stagger: .08, ease: 'power3.out' }) });
+  G.set('.rv', { y: 40 });
+  ScrollTrigger.batch('.rv', { start: 'top 88%', once: true, onEnter: els => G.to(els, { opacity: 1, y: 0, duration: 1.1, stagger: .1, ease: 'power3.out', overwrite: true }) });
+  /* every section divider draws itself */
+  $$('main .divider').forEach(d => {
+    if (d.closest('.h-copy')) return;
+    G.timeline({ scrollTrigger: { trigger: d, start: 'top 90%', once: true } })
+      .from($$('i', d), { scaleX: 0, duration: 1.1, ease: 'power2.inOut' }, .15)
+      .from($('svg', d), { scale: 0, rotation: -120, duration: .9, ease: 'back.out(2)' }, .3);
+  });
 
-  /* ---------- story: the photo changes with the step you read ---------- */
-  const frameImgs = $$('#stFrame img'), stepEls = $$('.st-step');
-  const setStep = i => { stepEls.forEach((s, k) => s.classList.toggle('on', k === i)); frameImgs.forEach((im, k) => im.classList.toggle('on', k === i)); };
-  setStep(0);
-  stepEls.forEach((s, i) => ScrollTrigger.create({ trigger: s, start: 'top 60%', end: 'bottom 40%', onToggle: self => { if (self.isActive) setStep(i); } }));
+  /* ---------- journey: photos open like a curtain, frames slide into place ---------- */
+  $$('.step').forEach((s, i) => {
+    const clip = $('.s-clip', s), img = $('img', clip), frame = $('.s-frame', s), dir = i % 2 ? 1 : -1;
+    G.timeline({ scrollTrigger: { trigger: s, start: 'top 78%', once: true } })
+      .fromTo(clip, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.5, ease: 'expo.inOut' }, 0)
+      .from(img, { scale: 1.3, duration: 2, ease: 'expo.out' }, .2)
+      .from(frame, { x: 26 * dir, y: -26, opacity: 0, duration: 1.4, ease: 'power3.out' }, .6);
+    G.fromTo(img, { yPercent: -6 }, { yPercent: 6, ease: 'none', scrollTrigger: { trigger: s, start: 'top bottom', end: 'bottom top', scrub: true } });
+  });
 
-  /* ---------- statement colour ---------- */
-  G.to('#sayT .w', { color: '#f5f5f7', stagger: .05, ease: 'none', scrollTrigger: { trigger: '#sayT', start: 'top 80%', end: 'bottom 45%', scrub: true } });
+  /* ---------- photo bands: slow parallax ---------- */
+  $$('.band').forEach(b => G.fromTo($('.bn-img', b), { yPercent: -9 }, { yPercent: 9, ease: 'none', scrollTrigger: { trigger: b, start: 'top bottom', end: 'bottom top', scrub: true } }));
+
+  /* ---------- menu photo frame ---------- */
+  G.from('.mn-fig .s-frame', { scale: .9, opacity: 0, duration: 1.4, ease: 'power3.out', scrollTrigger: { trigger: '.mn-fig', start: 'top 80%', once: true } });
+  ScrollTrigger.create({ trigger: '.mn-grid', start: 'top 85%', once: true, onEnter: () => G.fromTo($$('.mn-item', $('.mn-grid')), { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: .7, stagger: .04, ease: 'power3.out' }) });
 
   /* ---------- science: the caffeine molecule draws as you scroll ---------- */
   const bonds = $$('#molSvg .bonds path'), atoms = $$('#molSvg .atoms text'), molName = $('#molName'), molFormula = $('#molFormula');
   bonds.forEach(p => { p._L = p.getTotalLength(); p.style.strokeDasharray = p._L; p.style.strokeDashoffset = p._L; });
-  atoms.forEach(a => a.style.opacity = 0);
   const molRender = p => {
     const n = bonds.length;
     bonds.forEach((b, i) => { const t = clamp((p * (n + 2) - i) / 2, 0, 1); b.style.strokeDashoffset = b._L * (1 - t); });
@@ -276,7 +241,7 @@
     molName.textContent = p < .04 ? 'Scroll to build the molecule' : p < .98 ? 'Building caffeine…' : 'Caffeine';
   };
   molRender(0);
-  ScrollTrigger.create({ trigger: '.sc-grid', start: 'top 80%', end: 'top 20%', scrub: .2, onUpdate: s => molRender(s.progress) });
+  ScrollTrigger.create({ trigger: '.sc-grid', start: 'top 80%', end: 'top 25%', scrub: .2, onUpdate: s => molRender(s.progress) });
 
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ScrollTrigger.refresh());
   addEventListener('load', () => ScrollTrigger.refresh());
